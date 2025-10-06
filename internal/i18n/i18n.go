@@ -1,4 +1,4 @@
-package translation
+package i18n
 
 import (
 	"embed"
@@ -9,13 +9,13 @@ import (
 )
 
 var (
-	Lang LangContract
+	Lang langContract
 
 	//go:embed locales/*.json
 	localeFiles embed.FS
 )
 
-type LangContract interface {
+type langContract interface {
 	T(messageID string, data ...map[string]interface{}) string
 	ChangeLang(lang string)
 }
@@ -35,10 +35,12 @@ func InitLang(fallbackLang string) {
 	_, _ = bundle.LoadMessageFileFS(localeFiles, "locales/locale.ru.json")
 	_, _ = bundle.LoadMessageFileFS(localeFiles, "locales/locale.en.json")
 
+	localizer := i18n.NewLocalizer(bundle, fallbackLang)
+
 	Lang = &lang{
 		bundler:           bundle,
-		localizer:         i18n.NewLocalizer(bundle, fallbackLang),
-		fallbackLocalizer: i18n.NewLocalizer(bundle, fallbackLang),
+		localizer:         localizer,
+		fallbackLocalizer: localizer,
 
 		fallbackLang: fallbackLang,
 		currentLang:  fallbackLang,
@@ -61,6 +63,10 @@ func (l *lang) T(messageID string, data ...map[string]interface{}) string {
 }
 
 func (l *lang) ChangeLang(lang string) {
+	if lang == l.currentLang {
+		return
+	}
+
 	l.localizer = i18n.NewLocalizer(l.bundler, lang)
 	l.currentLang = lang
 }
