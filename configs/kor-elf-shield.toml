@@ -1,0 +1,21 @@
+###
+# Настройки языка.
+# На данный момент поддерживаются 3 языка "ru" (русский), "kk" (казахский), "en" (английский).
+# По умолчанию: "ru"
+# ***
+# Language settings.
+# Currently 3 languages are supported: "ru" (Russian), "kk" (Kazakh), "en" (English).
+# Default: "ru"
+###
+language = "ru"
+
+###
+# Второй язык, если вдруг у текущего языка не будет перевода.
+# Рекомендуется вторым языком выбирать "ru" или "en".
+# По умолчанию: "ru"
+# ***
+# Second language, in case the current language doesn't have a translation.
+# It is recommended to choose "ru" or "en" as the second language.
+# Default: "ru"
+###
+#fallback_language = "ru"
