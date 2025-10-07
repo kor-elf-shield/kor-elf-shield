@@ -1,5 +1,7 @@
 {
   "app.Usage": "A simple script to manage the nftables firewall and protect against password attacks",
   "app.Description": "This suite of scripts provides:\n - A straight-forward SPI nftables firewall script\n - A daemon process that checks for Login Authentication",
-  "app.flags.config.Usage": "Path to the configuration file"
+  "app.flags.config.Usage": "Path to the configuration file",
+
+  "Command error": "Command error"
 }

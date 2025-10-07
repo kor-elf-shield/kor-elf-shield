@@ -47,7 +47,7 @@ func RunMainApp(app *cli.Command, args ...string) error {
 		cli.OsExiter(1)
 		return err
 	}
-	_, _ = fmt.Fprintf(app.ErrWriter, "Command error: %v\n", err)
+	_, _ = fmt.Fprintf(app.ErrWriter, "%s: %v\n", i18n.Lang.T("Command error"), err)
 	cli.OsExiter(1)
 	return err
 }
