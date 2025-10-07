@@ -36,19 +36,19 @@ func main() {
 	err = setting.InitSetting(configPath)
 	if err != nil {
 		fmt.Printf("\033[31m%s\033[0m\n", err.Error())
-		return
+		os.Exit(1)
 	}
 
 	err = i18n.InitLang(setting.Config.GetFallbackLanguage())
 	if err != nil {
 		fmt.Printf("\033[31m%s\033[0m\n", err.Error())
-		return
+		os.Exit(1)
 	}
 
 	err = i18n.Lang.ChangeLang(setting.Config.GetLanguage())
 	if err != nil {
 		fmt.Printf("\033[31m%s\033[0m\n", err.Error())
-		return
+		os.Exit(1)
 	}
 
 	app := cmd.NewMainApp(cmd.AppVersion{Version: Version, Extra: formatBuiltWith()}, ConfigPath)
