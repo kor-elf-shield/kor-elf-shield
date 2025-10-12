@@ -15,7 +15,7 @@ var (
 
 	// AppStartTime program start time
 	AppStartTime time.Time
-	Config       settingContract
+	Config       *setting
 )
 
 func init() {
@@ -24,10 +24,7 @@ func init() {
 	}
 
 	// Default config
-	Config = &setting{
-		Language:         "ru",
-		FallbackLanguage: "ru",
-	}
+	Config = settingDefault()
 }
 
 func InitSetting(path string) error {
@@ -43,6 +40,8 @@ func InitSetting(path string) error {
 	if err != nil {
 		return err
 	}
+
+	println(Config.Log.Level)
 
 	return nil
 }
