@@ -1,3 +1,9 @@
+###############################################################################
+# РАЗДЕЛ:Базовые настройки
+# ***
+# SECTION:Basic settings
+###############################################################################
+
 ###
 # Настройки языка.
 # На данный момент поддерживаются 3 языка "ru" (русский), "kk" (казахский), "en" (английский).
@@ -18,4 +24,105 @@ language = "ru"
 # It is recommended to choose "ru" or "en" as the second language.
 # Default: "ru"
 ###
-#fallback_language = "ru"
+fallback_language = "ru"
+
+###############################################################################
+# РАЗДЕЛ:Log
+# ***
+# SECTION:Log
+###############################################################################
+[log]
+###
+# Включает или выключает ведение журнала.
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: true
+# ***
+# Enables or disables logging.
+# false = Disables.
+# true = Enables.
+#
+# Default: true
+###
+enabled=true
+
+###
+# Уровень ведения журнала:
+# debug = Журнал для отладки и рекомендуется не выберать в production.
+# info  = Подробное ведение журнала. Записывает информацию о запуске, остановке и т.д.
+# warn  = Предупреждения о потенциально проблемных ситуациях, которые не мешают работе приложения, но требуют внимания.
+# error = Ошибки, которые возникли во время работы, но не привели к остановке программы.
+# fatal = Критичные ошибки, после которых приложение завершает работу.
+#
+# По умолчанию: info
+# ***
+# Logging level:
+# debug = The log is for debugging and is not recommended to be selected in production.
+# info  = Detailed logging. Records information when the program starts, stops, etc.
+# warn  = Warnings about potential problematic situations that do not interfere with the operation of the application,
+# but require attention.
+# error = Errors that occurred during operation but did not cause the program to stop.
+# fatal = Critical errors that cause the application to terminate.
+#
+# Default: info
+###
+level = "info"
+
+###
+# Нужен для отладки в тестовых окружениях.
+# В production всегда должен быть выключен.
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: false
+# ***
+# Needed for debugging in test environments.
+# Should always be disabled in production.
+# false = Disables.
+# true  = Enables.
+#
+# Default: false
+###
+development = false
+
+###
+# В каком ввиде записывать данные в журнал.
+# json = В формате json.
+# text = В формате обычного текста. Каждый параметр в журнале будет разделён пробелом.
+#
+# По умолчанию: json
+# ***
+# The format in which to write data to the log.
+# json = In json format.
+# text = In plain text format. Each parameter in the log will be separated by a space.
+#
+# Default: json
+###
+encoding = "json"
+
+###
+# Список мест для основных логов.
+# Можно указать несколько путей. Например output_paths = ["stdout", "/var/log/kor-elf-shield.log"].
+# Где "stdout" - вывод данных в консоль.
+# По умолчанию: ["/var/log/kor-elf-shield.log"]
+# ***
+# List of locations for main logs.
+# Multiple paths can be specified. For example, output_paths = ["stdout", "/var/log/kor-elf-shield.log"].
+# Where "stdout" is the console output.
+# Default: ["/var/log/kor-elf-shield.log"]
+###
+paths = ["/var/log/kor-elf-shield.log"]
+
+###
+# Список мест для ошибок логгирования. Например журнал не смог записать какие-то данные.
+# Можно указать несколько путей. Например output_paths = ["stderr", "/var/log/kor-elf-shield-log-error.log"].
+# Где "stderr" - вывод данных в консоль.
+# По умолчанию: ["stderr"]
+# ***
+# List of locations for logging errors. For example, the log failed to write some data.
+# Multiple paths can be specified. For example, output_paths = ["stderr", "/var/log/kor-elf-shield-log-error.log"].
+# Where "stderr" is the data output to the console.
+# Default: ["stderr"]
+###
+log_error_paths = ["stderr"]
