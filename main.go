@@ -39,13 +39,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = i18n.InitLang(setting.Config.GetFallbackLanguage())
+	err = i18n.InitLang(setting.Config.FallbackLanguage)
 	if err != nil {
 		fmt.Printf("\033[31m%s\033[0m\n", err.Error())
 		os.Exit(1)
 	}
 
-	err = i18n.Lang.ChangeLang(setting.Config.GetLanguage())
+	err = i18n.Lang.ChangeLang(setting.Config.Language)
 	if err != nil {
 		fmt.Printf("\033[31m%s\033[0m\n", err.Error())
 		os.Exit(1)
