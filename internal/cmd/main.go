@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"kor-elf-shield/internal/cmd/daemon"
 	"kor-elf-shield/internal/i18n"
 	"os"
 	"os/signal"
@@ -31,6 +32,9 @@ func NewMainApp(appVer AppVersion, defaultConfigPath string) *cli.Command {
 			Value: defaultConfigPath,
 		},
 	}
+	app.Commands = []*cli.Command{
+		daemon.CmdStart(),
+	}
 
 	return app
 }
@@ -47,7 +51,8 @@ func RunMainApp(app *cli.Command, args ...string) error {
 		cli.OsExiter(1)
 		return err
 	}
-	_, _ = fmt.Fprintf(app.ErrWriter, "%s: %v\n", i18n.Lang.T("Command error"), err)
+	_, _ = fmt.Fprintf(app.ErrWriter, "\u001B[31m%s\u001B[0m:\n", i18n.Lang.T("Command error"))
+	_, _ = fmt.Fprintf(app.ErrWriter, "\u001B[31m%v\u001B[0m\n", err)
 	cli.OsExiter(1)
 	return err
 }

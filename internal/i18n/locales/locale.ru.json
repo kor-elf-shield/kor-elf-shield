@@ -3,5 +3,13 @@
   "app.Description": "Этот набор скриптов предоставляет:\n– Простой скрипт брандмауэра SPI nftables\n– Демон-процесс, проверяющий аутентификацию при входе в систему",
   "app.flags.config.Usage": "Путь к файлу конфигурации",
 
-  "Command error": "Ошибка команды"
+  "cmd.daemon.start.Usage": "Запустить демона для управления брандмауэром nftables",
+  "cmd.daemon.start.Description": "Запускает демона, который настроит брандмауэр nftables согласно Вашим настройкам и отслеживает любые попытки аутентификации.",
+
+  "Command error": "Ошибка команды",
+  "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
+  "invalid log encoding": "Неверная настройка encoding. Сейчас указан: {{.Encoding}}. Допустимые значения: {{.Encodings}}",
+  "parameter is not specified": "Не указан параметр \"{{.Parameter}}\"",
+  "failed to create directory": "Не смогли создать директорию: {{.Directory}}",
+  "failed to open file for writing": "Доступ запрещен: {{.File}}"
 }
