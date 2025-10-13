@@ -10,7 +10,13 @@ type Logger interface {
 	Info(msg string)
 	Warn(msg string)
 	Error(msg string)
+
+	// Fatal logs a message at FatalLevel. The message includes any fields passed
+	// at the log site, as well as any fields accumulated on the logger.
+	//
+	// The logger then calls os.Exit(1).
 	Fatal(msg string)
+
 	Sync() error
 }
 
@@ -43,7 +49,7 @@ func (l *logger) Sync() error {
 	return l.zap.Sync()
 }
 
-func NewLogger(opts *LoggerOptions) (Logger, error) {
+func NewLogger(opts LoggerOptions) (Logger, error) {
 	if !opts.Enabled {
 		return &falseLogger{}, nil
 	}
@@ -59,14 +65,14 @@ func NewLogger(opts *LoggerOptions) (Logger, error) {
 		},
 
 		Encoding:         opts.Encoding.String(),
-		EncoderConfig:    encoderConfig(opts),
+		EncoderConfig:    encoderConfig(&opts),
 		OutputPaths:      opts.Paths,
 		ErrorOutputPaths: opts.LogErrorPaths,
 	}
 	cfg.DisableStacktrace = !opts.Development
 	cfg.DisableCaller = !opts.Development
 
-	zapLogger := zap.Must(cfg.Build())
+	zapLogger := zap.Must(cfg.Build()).WithOptions(zap.AddCallerSkip(1))
 	return &logger{
 		zap: zapLogger,
 		dev: opts.Development,
