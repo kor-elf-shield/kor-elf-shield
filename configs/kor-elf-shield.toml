@@ -26,6 +26,15 @@ language = "ru"
 ###
 fallback_language = "ru"
 
+###
+# Путь, по которому будет создан pid-файл.
+# По умолчанию: "/var/run/kor-elf-shield/kor-elf-shield.pid"
+# ***
+# The path where the pid file will be created.
+# Default: "/var/run/kor-elf-shield/kor-elf-shield.pid"
+###
+pid_file = "/var/run/kor-elf-shield/kor-elf-shield.pid"
+
 ###############################################################################
 # РАЗДЕЛ:Log
 # ***
@@ -45,7 +54,7 @@ fallback_language = "ru"
 #
 # Default: true
 ###
-enabled=true
+enabled = true
 
 ###
 # Уровень ведения журнала:
