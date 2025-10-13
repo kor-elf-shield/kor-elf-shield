@@ -41,7 +41,5 @@ func InitSetting(path string) error {
 		return err
 	}
 
-	println(Config.Log.Level)
-
 	return nil
 }
