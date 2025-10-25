@@ -5,6 +5,34 @@
 ###############################################################################
 
 ###
+# Тестовый режим. Это необходимо, чтобы убедиться, что всё настроено правильно.
+# !!! После завершения настройки не забудьте отключить тестовый режим. !!!
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: true
+# ***
+# Test mode. This is necessary to ensure that everything is configured correctly.
+# !!! After complete setup, don't forget to disable test mode. !!!
+# false = Disables.
+# true  = Enables.
+#
+# Default: true
+###
+testing = true
+
+###
+# Тестовый период, по истечении которого брандмауэр удалит правила и демон завершит работу.
+# Период указывается в минутах.
+# По умолчанию: 5
+# ***
+# The test period after which the firewall will clear the rules and the daemon will shut down.
+# The period is specified in minutes.
+# Default: 5
+###
+testing_interval = 5
+
+###
 # Настройки языка.
 # На данный момент поддерживаются 3 языка "ru" (русский), "kk" (казахский), "en" (английский).
 # По умолчанию: "ru"
@@ -135,3 +163,35 @@ paths = ["/var/log/kor-elf-shield.log"]
 # Default: ["stderr"]
 ###
 log_error_paths = ["stderr"]
+
+###############################################################################
+# РАЗДЕЛ:Настройки, специфичные для ОС
+# ***
+# SECTION:OS Specific Settings
+###############################################################################
+[binaryLocations]
+###
+# Укажите путь к nftables. Возможно в вашей ОС путь может отличаться.
+# По умолчанию: /usr/sbin/nft
+# ***
+# Specify the path to nftables. The path may differ in your OS.
+# Default: /usr/sbin/nft
+###
+nftables = "/usr/sbin/nft"
+
+###############################################################################
+# РАЗДЕЛ:Пути к другим настройкам
+# ***
+# SECTION:Paths to other settings
+###############################################################################
+[otherSettingsPath]
+###
+# Укажите путь к настройкам брандмауэра. В этих настройках мы указываем, какие порты открыть или закрыть.
+# Какие IP адреса заблокировать или наоборот, что бы никогда не блокировались.
+# По умолчанию: /etc/kor-elf-shield/firewall.toml
+# ***
+# Specify the path to the firewall settings. These settings specify which ports to open or close.
+# Which IP addresses to block or, conversely, to ensure they are never blocked.
+# Default: /etc/kor-elf-shield/firewall.toml
+###
+firewall = "/etc/kor-elf-shield/firewall.toml"

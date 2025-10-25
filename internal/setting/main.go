@@ -22,12 +22,12 @@ func init() {
 	if AppVer == "" {
 		AppVer = "development"
 	}
-
-	// Default config
-	Config = settingDefault()
 }
 
 func InitSetting(path string) error {
+	// Default config
+	Config = settingDefault(string(path))
+
 	v := viper.New()
 	v.SetConfigType("toml")
 	v.SetConfigFile(path)
