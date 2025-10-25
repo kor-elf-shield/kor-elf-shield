@@ -19,7 +19,7 @@ func CmdStart() *cli.Command {
 	}
 }
 
-func runDaemon(_ context.Context, _ *cli.Command) error {
+func runDaemon(ctx context.Context, _ *cli.Command) error {
 	var err error
 
 	logOptions, err := setting.Config.Log.ToLoggerOptions()
@@ -31,7 +31,9 @@ func runDaemon(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	defer logger.Sync()
+	defer func() {
+		_ = logger.Sync()
+	}()
 
 	config, err := setting.Config.ToDaemonOptions()
 	if err != nil {
@@ -51,7 +53,7 @@ func runDaemon(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	err = d.Run()
+	err = d.Run(ctx)
 	if err != nil {
 		logger.Fatal(err.Error())
 
