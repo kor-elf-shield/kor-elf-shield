@@ -1,0 +1,49 @@
+###############################################################################
+# РАЗДЕЛ:Базовые настройки
+# ***
+# SECTION:Basic settings
+###############################################################################
+
+###
+# Будет ли демон сохранять правила в системный файл nftables.
+# Не забудьте проверить, что путь к nftables соответствует вашей ОС.
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: false
+# ***
+# Will the daemon save rules to the system nftables file.
+# Don't forget to check that the path to nftables matches your OS.
+# false = Disables.
+# true = Enables.
+#
+# Default: false
+###
+saves_rules = false
+
+###
+# Путь, где будут сохранены правила для nftables. Укажите путь, соответствующий вашей ОС.
+#
+# По умолчанию: /etc/nftables.conf
+# ***
+# Path where rules for nftables will be saved. Please specify the path specific to your OS.
+#
+# Default: /etc/nftables.conf
+###
+saves_rules_path = "/etc/nftables.conf"
+
+
+###############################################################################
+# РАЗДЕЛ:Именование метаданных
+# ***
+# SECTION:Metadata Naming
+###############################################################################
+[MetadataNaming]
+###
+# Имя таблицы в nftables
+# По умолчанию: "shield"
+# ***
+# Table name in nftables
+# Default: "shield"
+###
+table_name = "shield"
