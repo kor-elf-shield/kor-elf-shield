@@ -25,6 +25,7 @@ func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval int) e
 		return err
 	}
 	if err := d.firewall.Reload(); err != nil {
+		d.firewall.ClearRules()
 		return err
 	}
 	d.firewall.SavesRules()
