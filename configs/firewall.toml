@@ -32,13 +32,75 @@ saves_rules = false
 ###
 saves_rules_path = "/etc/nftables.conf"
 
+###############################################################################
+# РАЗДЕЛ:Политика действий по умолчанию
+# ***
+# SECTION:Default action policy
+###############################################################################
+[policy]
+###
+# Политика входящего трафика.
+# Допустимые значения:
+# drop   = блокировать без ответа
+# reject = блокировка с ответом
+# accept = разрешить
+#
+# По умолчанию: drop
+# ***
+# Inbound traffic policy.
+# Acceptable values:
+# drop   = block without response
+# reject = block with response
+# accept = allow
+#
+# Default: drop
+###
+input = "drop"
+
+###
+# Политика исходящего трафика.
+# Допустимые значения:
+# drop   = блокировать без ответа
+# reject = блокировка с ответом
+# accept = разрешить
+#
+# По умолчанию: drop
+# ***
+# Outgoing traffic policy.
+# Acceptable values:
+# drop   = block without response
+# reject = block with response
+# accept = allow
+#
+# Default: reject
+###
+output = "reject"
+
+###
+# Политика forward трафика.
+# Допустимые значения:
+# drop   = блокировать без ответа
+# reject = блокировка с ответом
+# accept = разрешить
+#
+# По умолчанию: drop
+# ***
+# Forward traffic policy.
+# Acceptable values:
+# drop   = block without response
+# reject = block with response
+# accept = allow
+#
+# Default: drop
+###
+forward = "drop"
 
 ###############################################################################
 # РАЗДЕЛ:Именование метаданных
 # ***
 # SECTION:Metadata Naming
 ###############################################################################
-[MetadataNaming]
+[metadataNaming]
 ###
 # Имя таблицы в nftables
 # По умолчанию: "shield"
@@ -47,3 +109,30 @@ saves_rules_path = "/etc/nftables.conf"
 # Default: "shield"
 ###
 table_name = "shield"
+
+###
+# Имя chain для input
+# По умолчанию: "input"
+# ***
+# Chain name for input
+# Default: "input"
+###
+chain_input_name = "input"
+
+###
+# Имя chain для output
+# По умолчанию: "output"
+# ***
+# Chain name for output
+# Default: "output"
+###
+chain_output_name = "output"
+
+###
+# Имя chain для forward
+# По умолчанию: "forward"
+# ***
+# Chain name for forward
+# Default: "forward"
+###
+chain_forward_name = "forward"

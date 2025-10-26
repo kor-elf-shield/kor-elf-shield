@@ -21,9 +21,20 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 		return firewall.Config{}, err
 	}
 
+	configPolicy, err := setting.Policy.ToConfigPolicy()
+	if err != nil {
+		return firewall.Config{}, err
+	}
+
 	return firewall.Config{
 		SavesRules:     setting.SavesRules,
 		SavesRulesPath: setting.SavesRulesPath,
-		TableName:      setting.MetadataNaming.TableName,
+		MetadataNaming: firewall.ConfigMetadata{
+			TableName:        setting.MetadataNaming.TableName,
+			ChainInputName:   setting.MetadataNaming.ChainInputName,
+			ChainOutputName:  setting.MetadataNaming.ChainOutputName,
+			ChainForwardName: setting.MetadataNaming.ChainForwardName,
+		},
+		Policy: configPolicy,
 	}, nil
 }

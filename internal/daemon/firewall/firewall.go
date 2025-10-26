@@ -21,12 +21,6 @@ type API interface {
 	ClearRules()
 }
 
-type Config struct {
-	SavesRules     bool
-	SavesRulesPath string
-	TableName      string
-}
-
 type firewall struct {
 	nft    nftables.NFT
 	logger log.Logger
@@ -51,9 +45,19 @@ func (f *firewall) Reload() error {
 	if err := f.nft.Clear(); err != nil {
 		return err
 	}
-	if err := f.nft.Table().Add(nftablesFamily.INET, f.config.TableName); err != nil {
+	if err := f.nft.Table().Add(nftablesFamily.INET, f.config.MetadataNaming.TableName); err != nil {
 		return err
 	}
+	if err := f.reloadInput(); err != nil {
+		return err
+	}
+	if err := f.reloadOutput(); err != nil {
+		return err
+	}
+	if err := f.reloadForward(); err != nil {
+		return err
+	}
+
 	f.logger.Debug("Reload nftables rules done")
 	return nil
 }

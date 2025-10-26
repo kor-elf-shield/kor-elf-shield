@@ -6,6 +6,7 @@ type Setting struct {
 	SavesRules     bool   `mapstructure:"saves_rules"`
 	SavesRulesPath string `mapstructure:"saves_rules_path"`
 	MetadataNaming metadataNaming
+	Policy         Policy
 }
 
 func InitSetting(path string) (Setting, error) {
@@ -32,5 +33,6 @@ func settingDefault() Setting {
 		SavesRules:     false,
 		SavesRulesPath: "/etc/nftables.conf",
 		MetadataNaming: defaultMetadataNaming(),
+		Policy:         defaultPolicy(),
 	}
 }
