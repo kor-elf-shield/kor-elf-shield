@@ -1,8 +1,8 @@
 package setting
 
 import (
-	"kor-elf-shield/internal/daemon/firewall"
-	firewallSetting "kor-elf-shield/internal/setting/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	firewallSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/firewall"
 )
 
 type otherSettingsPath struct {

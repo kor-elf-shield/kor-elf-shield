@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"kor-elf-shield/internal/cmd"
-	"kor-elf-shield/internal/i18n"
-	"kor-elf-shield/internal/setting"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/cmd"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
 	"os"
 	"runtime"
 	"strings"

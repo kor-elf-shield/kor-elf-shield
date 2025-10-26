@@ -1,4 +1,4 @@
-module kor-elf-shield
+module git.kor-elf.net/kor-elf-shield/kor-elf-shield
 
 go 1.25
 

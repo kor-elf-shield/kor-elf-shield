@@ -2,8 +2,9 @@ package firewall
 
 import (
 	"fmt"
-	"kor-elf-shield/internal/log"
 	"os"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 
 	nftables "git.kor-elf.net/kor-elf-shield/go-nftables-client"
 	nftablesFamily "git.kor-elf.net/kor-elf-shield/go-nftables-client/family"

@@ -2,8 +2,9 @@ package filesystem
 
 import (
 	"errors"
-	"kor-elf-shield/internal/i18n"
 	"os"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 )
 
 func FileHasWritePermissions(path string) error {

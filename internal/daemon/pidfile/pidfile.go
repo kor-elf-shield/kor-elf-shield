@@ -3,12 +3,13 @@ package pidfile
 import (
 	"errors"
 	"fmt"
-	"kor-elf-shield/internal/log"
-	"kor-elf-shield/internal/pkg/filesystem"
 	"os"
 	"path/filepath"
 	"strconv"
 	"syscall"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/filesystem"
 )
 
 type PidFile interface {

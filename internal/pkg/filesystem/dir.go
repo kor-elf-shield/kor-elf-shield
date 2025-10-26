@@ -2,9 +2,10 @@ package filesystem
 
 import (
 	"errors"
-	"kor-elf-shield/internal/i18n"
 	"os"
 	"path/filepath"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 )
 
 // EnsureDir ensures the existence of a directory with the required rights.

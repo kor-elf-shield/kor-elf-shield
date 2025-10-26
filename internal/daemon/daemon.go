@@ -2,10 +2,11 @@ package daemon
 
 import (
 	"context"
-	"kor-elf-shield/internal/daemon/firewall"
-	"kor-elf-shield/internal/daemon/pidfile"
-	"kor-elf-shield/internal/log"
 	"time"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
 type Daemon interface {

@@ -2,10 +2,10 @@ package daemon
 
 import (
 	"context"
-	"kor-elf-shield/internal/daemon"
-	"kor-elf-shield/internal/i18n"
-	"kor-elf-shield/internal/log"
-	"kor-elf-shield/internal/setting"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
 
 	"github.com/urfave/cli/v3"
 )

@@ -3,7 +3,8 @@ package log
 import (
 	"errors"
 	"fmt"
-	"kor-elf-shield/internal/i18n"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 
 	"go.uber.org/zap"
 )

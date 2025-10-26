@@ -3,8 +3,8 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"kor-elf-shield/internal/cmd/daemon"
-	"kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/cmd/daemon"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"os"
 	"os/signal"
 	"strings"

@@ -2,9 +2,10 @@ package daemon
 
 import (
 	"errors"
-	firewall2 "kor-elf-shield/internal/daemon/firewall"
-	"kor-elf-shield/internal/daemon/pidfile"
-	"kor-elf-shield/internal/log"
+
+	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
 func NewDaemon(opts DaemonOptions, logger log.Logger) (Daemon, error) {

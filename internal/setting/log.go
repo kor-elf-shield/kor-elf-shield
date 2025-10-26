@@ -2,10 +2,11 @@ package setting
 
 import (
 	"errors"
-	"kor-elf-shield/internal/i18n"
-	log2 "kor-elf-shield/internal/log"
-	"kor-elf-shield/internal/pkg/filesystem"
 	"path/filepath"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	log2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/filesystem"
 )
 
 type log struct {
