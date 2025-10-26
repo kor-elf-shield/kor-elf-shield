@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/cmd"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
 	"os"
 	"runtime"
 	"strings"
 	"time"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/cmd"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
 
 	"golang.org/x/sys/unix"
 )
