@@ -93,7 +93,9 @@ func (p *pidFile) Create() error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	pid := os.Getpid()
 	p.logger.Debug(fmt.Sprintf("Write PID file: %d", pid))
