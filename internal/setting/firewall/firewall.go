@@ -3,10 +3,9 @@ package firewall
 import "github.com/spf13/viper"
 
 type Setting struct {
-	SavesRules     bool   `mapstructure:"saves_rules"`
-	SavesRulesPath string `mapstructure:"saves_rules_path"`
+	Options        options
 	MetadataNaming metadataNaming
-	Policy         Policy
+	Policy         policy
 }
 
 func InitSetting(path string) (Setting, error) {
@@ -30,8 +29,7 @@ func InitSetting(path string) (Setting, error) {
 
 func settingDefault() Setting {
 	return Setting{
-		SavesRules:     false,
-		SavesRulesPath: "/etc/nftables.conf",
+		Options:        defaultOptions(),
 		MetadataNaming: defaultMetadataNaming(),
 		Policy:         defaultPolicy(),
 	}

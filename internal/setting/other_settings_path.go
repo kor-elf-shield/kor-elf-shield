@@ -27,8 +27,10 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 	}
 
 	return firewall.Config{
-		SavesRules:     setting.SavesRules,
-		SavesRulesPath: setting.SavesRulesPath,
+		Options: firewall.ConfigOptions{
+			SavesRules:     setting.Options.SavesRules,
+			SavesRulesPath: setting.Options.SavesRulesPath,
+		},
 		MetadataNaming: firewall.ConfigMetadata{
 			TableName:        setting.MetadataNaming.TableName,
 			ChainInputName:   setting.MetadataNaming.ChainInputName,

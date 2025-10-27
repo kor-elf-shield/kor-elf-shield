@@ -6,21 +6,21 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 )
 
-type Policy struct {
+type policy struct {
 	Input   string `mapstructure:"input"`
 	Output  string `mapstructure:"output"`
 	Forward string `mapstructure:"forward"`
 }
 
-func defaultPolicy() Policy {
-	return Policy{
+func defaultPolicy() policy {
+	return policy{
 		Input:   "drop",
 		Output:  "reject",
 		Forward: "drop",
 	}
 }
 
-func (p Policy) ToConfigPolicy() (firewall.ConfigPolicy, error) {
+func (p policy) ToConfigPolicy() (firewall.ConfigPolicy, error) {
 	input, err := p.input()
 	if err != nil {
 		return firewall.ConfigPolicy{}, err
@@ -43,7 +43,7 @@ func (p Policy) ToConfigPolicy() (firewall.ConfigPolicy, error) {
 	}, nil
 }
 
-func (p Policy) input() (firewall.Policy, error) {
+func (p policy) input() (firewall.Policy, error) {
 	if p.Input == "" {
 		return 0, errors.New("input policy is empty")
 	}
@@ -59,7 +59,7 @@ func (p Policy) input() (firewall.Policy, error) {
 	}
 }
 
-func (p Policy) output() (firewall.Policy, error) {
+func (p policy) output() (firewall.Policy, error) {
 	if p.Output == "" {
 		return 0, errors.New("output policy is empty")
 	}
@@ -75,7 +75,7 @@ func (p Policy) output() (firewall.Policy, error) {
 	}
 }
 
-func (p Policy) forward() (firewall.Policy, error) {
+func (p policy) forward() (firewall.Policy, error) {
 	if p.Forward == "" {
 		return 0, errors.New("forward policy is empty")
 	}

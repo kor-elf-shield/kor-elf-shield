@@ -3,10 +3,14 @@ package firewall
 import "git.kor-elf.net/kor-elf-shield/go-nftables-client/chain"
 
 type Config struct {
-	SavesRules     bool
-	SavesRulesPath string
+	Options        ConfigOptions
 	MetadataNaming ConfigMetadata
 	Policy         ConfigPolicy
+}
+
+type ConfigOptions struct {
+	SavesRules     bool
+	SavesRulesPath string
 }
 
 type ConfigMetadata struct {

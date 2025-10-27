@@ -71,12 +71,12 @@ func (f *firewall) ClearRules() {
 }
 
 func (f *firewall) SavesRules() {
-	if !f.config.SavesRules {
+	if !f.config.Options.SavesRules {
 		f.logger.Debug("SavesRules is false, skip")
 		return
 	}
 
-	if f.config.SavesRulesPath == "" {
+	if f.config.Options.SavesRulesPath == "" {
 		f.logger.Warn("SavesRulesPath is empty, skip")
 		return
 	}
@@ -89,7 +89,7 @@ func (f *firewall) SavesRules() {
 	}
 
 	data := []byte("#!/usr/sbin/nft -f\n\nflush ruleset\n" + output)
-	err = os.WriteFile(f.config.SavesRulesPath, data, 0755)
+	err = os.WriteFile(f.config.Options.SavesRulesPath, data, 0755)
 	if err != nil {
 		f.logger.Warn(fmt.Sprintf("Failed to save rules: %s", err))
 		return
