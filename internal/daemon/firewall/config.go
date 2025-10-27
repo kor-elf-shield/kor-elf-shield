@@ -11,6 +11,8 @@ type Config struct {
 type ConfigOptions struct {
 	SavesRules     bool
 	SavesRulesPath string
+	DnsStrict      bool
+	DnsStrictNs    bool
 }
 
 type ConfigMetadata struct {
