@@ -34,7 +34,7 @@ saves_rules_path = "/etc/nftables.conf"
 # Enable the following option if you want to apply strict nftables rules to DNS
 # traffic (i.e. relying on nftables connection tracking). Enabling this option
 # could cause DNS resolution issues both to and from the server but could help
-# prevent abuse of the local DNS server
+# prevent abuse of the local DNS server.
 # Default: false
 ###
 dns_strict = false
@@ -43,16 +43,26 @@ dns_strict = false
 # Включите следующую опцию, если хотите применять строгие правила nftables к DNS
 # трафику между сервером и серверами имён, указанными в /etc/resolv.conf
 # Включение этой опции может вызвать проблемы с разрешением DNS как на сервер, так и с него
-# но может помочь предотвратить злоупотребление локальным DNS-сервером
+# но может помочь предотвратить злоупотребление локальным DNS-сервером.
 # По умолчанию: false
 ###
 # Enable the following option if you want to apply strict nftables rules to DNS
 # traffic between the server and the nameservers listed in /etc/resolv.conf
 # Enabling this option could cause DNS resolution issues both to and from the
-# server but could help prevent abuse of the local DNS server
+# server but could help prevent abuse of the local DNS server.
 # Default: false
 ###
 dns_strict_ns = false
+
+###
+# Отбрасывать пакеты, нарушающие порядок поступления, а также пакеты в состоянии
+# INVALID в системе отслеживания соединений nftables.
+# По умолчанию: true
+###
+# Drop out of order packets and packets in an INVALID state in nftables connection tracking.
+# Default: true
+###
+packet_filter = true
 
 ###############################################################################
 # РАЗДЕЛ:Политика действий по умолчанию

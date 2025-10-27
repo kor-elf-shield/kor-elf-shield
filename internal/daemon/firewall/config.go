@@ -13,6 +13,7 @@ type ConfigOptions struct {
 	SavesRulesPath string
 	DnsStrict      bool
 	DnsStrictNs    bool
+	PacketFilter   bool
 }
 
 type ConfigMetadata struct {

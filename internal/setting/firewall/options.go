@@ -5,6 +5,7 @@ type options struct {
 	SavesRulesPath string `mapstructure:"saves_rules_path"`
 	DnsStrict      bool   `mapstructure:"dns_strict"`
 	DnsStrictNs    bool   `mapstructure:"dns_strict_ns"`
+	PacketFilter   bool   `mapstructure:"packet_filter"`
 }
 
 func defaultOptions() options {
@@ -13,5 +14,6 @@ func defaultOptions() options {
 		SavesRulesPath: "/etc/nftables.conf",
 		DnsStrict:      false,
 		DnsStrictNs:    false,
+		PacketFilter:   true,
 	}
 }

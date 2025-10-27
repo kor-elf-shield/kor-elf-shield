@@ -32,6 +32,7 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 			SavesRulesPath: setting.Options.SavesRulesPath,
 			DnsStrict:      setting.Options.DnsStrict,
 			DnsStrictNs:    setting.Options.DnsStrictNs,
+			PacketFilter:   setting.Options.PacketFilter,
 		},
 		MetadataNaming: firewall.ConfigMetadata{
 			TableName:        setting.MetadataNaming.TableName,

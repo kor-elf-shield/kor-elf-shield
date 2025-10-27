@@ -33,6 +33,10 @@ func (f *firewall) reloadInput() error {
 		return err
 	}
 
+	if err := f.nft.Rule().Add(family, tableName, chainName, "iifname != \"lo\" meta l4proto tcp counter jump INVALID"); err != nil {
+		return err
+	}
+
 	if err := f.nft.Rule().Add(family, tableName, chainName, "iifname != \"lo\" ct state related,established counter accept"); err != nil {
 		return err
 	}
