@@ -142,61 +142,88 @@ packet_filter = true
 ###############################################################################
 [policy]
 ###
-# Политика входящего трафика.
+# Разрешить входящий трафик по умолчанию.
+#
+# По умолчанию: false
+# ***
+# Allow incoming traffic by default.
+#
+# Default: false
+###
+default_allow_input = false
+
+###
+# Разрешить исходящий трафик по умолчанию.
+#
+# По умолчанию: false
+# ***
+# Allow outgoing traffic by default.
+#
+# Default: false
+###
+default_allow_output = false
+
+###
+# Разрешить forward трафик по умолчанию.
+#
+# По умолчанию: false
+# ***
+# Allow forward traffic by default.
+#
+# Default: false
+###
+default_allow_forward = false
+
+###
+# Как заблокировать входящий трафик. Блокировать молча или с обратной связью.
 # Допустимые значения:
-# drop   = блокировать без ответа
-# reject = блокировка с ответом
-# accept = разрешить
+# drop   = блокировать молча
+# reject = блокировка с обратной связью
 #
 # По умолчанию: drop
 # ***
-# Inbound traffic policy.
-# Acceptable values:
-# drop   = block without response
-# reject = block with response
-# accept = allow
+# How to block incoming traffic. Block silently or with feedback.
+# Valid values:
+# drop   = block silently
+# reject = block with feedback
 #
 # Default: drop
 ###
-input = "drop"
+input_drop = "drop"
 
 ###
-# Политика исходящего трафика.
+# Как заблокировать исходящий трафик. Блокировать молча или с обратной связью.
 # Допустимые значения:
-# drop   = блокировать без ответа
-# reject = блокировка с ответом
-# accept = разрешить
+# drop   = блокировать молча
+# reject = блокировка с обратной связью
 #
-# По умолчанию: drop
+# По умолчанию: reject
 # ***
-# Outgoing traffic policy.
-# Acceptable values:
-# drop   = block without response
-# reject = block with response
-# accept = allow
+# How to block outgoing traffic. Block silently or with feedback.
+# Valid values:
+# drop   = block silently
+# reject = block with feedback
 #
 # Default: reject
 ###
-output = "reject"
+output_drop = "reject"
 
 ###
-# Политика forward трафика.
+# Как заблокировать трафик forward. Блокировать молча или с обратной связью.
 # Допустимые значения:
-# drop   = блокировать без ответа
-# reject = блокировка с ответом
-# accept = разрешить
+# drop   = блокировать молча
+# reject = блокировка с обратной связью
 #
 # По умолчанию: drop
 # ***
-# Forward traffic policy.
-# Acceptable values:
-# drop   = block without response
-# reject = block with response
-# accept = allow
+# How to block forward traffic. Block silently or with feedback.
+# Valid values:
+# drop   = block silently
+# reject = block with feedback
 #
 # Default: drop
 ###
-forward = "drop"
+forward_drop = "drop"
 
 ###############################################################################
 # РАЗДЕЛ:Именование метаданных

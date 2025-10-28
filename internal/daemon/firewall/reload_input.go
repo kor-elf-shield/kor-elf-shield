@@ -4,36 +4,26 @@ import (
 	"fmt"
 	"net"
 
-	nftableCchain "git.kor-elf.net/kor-elf-shield/go-nftables-client/chain"
-	nftablesFamily "git.kor-elf.net/kor-elf-shield/go-nftables-client/family"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg"
 )
 
 func (f *firewall) reloadInput() error {
-	family := nftablesFamily.INET
-	tableName := f.config.MetadataNaming.TableName
-	chainName := f.config.MetadataNaming.ChainInputName
-
-	baseChain := nftableCchain.BaseChainOptions{
-		Type:     nftableCchain.TypeFilter,
-		Hook:     nftableCchain.HookInput,
-		Priority: 0,
-		Policy:   f.config.Policy.Input.ChainDefaultPolicy(),
-		Device:   "",
-	}
-	if err := f.nft.Chain().Add(family, tableName, chainName, baseChain); err != nil {
+	f.logger.Debug("Reloading input chain")
+	err := f.chains.NewInput(f.config.MetadataNaming.ChainInputName, f.config.Policy.DefaultAllowInput)
+	if err != nil {
 		return err
 	}
+	chain := f.chains.Input()
 
 	if err := f.reloadInputDnsNs(); err != nil {
 		return err
 	}
 
-	if err := f.nft.Rule().Add(family, tableName, chainName, "iifname lo counter accept"); err != nil {
+	if err := chain.AddRule("iifname lo counter accept"); err != nil {
 		return err
 	}
 
-	if err := f.nft.Rule().Add(family, tableName, chainName, "iifname != \"lo\" meta l4proto tcp counter jump INVALID"); err != nil {
+	if err := f.chains.PacketFilter().AddRuleIn(chain.AddRule); err != nil {
 		return err
 	}
 
@@ -41,12 +31,13 @@ func (f *firewall) reloadInput() error {
 		return err
 	}
 
-	if err := f.nft.Rule().Add(family, tableName, chainName, "iifname != \"lo\" ct state related,established counter accept"); err != nil {
+	if err := chain.AddRule("iifname != \"lo\" ct state related,established counter accept"); err != nil {
 		return err
 	}
 
-	if f.config.Policy.Input == PolicyReject {
-		if err := f.nft.Rule().Add(family, tableName, chainName, f.config.Policy.Input.String()); err != nil {
+	if f.config.Policy.DefaultAllowInput == false {
+		drop := f.config.Policy.InputDrop.String()
+		if err := chain.AddRule("iifname != \"lo\" " + drop); err != nil {
 			return err
 		}
 	}
@@ -58,9 +49,7 @@ func (f *firewall) reloadInputDnsNs() error {
 	if f.config.Options.DnsStrictNs {
 		return nil
 	}
-	family := nftablesFamily.INET
-	tableName := f.config.MetadataNaming.TableName
-	chainName := f.config.MetadataNaming.ChainInputName
+	chain := f.chains.Input()
 
 	addresses, err := pkg.Resolv.Addresses()
 	if err != nil {
@@ -74,32 +63,32 @@ func (f *firewall) reloadInputDnsNs() error {
 			continue
 		}
 		if ip.To4() != nil {
-			if err := f.nft.Rule().Add(family, tableName, chainName, "ip saddr "+addr+" iifname != \"lo\" tcp dport 53 counter accept"); err != nil {
+			if err := chain.AddRule("ip saddr " + addr + " iifname != \"lo\" tcp dport 53 counter accept"); err != nil {
 				f.logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 			}
-			if err := f.nft.Rule().Add(family, tableName, chainName, "ip saddr "+addr+" iifname != \"lo\" udp dport 53 counter accept"); err != nil {
+			if err := chain.AddRule("ip saddr " + addr + " iifname != \"lo\" udp dport 53 counter accept"); err != nil {
 				f.logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 			}
-			if err := f.nft.Rule().Add(family, tableName, chainName, "ip saddr "+addr+" iifname != \"lo\" tcp sport 53 counter accept"); err != nil {
+			if err := chain.AddRule("ip saddr " + addr + " iifname != \"lo\" tcp sport 53 counter accept"); err != nil {
 				f.logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 			}
-			if err := f.nft.Rule().Add(family, tableName, chainName, "ip saddr "+addr+" iifname != \"lo\" udp sport 53 counter accept"); err != nil {
+			if err := chain.AddRule("ip saddr " + addr + " iifname != \"lo\" udp sport 53 counter accept"); err != nil {
 				f.logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 			}
 			continue
 		}
 
 		if ip.To16() != nil {
-			if err := f.nft.Rule().Add(family, tableName, chainName, "ip6 saddr "+addr+" iifname != \"lo\" tcp dport 53 counter accept"); err != nil {
+			if err := chain.AddRule("ip6 saddr " + addr + " iifname != \"lo\" tcp dport 53 counter accept"); err != nil {
 				f.logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 			}
-			if err := f.nft.Rule().Add(family, tableName, chainName, "ip6 saddr "+addr+" iifname != \"lo\" udp dport 53 counter accept"); err != nil {
+			if err := chain.AddRule("ip6 saddr " + addr + " iifname != \"lo\" udp dport 53 counter accept"); err != nil {
 				f.logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 			}
-			if err := f.nft.Rule().Add(family, tableName, chainName, "ip6 saddr "+addr+" iifname != \"lo\" tcp sport 53 counter accept"); err != nil {
+			if err := chain.AddRule("ip6 saddr " + addr + " iifname != \"lo\" tcp sport 53 counter accept"); err != nil {
 				f.logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 			}
-			if err := f.nft.Rule().Add(family, tableName, chainName, "ip6 saddr "+addr+" iifname != \"lo\" udp sport 53 counter accept"); err != nil {
+			if err := chain.AddRule("ip6 saddr " + addr + " iifname != \"lo\" udp sport 53 counter accept"); err != nil {
 				f.logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 			}
 			continue
@@ -112,11 +101,10 @@ func (f *firewall) reloadInputDnsNs() error {
 }
 
 func (f *firewall) reloadInputICMP() error {
-	family := nftablesFamily.INET
-	tableName := f.config.MetadataNaming.TableName
-	chainName := f.config.MetadataNaming.ChainInputName
+	chain := f.chains.Input()
+	drop := f.config.Policy.InputDrop.String()
 	if f.config.IP4.IcmpIn == false {
-		if err := f.nft.Rule().Add(family, tableName, chainName, "iifname != \"lo\" ip protocol icmp icmp type echo-request counter drop"); err != nil {
+		if err := chain.AddRule("iifname != \"lo\" ip protocol icmp icmp type echo-request counter " + drop); err != nil {
 			return err
 		}
 		return f.reloadInputICMPAfter()
@@ -126,27 +114,26 @@ func (f *firewall) reloadInputICMP() error {
 		return f.reloadInputICMPAfter()
 	}
 
-	if err := f.nft.Rule().Add(family, tableName, chainName, "iifname != \"lo\" ip protocol icmp icmp type echo-request limit rate "+f.config.IP4.IcmpInRate+" counter accept"); err != nil {
+	if err := chain.AddRule("iifname != \"lo\" ip protocol icmp icmp type echo-request limit rate " + f.config.IP4.IcmpInRate + " counter accept"); err != nil {
 		return err
 	}
-	if err := f.nft.Rule().Add(family, tableName, chainName, "iifname != \"lo\" ip protocol icmp icmp type echo-request counter drop"); err != nil {
+	if err := chain.AddRule("iifname != \"lo\" ip protocol icmp icmp type echo-request counter " + drop); err != nil {
 		return err
 	}
 
 	return f.reloadInputICMPAfter()
 }
 func (f *firewall) reloadInputICMPAfter() error {
-	family := nftablesFamily.INET
-	tableName := f.config.MetadataNaming.TableName
-	chainName := f.config.MetadataNaming.ChainInputName
+	chain := f.chains.Input()
 
 	if f.config.IP4.IcmpTimestampDrop == true {
-		if err := f.nft.Rule().Add(family, tableName, chainName, "iifname != \"lo\" ip protocol icmp icmp type timestamp-request drop"); err != nil {
+		drop := f.config.Policy.InputDrop.String()
+		if err := chain.AddRule("iifname != \"lo\" ip protocol icmp icmp type timestamp-request " + drop); err != nil {
 			return err
 		}
 	}
 
-	if err := f.nft.Rule().Add(family, tableName, chainName, "iifname != \"lo\" ip protocol icmp counter accept"); err != nil {
+	if err := chain.AddRule("iifname != \"lo\" ip protocol icmp counter accept"); err != nil {
 		return err
 	}
 	return nil
