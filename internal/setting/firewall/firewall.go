@@ -3,6 +3,7 @@ package firewall
 import "github.com/spf13/viper"
 
 type Setting struct {
+	IP4            ip4
 	Options        options
 	MetadataNaming metadataNaming
 	Policy         policy
@@ -29,6 +30,7 @@ func InitSetting(path string) (Setting, error) {
 
 func settingDefault() Setting {
 	return Setting{
+		IP4:            defaultIp4(),
 		Options:        defaultOptions(),
 		MetadataNaming: defaultMetadataNaming(),
 		Policy:         defaultPolicy(),

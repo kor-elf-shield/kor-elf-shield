@@ -22,7 +22,7 @@ func (f *firewall) reloadForward() error {
 	}
 
 	if f.config.Policy.Forward == PolicyReject {
-		if err := f.nft.Rule().Add(family, tableName, chainName, "reject"); err != nil {
+		if err := f.nft.Rule().Add(family, tableName, chainName, f.config.Policy.Forward.String()); err != nil {
 			return err
 		}
 	}

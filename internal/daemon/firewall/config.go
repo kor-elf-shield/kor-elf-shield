@@ -3,6 +3,7 @@ package firewall
 import "git.kor-elf.net/kor-elf-shield/go-nftables-client/chain"
 
 type Config struct {
+	IP4            ConfigIP4
 	Options        ConfigOptions
 	MetadataNaming ConfigMetadata
 	Policy         ConfigPolicy
@@ -29,6 +30,14 @@ type ConfigPolicy struct {
 	Forward Policy
 }
 
+type ConfigIP4 struct {
+	IcmpIn            bool
+	IcmpInRate        string
+	IcmpOut           bool
+	IcmpOutRate       string
+	IcmpTimestampDrop bool
+}
+
 type Policy int8
 
 const (
@@ -47,5 +56,18 @@ func (p Policy) ChainDefaultPolicy() chain.Policy {
 		return chain.PolicyDrop
 	default:
 		return chain.PolicyDrop
+	}
+}
+
+func (p Policy) String() string {
+	switch p {
+	case PolicyAccept:
+		return "accept"
+	case PolicyDrop:
+		return "drop"
+	case PolicyReject:
+		return "reject"
+	default:
+		return "drop"
 	}
 }

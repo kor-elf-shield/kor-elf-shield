@@ -40,12 +40,16 @@ func (f *firewall) reloadOutput() error {
 		return err
 	}
 
+	if err := f.reloadOutputICMP(); err != nil {
+		return err
+	}
+
 	if err := f.nft.Rule().Add(family, tableName, chainName, "oifname != \"lo\" ct state related,established counter accept"); err != nil {
 		return err
 	}
 
 	if f.config.Policy.Output == PolicyReject {
-		if err := f.nft.Rule().Add(family, tableName, chainName, "reject"); err != nil {
+		if err := f.nft.Rule().Add(family, tableName, chainName, f.config.Policy.Output.String()); err != nil {
 			return err
 		}
 	}
@@ -131,5 +135,46 @@ func (f *firewall) reloadOutputDnsNs() error {
 		f.logger.Error(fmt.Sprintf("Failed to parse nameserver address: %s", addr))
 	}
 
+	return nil
+}
+
+func (f *firewall) reloadOutputICMP() error {
+	family := nftablesFamily.INET
+	tableName := f.config.MetadataNaming.TableName
+	chainName := f.config.MetadataNaming.ChainOutputName
+	if f.config.IP4.IcmpOut == false {
+		if err := f.nft.Rule().Add(family, tableName, chainName, "oifname != \"lo\" ip protocol icmp icmp type echo-request counter drop"); err != nil {
+			return err
+		}
+		return f.reloadOutputICMPAfter()
+	}
+
+	if f.config.IP4.IcmpOutRate == "0" {
+		return f.reloadOutputICMPAfter()
+	}
+
+	if err := f.nft.Rule().Add(family, tableName, chainName, "oifname != \"lo\" ip protocol icmp icmp type echo-request limit rate "+f.config.IP4.IcmpInRate+" counter accept"); err != nil {
+		return err
+	}
+	if err := f.nft.Rule().Add(family, tableName, chainName, "oifname != \"lo\" ip protocol icmp icmp type echo-request counter drop"); err != nil {
+		return err
+	}
+
+	return f.reloadOutputICMPAfter()
+}
+func (f *firewall) reloadOutputICMPAfter() error {
+	family := nftablesFamily.INET
+	tableName := f.config.MetadataNaming.TableName
+	chainName := f.config.MetadataNaming.ChainOutputName
+
+	if f.config.IP4.IcmpTimestampDrop == true {
+		if err := f.nft.Rule().Add(family, tableName, chainName, "oifname != \"lo\" ip protocol icmp icmp type timestamp-request drop"); err != nil {
+			return err
+		}
+	}
+
+	if err := f.nft.Rule().Add(family, tableName, chainName, "oifname != \"lo\" ip protocol icmp counter accept"); err != nil {
+		return err
+	}
 	return nil
 }

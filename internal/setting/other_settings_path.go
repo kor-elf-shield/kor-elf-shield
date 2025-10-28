@@ -27,6 +27,13 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 	}
 
 	return firewall.Config{
+		IP4: firewall.ConfigIP4{
+			IcmpIn:            setting.IP4.IcmpIn,
+			IcmpInRate:        setting.IP4.IcmpInRate,
+			IcmpOut:           setting.IP4.IcmpOut,
+			IcmpOutRate:       setting.IP4.IcmpOutRate,
+			IcmpTimestampDrop: setting.IP4.IcmpTimestampDrop,
+		},
 		Options: firewall.ConfigOptions{
 			SavesRules:     setting.Options.SavesRules,
 			SavesRulesPath: setting.Options.SavesRulesPath,

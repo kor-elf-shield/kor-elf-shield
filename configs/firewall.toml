@@ -1,4 +1,81 @@
 ###############################################################################
+# РАЗДЕЛ:Настройки IP4
+# ***
+# SECTION:IP4 settings
+###############################################################################
+[ip4]
+###
+# Разрешить входящий PING. Отключение PING может нарушить работу внешнего мониторинга.
+# По умолчанию: true
+# ***
+# Allow incoming PING. Disabling PING may disrupt external monitoring.
+# Default: true
+###
+icmp_in = true
+
+###
+# Установите ограничения на количество одновременных пакетов в секунду для каждого IP-адреса.
+# Если IP-адрес превысит количество пакетов за указанный период, оставшиеся пакеты будут отброшены.
+# Если вы заметите нежелательные потери, увеличьте значение или отключите его.
+#
+# Чтобы отключить ограничение скорости, установите значение «0», в противном
+# случае установите его в соответствии с документацией nftables (limit rate).
+# Например, «1/second» ограничит передачу одним пакетом в секунду.
+# По умолчанию: 1/second
+# ***
+# Set limits on concurrent packets per second per IP address. If the IP address exceeds the number
+# of packets for a specified period, the remaining packets will be dropped. If you see unwanted losses,
+# increase the value or disable it.
+#
+# To disable rate limiting, set the value to "0." Otherwise, set it according to the nftables
+# documentation (limit rate). For example, "1/second" will limit transmission to one packet per second.
+# Default: 1/second
+###
+icmp_in_rate = "1/second"
+
+###
+# Разрешить исходящий PING. Если нет особых причин, то лучше не отключать иначе может нарушить работу ОС.
+# По умолчанию: true
+# ***
+# Allow outgoing PING. Unless there's a specific reason, it's best to leave this enabled, as it may
+# disrupt the operating system.
+# Default: true
+###
+icmp_out = true
+
+###
+# Установите ограничения на количество одновременных пакетов в секунду в исходящих ICMP-пакетов для запросов PING
+# на IP-адрес. Если превысит количество пакетов за указанный период, оставшиеся пакеты будут отброшены.
+# Если нет особых причин, то лучше не включать ограничения иначе может нарушить работу ОС.
+#
+# Чтобы отключить ограничение скорости, установите значение «0», в противном
+# случае установите его в соответствии с документацией nftables (limit rate).
+# Например, «1/second» ограничит передачу одним пакетом в секунду.
+# По умолчанию: 0
+# ***
+# Set limits on the number of concurrent packets per second in outgoing ICMP packets for PING requests to an IP address.
+# If the number of packets exceeds the specified period, the remaining packets will be discarded.
+# If there are no special reasons, it is better not to enable restrictions, otherwise it may disrupt the
+# operation of the OS.
+#
+# To disable rate limiting, set the value to "0." Otherwise, set it according to the nftables
+# documentation (limit rate). For example, "1/second" will limit transmission to one packet per second.
+# Default: 0
+###
+icmp_out_rate = "0"
+
+###
+# Блокировать ICMP timestamp-запросы. На самом деле реальной угрозы почти нет, но иногда ИТ-аудиторы
+# настаивают на блокировке ICMP timestamp-запросов.
+# По умолчанию: false
+# ***
+# Block ICMP timestamp requests. There's virtually no real threat, but sometimes IT auditors
+# insist on blocking ICMP timestamp requests.
+# Default: false
+###
+icmp_timestamp_drop = false
+
+###############################################################################
 # РАЗДЕЛ:Общие настройки
 # ***
 # SECTION:General Settings
@@ -25,41 +102,35 @@ saves_rules = false
 saves_rules_path = "/etc/nftables.conf"
 
 ###
-# Включите следующую опцию, если хотите применять строгие правила nftables к DNS-трафику
-# (т.е. использовать отслеживание подключений nftables). Включение этой опции
-# может вызвать проблемы с разрешением DNS как входящих, так и исходящих DNS-имен, но может помочь
-# предотвратить злоупотребление локальным DNS-сервером.
+# Включает строгие правила nftables к DNS-трафику. Если включить этот режим, то некоторые правила,
+# связанные с DNS, не добавятся в nftables. Что улучшит безопасность и предотвратить злоупотребление
+# локальным DNS-сервером. Но может вызвать проблемы связанным с DNS.
 # По умолчанию: false
 ###
-# Enable the following option if you want to apply strict nftables rules to DNS
-# traffic (i.e. relying on nftables connection tracking). Enabling this option
-# could cause DNS resolution issues both to and from the server but could help
-# prevent abuse of the local DNS server.
+# Enables strict nftables rules for DNS traffic. If this mode is enabled, some DNS-related rules
+# will not be added to nftables. This improves security and prevents abuse of the local DNS server.
+# However, it may cause DNS-related issues.
 # Default: false
 ###
 dns_strict = false
 
 ###
-# Включите следующую опцию, если хотите применять строгие правила nftables к DNS
-# трафику между сервером и серверами имён, указанными в /etc/resolv.conf
-# Включение этой опции может вызвать проблемы с разрешением DNS как на сервер, так и с него
-# но может помочь предотвратить злоупотребление локальным DNS-сервером.
+# Включает строгие правила nftables к DNS-трафику. Если включить этот режим, то не добавятся правила,
+# разрешающие IP адресам порт 53 (входящим и изходящим), которые указаны в /etc/resolv.conf.
+# Это может спровоцировать проблему с DNS.
 # По умолчанию: false
 ###
-# Enable the following option if you want to apply strict nftables rules to DNS
-# traffic between the server and the nameservers listed in /etc/resolv.conf
-# Enabling this option could cause DNS resolution issues both to and from the
-# server but could help prevent abuse of the local DNS server.
+# Enable strict nftables rules for DNS traffic. If this mode is enabled, the rules that resolve IP addresses
+# on port 53 (incoming and outgoing) specified in /etc/resolv.conf will not be applied. This may cause DNS issues.
 # Default: false
 ###
 dns_strict_ns = false
 
 ###
-# Отбрасывать пакеты, нарушающие порядок поступления, а также пакеты в состоянии
-# INVALID в системе отслеживания соединений nftables.
+# Добавляет в nftables фильтирацию пакетов, которые нарушают порядок.
 # По умолчанию: true
 ###
-# Drop out of order packets and packets in an INVALID state in nftables connection tracking.
+# Adds out-of-order packet filtering to nftables.
 # Default: true
 ###
 packet_filter = true
