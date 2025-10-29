@@ -65,3 +65,24 @@ func (p policy) dropToPolicyDrop(drop string, parametrName string) (firewall.Pol
 		return 0, fmt.Errorf("invalid %s . Must be drop or reject", parametrName)
 	}
 }
+
+func (p policy) Validate() error {
+	if err := validateDrop(p.InputDrop, "input_drop"); err != nil {
+		return err
+	}
+	if err := validateDrop(p.OutputDrop, "output_drop"); err != nil {
+		return err
+	}
+	if err := validateDrop(p.ForwardDrop, "forward_drop"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateDrop(drop string, parameterName string) error {
+	switch drop {
+	case "drop", "reject":
+		return nil
+	}
+	return fmt.Errorf("invalid %s. Must be drop or reject", parameterName)
+}

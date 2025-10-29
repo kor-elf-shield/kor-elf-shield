@@ -54,7 +54,7 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	err = d.Run(ctx, setting.Config.Testing, setting.Config.TestingInterval)
+	err = d.Run(ctx, setting.Config.Testing, uint16(setting.Config.TestingInterval))
 	if err != nil {
 		logger.Fatal(err.Error())
 

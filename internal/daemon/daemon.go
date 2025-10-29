@@ -10,7 +10,7 @@ import (
 )
 
 type Daemon interface {
-	Run(ctx context.Context, isTesting bool, testingInterval int) error
+	Run(ctx context.Context, isTesting bool, testingInterval uint16) error
 	Stop()
 }
 
@@ -20,7 +20,7 @@ type daemon struct {
 	firewall firewall.API
 }
 
-func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval int) error {
+func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16) error {
 	if err := d.pidFile.EnsureNoOtherProcess(); err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (d *daemon) Stop() {
 	d.firewall.ClearRules()
 }
 
-func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval int) {
+func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval uint16) {
 	d.logger.Info("Service started")
 
 	// Channel timer for auto-completion in test mode

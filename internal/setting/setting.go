@@ -2,14 +2,16 @@ package setting
 
 import (
 	"errors"
+	"strings"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
 type setting struct {
 	Testing          bool   `mapstructure:"testing"`
-	TestingInterval  int    `mapstructure:"testing_interval"`
+	TestingInterval  int16  `mapstructure:"testing_interval"`
 	Language         string `mapstructure:"language"`
 	FallbackLanguage string `mapstructure:"fallback_language"`
 	PidFile          string `mapstructure:"pid_file"`
@@ -17,14 +19,10 @@ type setting struct {
 	Log               *log
 	BinaryLocations   *binaryLocations
 	OtherSettingsPath *otherSettingsPath
-
-	path string
 }
 
-func settingDefault(path string) *setting {
+func settingDefault() *setting {
 	return &setting{
-		path: path,
-
 		Testing:          true,
 		TestingInterval:  5,
 		Language:         "ru",
@@ -62,6 +60,54 @@ func (s setting) ToDaemonOptions() (daemon.DaemonOptions, error) {
 	}, nil
 }
 
-func (s setting) Path() string {
-	return s.path
+func (s setting) Validate() error {
+	if err := s.validationTestingInterval(); err != nil {
+		return err
+	}
+	if err := s.validateLanguage(); err != nil {
+		return err
+	}
+	if err := s.validatePidFile(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s setting) validationTestingInterval() error {
+	if s.TestingInterval < 1 {
+		return errors.New("testing_interval must be greater than 0")
+	}
+	if s.TestingInterval > 30000 {
+		return errors.New("testing_interval must be less than 30000")
+	}
+	return nil
+}
+
+func (s setting) validatePidFile() error {
+	if err := validate.PathFile(s.PidFile, "pid_file"); err != nil {
+		return err
+	}
+	if !strings.HasSuffix(strings.ToLower(s.PidFile), ".pid") {
+		return errors.New("invalid pid_file. Must be .pid")
+	}
+	return nil
+}
+
+func (s setting) validateLanguage() error {
+	if err := validateLanguage(s.Language, "language"); err != nil {
+		return err
+	}
+	if err := validateLanguage(s.FallbackLanguage, "fallback_language"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateLanguage(language string, parameterName string) error {
+	switch language {
+	case "ru", "en", "kk":
+		return nil
+	}
+	return errors.New("invalid " + parameterName + ". Must be ru, en, kk")
 }

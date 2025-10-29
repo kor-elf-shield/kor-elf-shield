@@ -2,11 +2,14 @@ package setting
 
 import (
 	"errors"
+	"fmt"
 	"path/filepath"
+	"strings"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	log2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/filesystem"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
 type log struct {
@@ -128,6 +131,14 @@ func validatePaths(paths []string) error {
 }
 
 func validatePath(path string) error {
+	if err := validate.PathFile(path, "log.paths"); err != nil {
+		return err
+	}
+
+	if !strings.HasSuffix(strings.ToLower(path), ".log") {
+		return fmt.Errorf("invalid %s. Must be .log", "log.paths")
+	}
+
 	dir := filepath.Dir(path)
 	if err := filesystem.EnsureDir(dir); err != nil {
 		return err

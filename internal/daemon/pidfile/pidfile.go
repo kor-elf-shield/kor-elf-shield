@@ -49,6 +49,15 @@ func (p *pidFile) EnsureNoOtherProcess() error {
 		return err
 	}
 
+	// Check if the file is a regular file
+	info, err := os.Lstat(p.path)
+	if err != nil {
+		return err
+	}
+	if !info.Mode().IsRegular() {
+		return errors.New("PID file is not a regular file")
+	}
+
 	// Determine the pid
 	data, err := os.ReadFile(p.path)
 	if err != nil {
@@ -70,11 +79,11 @@ func (p *pidFile) EnsureNoOtherProcess() error {
 		}
 		if err.Error() == "os: process already finished" {
 			// The process is complete, you can delete the file below
+			_ = os.Remove(p.path)
+			p.logger.Warn(fmt.Sprintf("An obsolete PID file %s with PID %d was found: file removed", p.path, pid))
 		}
 	}
-	// The file is outdated, try deleting it.
-	_ = os.Remove(p.path)
-	p.logger.Warn(fmt.Sprintf("An obsolete PID file %s with PID %d was found: file removed", p.path, pid))
+
 	return nil
 }
 
