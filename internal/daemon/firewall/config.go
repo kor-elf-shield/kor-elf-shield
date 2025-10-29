@@ -2,6 +2,7 @@ package firewall
 
 type Config struct {
 	IP4            ConfigIP4
+	IP6            ConfigIP6
 	Options        ConfigOptions
 	MetadataNaming ConfigMetadata
 	Policy         ConfigPolicy
@@ -55,4 +56,9 @@ type ConfigIP4 struct {
 	IcmpOut           bool
 	IcmpOutRate       string
 	IcmpTimestampDrop bool
+}
+
+type ConfigIP6 struct {
+	Enable     bool
+	IcmpStrict bool
 }

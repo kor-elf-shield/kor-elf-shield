@@ -7,6 +7,7 @@ import (
 
 type Setting struct {
 	IP4            ip4
+	IP6            ip6
 	Options        options
 	MetadataNaming metadataNaming
 	Policy         policy
@@ -39,6 +40,7 @@ func InitSetting(path string) (Setting, error) {
 func settingDefault() Setting {
 	return Setting{
 		IP4:            defaultIp4(),
+		IP6:            defaultIp6(),
 		Options:        defaultOptions(),
 		MetadataNaming: defaultMetadataNaming(),
 		Policy:         defaultPolicy(),
@@ -47,6 +49,9 @@ func settingDefault() Setting {
 
 func (s Setting) Validate() error {
 	if err := s.IP4.Validate(); err != nil {
+		return err
+	}
+	if err := s.IP6.Validate(); err != nil {
 		return err
 	}
 	if err := s.MetadataNaming.Validate(); err != nil {

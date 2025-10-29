@@ -79,6 +79,10 @@ func (f *firewall) reloadInputDnsNs() error {
 		}
 
 		if ip.To16() != nil {
+			if !f.config.IP6.Enable {
+				f.logger.Warn(fmt.Sprintf("IPv6 is disabled, skipping nameserver address: %s", addr))
+				continue
+			}
 			if err := chain.AddRule("ip6 saddr " + addr + " iifname != \"lo\" tcp dport 53 counter accept"); err != nil {
 				f.logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 			}
@@ -134,6 +138,52 @@ func (f *firewall) reloadInputICMPAfter() error {
 	}
 
 	if err := chain.AddRule("iifname != \"lo\" ip protocol icmp counter accept"); err != nil {
+		return err
+	}
+
+	if f.config.IP6.Enable {
+		if f.config.IP6.IcmpStrict {
+			return f.reloadInputICMP6Strict()
+		} else {
+			if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp counter accept"); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (f *firewall) reloadInputICMP6Strict() error {
+	chain := f.chains.Input()
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type destination-unreachable counter accept"); err != nil {
+		return err
+	}
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type packet-too-big counter accept"); err != nil {
+		return err
+	}
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type time-exceeded counter accept"); err != nil {
+		return err
+	}
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type parameter-problem counter accept"); err != nil {
+		return err
+	}
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type echo-request counter accept"); err != nil {
+		return err
+	}
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type echo-reply counter accept"); err != nil {
+		return err
+	}
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type nd-router-advert ip6 hoplimit 255 counter accept"); err != nil {
+		return err
+	}
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type nd-neighbor-solicit ip6 hoplimit 255 counter accept"); err != nil {
+		return err
+	}
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type nd-neighbor-advert ip6 hoplimit 255 counter accept"); err != nil {
+		return err
+	}
+	if err := chain.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp icmpv6 type nd-redirect ip6 hoplimit 255 counter accept"); err != nil {
 		return err
 	}
 	return nil
