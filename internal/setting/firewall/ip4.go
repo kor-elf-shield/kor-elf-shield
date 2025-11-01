@@ -15,7 +15,7 @@ type ip4 struct {
 func defaultIp4() ip4 {
 	return ip4{
 		IcmpIn:            true,
-		IcmpInRate:        "1/s",
+		IcmpInRate:        "1/second",
 		IcmpOut:           true,
 		IcmpOutRate:       "0",
 		IcmpTimestampDrop: false,
