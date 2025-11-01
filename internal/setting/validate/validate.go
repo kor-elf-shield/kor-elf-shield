@@ -1,7 +1,6 @@
 package validate
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -57,7 +56,7 @@ func Name(name string, parameterName string) error {
 
 func Port(port int, parameterName string) error {
 	if port < 0 || port > 65535 {
-		return errors.New("invalid port number. must be 0-65535")
+		return fmt.Errorf("%s must be in range 0-65535", parameterName)
 	}
 	return nil
 }
