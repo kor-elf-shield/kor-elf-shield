@@ -8,6 +8,7 @@ import (
 
 type Setting struct {
 	Ports          []Port
+	IPS            []IP
 	IP4            ip4
 	IP6            ip6
 	Options        options
@@ -41,6 +42,7 @@ func InitSetting(path string) (Setting, error) {
 
 func settingDefault() Setting {
 	return Setting{
+		IPS:            defaultIPs(),
 		Ports:          defaultPorts(),
 		IP4:            defaultIp4(),
 		IP6:            defaultIp6(),
@@ -78,6 +80,23 @@ func (s Setting) ToPorts() (InPorts []firewall.ConfigPort, OutPorts []firewall.C
 		}
 		InPorts = append(InPorts, addInPorts...)
 		OutPorts = append(OutPorts, addOutPorts...)
+	}
+
+	return
+}
+
+func (s Setting) ToIPs() (IPs IPs, error error) {
+	for _, ips := range s.IPS {
+		addIPs, err := ips.ToIPs()
+		if err != nil {
+			error = err
+			return
+		}
+		IPs.InIP4 = append(IPs.InIP4, addIPs.InIP4...)
+		IPs.OutIP4 = append(IPs.OutIP4, addIPs.OutIP4...)
+
+		IPs.InIP6 = append(IPs.InIP6, addIPs.InIP6...)
+		IPs.OutIP6 = append(IPs.OutIP6, addIPs.OutIP6...)
 	}
 
 	return

@@ -24,6 +24,10 @@ func (f *firewall) reloadInput() error {
 		return err
 	}
 
+	if err := f.reloadInputAddIPs(); err != nil {
+		return err
+	}
+
 	if err := f.chains.PacketFilter().AddRuleIn(chain.AddRule); err != nil {
 		return err
 	}
@@ -218,5 +222,49 @@ func (f *firewall) reloadInputPorts() error {
 			}
 		}
 	}
+	return nil
+}
+
+func (f *firewall) reloadInputAddIPs() error {
+	if err := f.chains.NewLocalInput(); err != nil {
+		return err
+	}
+	chain := f.chains.LocalInput()
+	if err := chain.AddRuleIn(f.chains.Input().AddRule); err != nil {
+		return err
+	}
+
+	for _, ipConfig := range f.config.IP4.InIPs {
+		if err := inputAddIP(chain.AddRule, ipConfig, "ip"); err != nil {
+			return err
+		}
+	}
+
+	if !f.config.IP6.Enable {
+		return nil
+	}
+
+	for _, ipConfig := range f.config.IP6.InIPs {
+		if err := inputAddIP(chain.AddRule, ipConfig, "ip6"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func inputAddIP(addRuleFunc func(expr ...string) error, config ConfigIP, ipMatch string) error {
+
+	rule := ipMatch + " saddr " + config.IP + " iifname != \"lo\""
+	if !config.OnlyIP {
+		rule += " " + config.Protocol.String() + " dport " + strconv.Itoa(int(config.Port))
+	}
+	if config.LimitRate != "" {
+		rule += " limit rate " + config.LimitRate
+	}
+	rule += " counter " + config.Action.String()
+	if err := addRuleFunc(rule); err != nil {
+		return err
+	}
+
 	return nil
 }

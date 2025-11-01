@@ -130,6 +130,63 @@ directions = ["out"]
 protocols = ["tcp", "udp"]
 action = "accept"
 
+###
+# Указываем IP адреса, которые надо разрешить или запретить.
+# Примеры:
+# [[ips]]
+# ips = ["192.168.1.1", "fe80::260:8ff:fe52:f9d8"] # (обязательное поле)
+# action = "accept" # Дейстиве: accept, drop или reject (обязательное поле)
+# directions = ["in", "out"] (обязательное поле)
+# protocols = ["tcp", "udp"] (не обязательное поле)
+# ports = ["80"] # (не обязательное поле)
+# limit_rate = "10/second" # (не обязательное поле)
+#
+# [[ips]]
+# ips = ["192.168.1.2"]
+# action = "accept"
+# directions = ["in"]
+#
+# [[ips]]
+# ips = ["192.168.1.7"]
+# action = "accept"
+# directions = ["in"]
+# ports = ["80"]
+# Внимание:
+# Если protocols не указан, но указан ports, то правила будут добавляться с протоколом TCP.
+# protocols работает вместе с ports. Если protocols указан, а ports нет, то добаится правило
+# без учёта этих полей.
+# ***
+# Specify the IP addresses to allow or deny.
+# Examples:
+# [[ips]]
+# ips = ["192.168.1.1", "fe80::260:8ff:fe52:f9d8"] # (required)
+# action = "accept" # Action: accept, drop, or reject (required)
+# directions = ["in", "out"] # (required)
+# protocols = ["tcp", "udp"] # (optional)
+# ports = ["80"] # (optional)
+# limit_rate = "10/second" # (optional)
+#
+# [[ips]]
+# ips = ["192.168.1.2"]
+# action = "accept"
+# directions = ["in"]
+#
+# [[ips]]
+# ips = ["192.168.1.7"]
+# action = "accept"
+# directions = ["in"]
+# ports = ["80"]
+#
+# [[ips]]
+# ips = ["192.168.2.0/24"]
+# action = "accept"
+# directions = ["in"]
+# ports = ["80"]
+# Attention:
+# If protocols is not specified, but ports is specified, then the rules will be added with the TCP protocol.
+# protocols works in conjunction with ports. If protocols are specified but ports are not, a rule will be
+# added without taking these fields into account.
+###
 
 ###############################################################################
 # РАЗДЕЛ:Настройки IP4
@@ -137,7 +194,6 @@ action = "accept"
 # SECTION:IP4 settings
 ###############################################################################
 [ip4]
-
 ###
 # Разрешить входящий PING. Отключение PING может нарушить работу внешнего мониторинга.
 # По умолчанию: true

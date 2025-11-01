@@ -60,18 +60,30 @@ type ConfigIP4 struct {
 	IcmpOut           bool
 	IcmpOutRate       string
 	IcmpTimestampDrop bool
+	InIPs             []ConfigIP
+	OutIPs            []ConfigIP
 }
 
 type ConfigIP6 struct {
 	Enable     bool
 	IcmpStrict bool
+	InIPs      []ConfigIP
+	OutIPs     []ConfigIP
 }
 
 type ConfigPort struct {
 	Number    uint16
-	Direction Direction
 	Protocol  Protocol
 	Action    Action
+	LimitRate string
+}
+
+type ConfigIP struct {
+	IP        string
+	OnlyIP    bool // Port is not taken into account
+	Port      uint16
+	Action    Action
+	Protocol  Protocol
 	LimitRate string
 }
 

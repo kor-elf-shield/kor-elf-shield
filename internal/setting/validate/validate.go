@@ -1,6 +1,7 @@
 package validate
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -50,6 +51,13 @@ func Name(name string, parameterName string) error {
 	re := regexp.MustCompile(`^[a-zA-Z0-9_\-]{1,32}$`)
 	if !re.MatchString(name) {
 		return fmt.Errorf("%s must not contain special characters", parameterName)
+	}
+	return nil
+}
+
+func Port(port int, parameterName string) error {
+	if port < 0 || port > 65535 {
+		return errors.New("invalid port number. must be 0-65535")
 	}
 	return nil
 }

@@ -31,6 +31,11 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 		return firewall.Config{}, err
 	}
 
+	IPs, err := setting.ToIPs()
+	if err != nil {
+		return firewall.Config{}, err
+	}
+
 	return firewall.Config{
 		InPorts:  inPorts,
 		OutPorts: outPorts,
@@ -40,10 +45,14 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 			IcmpOut:           setting.IP4.IcmpOut,
 			IcmpOutRate:       setting.IP4.IcmpOutRate,
 			IcmpTimestampDrop: setting.IP4.IcmpTimestampDrop,
+			InIPs:             IPs.InIP4,
+			OutIPs:            IPs.OutIP4,
 		},
 		IP6: firewall.ConfigIP6{
 			Enable:     setting.IP6.Enable,
 			IcmpStrict: setting.IP6.IcmpStrict,
+			InIPs:      IPs.InIP6,
+			OutIPs:     IPs.OutIP6,
 		},
 		Options: firewall.ConfigOptions{
 			SavesRules:     setting.Options.SavesRules,

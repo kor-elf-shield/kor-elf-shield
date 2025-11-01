@@ -22,8 +22,11 @@ func (f *firewall) reloadOutput() error {
 	if err := f.reloadOutputDns(); err != nil {
 		return err
 	}
-
 	if err := chain.AddRule("oifname lo counter accept"); err != nil {
+		return err
+	}
+
+	if err := f.reloadOutputAddIPs(); err != nil {
 		return err
 	}
 
@@ -193,5 +196,50 @@ func (f *firewall) reloadOutputPorts() error {
 			}
 		}
 	}
+	return nil
+}
+
+func (f *firewall) reloadOutputAddIPs() error {
+	if err := f.chains.NewLocalOutput(); err != nil {
+		return err
+	}
+	chain := f.chains.LocalOutput()
+	if err := chain.AddRuleOut(f.chains.Output().AddRule); err != nil {
+		return err
+	}
+
+	for _, ipConfig := range f.config.IP4.OutIPs {
+		if err := outputAddIP(chain.AddRule, ipConfig, "ip"); err != nil {
+			return err
+		}
+	}
+
+	if !f.config.IP6.Enable {
+		return nil
+	}
+
+	for _, ipConfig := range f.config.IP6.OutIPs {
+		if err := outputAddIP(chain.AddRule, ipConfig, "ip6"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func outputAddIP(addRuleFunc func(expr ...string) error, config ConfigIP, ipMatch string) error {
+
+	rule := ipMatch + " daddr " + config.IP + " oifname != \"lo\""
+	if !config.OnlyIP {
+		rule += " " + config.Protocol.String() + " dport " + strconv.Itoa(int(config.Port))
+	}
+	if config.LimitRate != "" {
+		rule += " limit rate " + config.LimitRate
+	}
+	rule += " counter " + config.Action.String()
+	if err := addRuleFunc(rule); err != nil {
+		return err
+	}
+
 	return nil
 }
