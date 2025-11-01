@@ -3,6 +3,7 @@ package firewall
 import (
 	"fmt"
 	"net"
+	"strconv"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg"
 )
@@ -35,6 +36,10 @@ func (f *firewall) reloadOutput() error {
 	}
 
 	if err := chain.AddRule("oifname != \"lo\" ct state related,established counter accept"); err != nil {
+		return err
+	}
+
+	if err := f.reloadOutputPorts(); err != nil {
 		return err
 	}
 
@@ -148,6 +153,7 @@ func (f *firewall) reloadOutputICMP() error {
 
 	return f.reloadOutputICMPAfter()
 }
+
 func (f *firewall) reloadOutputICMPAfter() error {
 	chain := f.chains.Output()
 
@@ -160,6 +166,32 @@ func (f *firewall) reloadOutputICMPAfter() error {
 
 	if err := chain.AddRule("oifname != \"lo\" ip protocol icmp counter accept"); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (f *firewall) reloadOutputPorts() error {
+	chain := f.chains.Output()
+	for _, port := range f.config.OutPorts {
+		protocol := port.Protocol.String()
+		number := strconv.Itoa(int(port.Number))
+		baseRule := "oifname != \"lo\" meta l4proto " + protocol + " ct state new " + protocol + " dport " + number
+
+		if port.LimitRate != "" {
+			rule := baseRule + " limit rate " + port.LimitRate + " counter " + port.Action.String()
+			if err := chain.AddRule(rule); err != nil {
+				return err
+			}
+			ruleDrop := baseRule + " counter " + f.config.Policy.InputDrop.String()
+			if err := chain.AddRule(ruleDrop); err != nil {
+				return err
+			}
+		} else {
+			rule := baseRule + " counter " + port.Action.String()
+			if err := chain.AddRule(rule); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }

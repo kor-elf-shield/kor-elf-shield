@@ -1,9 +1,143 @@
 ###############################################################################
+# РАЗДЕЛ:Настройки портов
+# ***
+# SECTION:Port settings
+###############################################################################
+###
+# Убираем не нужные и добавляем нужные порты.
+#
+# Пример:
+# [[ports]]
+# numbers = [80, 443] # Номер портов (обязательное поле)
+# directions = ["in", "out"] # Входящий (in), исходящий трафик (out) (обязательное поле)
+# protocols = ["tcp", "udp"] # Протокол: tcp, udp (обязательное поле)
+# action = "accept" # Дейстиве: accept, drop или reject (обязательное поле)
+# limit_rate = "10/second" # Указыаваем ограничения если будет нужно (не обязательное поле)
+#
+# numbers - можно указывать одно или несколько портов, но правила будут создаваться отдельно для каждого порта.
+# directions - если указываем in и out, то создаться каждое правило отдельно в своей цепочке.
+# protocols - если указано tcp и udp, то создаться каждое правило отдельно для каждого протокола.
+#
+# action:
+# accept = разрешить
+# drop   = блокировать молча
+# reject = блокировка с обратной связью
+#
+# limit_rate устанавливайте его в соответствии с документацией nftables (limit rate).
+###
+# Remove unnecessary ports and add necessary ones.
+#
+# Example:
+# [[ports]]
+# numbers = [80, 443] # Port number (required)
+# directions = ["in", "out"] # Incoming (in), outgoing (out) traffic (required)
+# protocols = ["tcp", "udp"] # Protocol: tcp, udp (required)
+# action = "accept" # Action: accept, drop, or reject (required)
+# limit_rate = "10/second" # Specify limits if needed (optional)
+#
+# numbers - you can specify one or more ports, but rules will be created separately for each port.
+# directions - if you specify "in" and "out", each rule will be created separately in its own chain.
+# protocols - if you specify "tcp" and "udp", each rule will be created separately for each protocol.
+#
+# action:
+# accept = allow
+# drop   = silent block
+# reject = feedback blocking
+#
+# Set limit_rate according to the nftables documentation (limit rate).
+###
+# FTP
+[[ports]]
+numbers = [20, 21]
+directions = ["in", "out"]
+protocols = ["tcp", "udp"]
+action = "accept"
+
+# SSH
+[[ports]]
+numbers = [22]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# SMTP
+[[ports]]
+numbers = [25, 587, 465]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# POP3
+[[ports]]
+numbers = [110, 995]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# IMAP
+[[ports]]
+numbers = [143, 993]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# Time Protocol
+[[ports]]
+numbers = [37]
+directions = ["out"]
+protocols = ["tcp"]
+action = "accept"
+
+# NTP — Network Time Protocol
+[[ports]]
+numbers = [123]
+directions = ["out"]
+protocols = ["udp"]
+action = "accept"
+
+# WHOIS
+[[ports]]
+numbers = [43]
+directions = ["out"]
+protocols = ["tcp"]
+action = "accept"
+
+# DNS
+[[ports]]
+numbers = [53]
+directions = ["in", "out"]
+protocols = ["tcp", "udp"]
+action = "accept"
+
+# HTTP / HTTPS
+[[ports]]
+numbers = [80,443]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# DNS-over-TLS (DoT)
+[[ports]]
+numbers = [853]
+directions = ["in", "out"]
+protocols = ["tcp", "udp"]
+action = "accept"
+
+# rsync
+[[ports]]
+numbers = [873]
+directions = ["out"]
+protocols = ["tcp", "udp"]
+action = "accept"
+
+
+###############################################################################
 # РАЗДЕЛ:Настройки IP4
 # ***
 # SECTION:IP4 settings
 ###############################################################################
 [ip4]
+
 ###
 # Разрешить входящий PING. Отключение PING может нарушить работу внешнего мониторинга.
 # По умолчанию: true
@@ -14,8 +148,8 @@
 icmp_in = true
 
 ###
-# Установите ограничения на количество одновременных пакетов в секунду для каждого IP-адреса.
-# Если IP-адрес превысит количество пакетов за указанный период, оставшиеся пакеты будут отброшены.
+# Установите ограничения на количество одновременных пакетов в секунду.
+# Если превысит количество пакетов за указанный период, оставшиеся пакеты будут отброшены.
 # Если вы заметите нежелательные потери, увеличьте значение или отключите его.
 #
 # Чтобы отключить ограничение скорости, установите значение «0», в противном
@@ -23,9 +157,9 @@ icmp_in = true
 # Например, «1/second» ограничит передачу одним пакетом в секунду.
 # По умолчанию: 1/second
 # ***
-# Set limits on concurrent packets per second per IP address. If the IP address exceeds the number
-# of packets for a specified period, the remaining packets will be dropped. If you see unwanted losses,
-# increase the value or disable it.
+# Set limits on the number of simultaneous packets per second.
+# If the number of packets exceeds the specified period, the remaining packets will be dropped.
+# If you notice unwanted packet loss, increase the value or disable it.
 #
 # To disable rate limiting, set the value to "0." Otherwise, set it according to the nftables
 # documentation (limit rate). For example, "1/second" will limit transmission to one packet per second.

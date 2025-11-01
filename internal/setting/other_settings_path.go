@@ -26,7 +26,14 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 		return firewall.Config{}, err
 	}
 
+	inPorts, outPorts, err := setting.ToPorts()
+	if err != nil {
+		return firewall.Config{}, err
+	}
+
 	return firewall.Config{
+		InPorts:  inPorts,
+		OutPorts: outPorts,
 		IP4: firewall.ConfigIP4{
 			IcmpIn:            setting.IP4.IcmpIn,
 			IcmpInRate:        setting.IP4.IcmpInRate,

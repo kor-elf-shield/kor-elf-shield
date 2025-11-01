@@ -1,11 +1,13 @@
 package firewall
 
 import (
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 	"github.com/spf13/viper"
 )
 
 type Setting struct {
+	Ports          []Port
 	IP4            ip4
 	IP6            ip6
 	Options        options
@@ -39,6 +41,7 @@ func InitSetting(path string) (Setting, error) {
 
 func settingDefault() Setting {
 	return Setting{
+		Ports:          defaultPorts(),
 		IP4:            defaultIp4(),
 		IP6:            defaultIp6(),
 		Options:        defaultOptions(),
@@ -64,4 +67,18 @@ func (s Setting) Validate() error {
 		return err
 	}
 	return nil
+}
+
+func (s Setting) ToPorts() (InPorts []firewall.ConfigPort, OutPorts []firewall.ConfigPort, error error) {
+	for _, port := range s.Ports {
+		addInPorts, addOutPorts, err := port.ToPorts()
+		if err != nil {
+			error = err
+			return
+		}
+		InPorts = append(InPorts, addInPorts...)
+		OutPorts = append(OutPorts, addOutPorts...)
+	}
+
+	return
 }
