@@ -43,7 +43,7 @@ func (p *pidFile) EnsureNoOtherProcess() error {
 	}
 
 	if _, err := os.Stat(p.path); os.IsNotExist(err) {
-		// File not found, so everything is fine.
+		// File isn't found, so everything is fine.
 		return nil
 	} else if err != nil {
 		return err
