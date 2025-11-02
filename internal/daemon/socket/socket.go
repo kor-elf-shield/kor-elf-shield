@@ -11,7 +11,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
-type HandleCommand func(command string) error
+type HandleCommand func(command string, socket Connect) error
 
 type Socket interface {
 	EnsureNoOtherProcess() error
@@ -111,22 +111,23 @@ func (s *socket) Run(ctx context.Context, handleCommand HandleCommand) {
 				continue
 			}
 		}
-		go s.handleConn(conn, handleCommand)
+		go s.handleAction(conn, handleCommand)
 	}
 }
 
-func (s *socket) handleConn(conn net.Conn, handleCommand HandleCommand) {
+func (s *socket) handleAction(conn net.Conn, handleCommand HandleCommand) {
+	sock := NewConnect(conn)
 	defer func() {
-		_ = conn.Close()
+		_ = sock.Close()
 	}()
-	buf := make([]byte, 256)
-	n, err := conn.Read(buf)
+
+	cmd, err := sock.Read()
 	if err != nil {
+		s.logger.Error(fmt.Sprintf("Failed to read command: %s", err))
 		return
 	}
-	cmd := string(buf[:n])
 
-	if err := handleCommand(cmd); err != nil {
+	if err := handleCommand(cmd, sock); err != nil {
 		s.logger.Error(fmt.Sprintf("Failed to handle command: %s", err))
 	}
 }
