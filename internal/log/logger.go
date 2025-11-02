@@ -18,11 +18,13 @@ type Logger interface {
 	Fatal(msg string)
 
 	Sync() error
+	ReOpen() error
 }
 
 type logger struct {
-	zap *zap.Logger
-	dev bool
+	zap  *zap.Logger
+	dev  bool
+	opts *LoggerOptions
 }
 
 func (l *logger) Debug(msg string) {
@@ -49,33 +51,21 @@ func (l *logger) Sync() error {
 	return l.zap.Sync()
 }
 
+func (l *logger) ReOpen() error {
+	_ = l.Sync()
+	l.zap = newZap(l.opts)
+	return nil
+}
+
 func NewLogger(opts LoggerOptions) (Logger, error) {
 	if !opts.Enabled {
 		return &falseLogger{}, nil
 	}
 
-	cfg := zap.Config{
-		Level:       opts.Level,
-		Development: opts.Development,
-
-		// Reduce the amount of noise in logs during mass events.
-		Sampling: &zap.SamplingConfig{
-			Initial:    100, // The first 100 identical messages per second will be written to the log
-			Thereafter: 100, // Every 100th message will be written to the log
-		},
-
-		Encoding:         opts.Encoding.String(),
-		EncoderConfig:    encoderConfig(&opts),
-		OutputPaths:      opts.Paths,
-		ErrorOutputPaths: opts.LogErrorPaths,
-	}
-	cfg.DisableStacktrace = !opts.Development
-	cfg.DisableCaller = !opts.Development
-
-	zapLogger := zap.Must(cfg.Build()).WithOptions(zap.AddCallerSkip(1))
 	return &logger{
-		zap: zapLogger,
-		dev: opts.Development,
+		zap:  newZap(&opts),
+		opts: &opts,
+		dev:  opts.Development,
 	}, nil
 }
 
@@ -92,4 +82,26 @@ func encoderConfig(opts *LoggerOptions) zapcore.EncoderConfig {
 	}
 
 	return encoderConfig
+}
+
+func newZap(opts *LoggerOptions) *zap.Logger {
+	cfg := zap.Config{
+		Level:       opts.Level,
+		Development: opts.Development,
+
+		// Reduce the amount of noise in logs during mass events.
+		Sampling: &zap.SamplingConfig{
+			Initial:    100, // The first 100 identical messages per second will be written to the log
+			Thereafter: 100, // Every 100th message will be written to the log
+		},
+
+		Encoding:         opts.Encoding.String(),
+		EncoderConfig:    encoderConfig(opts),
+		OutputPaths:      opts.Paths,
+		ErrorOutputPaths: opts.LogErrorPaths,
+	}
+	cfg.DisableStacktrace = !opts.Development
+	cfg.DisableCaller = !opts.Development
+
+	return zap.Must(cfg.Build()).WithOptions(zap.AddCallerSkip(1))
 }

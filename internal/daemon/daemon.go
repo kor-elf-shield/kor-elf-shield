@@ -97,6 +97,12 @@ func (d *daemon) socketCommand(command string, socket socket.Connect) error {
 		return socket.Write("ok")
 	case "status":
 		return socket.Write("ok")
+	case "reopen_logger":
+		if err := d.logger.ReOpen(); err != nil {
+			_ = socket.Write("logger reopen failed: " + err.Error())
+			return err
+		}
+		return socket.Write("ok")
 	default:
 		_ = socket.Write("unknown command")
 		return errors.New("unknown command")

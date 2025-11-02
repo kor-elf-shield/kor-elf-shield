@@ -12,6 +12,9 @@
   "cmd.daemon.status.Usage": "Проверка запущен ли демон",
   "cmd.daemon.status.Description": "Проверка запущен ли демон",
 
+  "cmd.daemon.reopen_logger.Usage": "Переоткрыть файл для логирования",
+  "cmd.daemon.reopen_logger.Description": "Переоткроет файл, куда пишутся логи от демона",
+
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
   "invalid log encoding": "Неверная настройка encoding. Сейчас указан: {{.Encoding}}. Допустимые значения: {{.Encodings}}",
@@ -21,5 +24,6 @@
   "socket file is not specified": "Файл сокета не указан",
   "daemon stopped": "Демон остановлен",
   "daemon stop failed": "Остановка демона не удалась",
-  "daemon is not running": "Демон не запущен"
+  "daemon is not running": "Демон не запущен",
+  "daemon is not reopening logger": "Демон не открыл журнал повторно"
 }
