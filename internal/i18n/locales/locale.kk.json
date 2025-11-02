@@ -6,10 +6,16 @@
   "cmd.daemon.start.Usage": "nftables брандмауэрін басқару daemon іске қосыңыз",
   "cmd.daemon.start.Description": "Параметрлеріңізге сәйкес nftables брандмауэрін конфигурациялайтын және кез келген аутентификация әрекеттерін бақылайтын daemon іске қосады.",
 
+  "cmd.daemon.stop.Usage": "Демонды тоқтату",
+  "cmd.daemon.stop.Description": "Демонды тоқтатады. Ескерту: Бұл nftables брандмауэр ережелерін жояды!",
+
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
   "invalid log encoding": "Жарамсыз кодтау параметрі. Қазіргі уақытта орнатылған: {{.Encoding}}. Жарамды мәндер: {{.Encodings}}",
   "parameter is not specified": "\"{{.Parameter}}\" параметрі көрсетілмеген",
   "failed to create directory": "Каталог жасау мүмкін емес: {{.Directory}}",
-  "failed to open file for writing": "Кіруге тыйым салынды: {{.File}}"
+  "failed to open file for writing": "Кіруге тыйым салынды: {{.File}}",
+  "socket file is not specified": "сокет файлы көрсетілмеген",
+  "daemon stopped": "Жын тоқтатылды",
+  "daemon stop failed": "Жынды тоқтату сәтсіз аяқталды"
 }

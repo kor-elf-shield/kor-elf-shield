@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
@@ -20,6 +21,8 @@ type daemon struct {
 	socket   socket.Socket
 	logger   log.Logger
 	firewall firewall.API
+
+	stopCh chan struct{}
 }
 
 func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16) error {
@@ -62,6 +65,7 @@ func (d *daemon) Stop() {
 
 func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval uint16) {
 	d.logger.Info("Service started")
+	d.stopCh = make(chan struct{}, 1)
 
 	// Channel timer for auto-completion in test mode
 	var stopTestingCh <-chan time.Time
@@ -79,11 +83,20 @@ func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval 
 			d.logger.Info("Testing interval expired, stopping service")
 			d.Stop()
 			return
+		case <-d.stopCh:
+			d.Stop()
+			return
 		}
 	}
 }
 
-func (d *daemon) socketCommand(command string) error {
-	println(command)
-	return nil
+func (d *daemon) socketCommand(command string, socket socket.Connect) error {
+	switch command {
+	case "stop":
+		d.stopCh <- struct{}{}
+		return socket.Write("ok")
+	default:
+		_ = socket.Write("unknown command")
+		return errors.New("unknown command")
+	}
 }

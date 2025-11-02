@@ -6,10 +6,16 @@
   "cmd.daemon.start.Usage": "Запустить демона для управления брандмауэром nftables",
   "cmd.daemon.start.Description": "Запускает демона, который настроит брандмауэр nftables согласно Вашим настройкам и отслеживает любые попытки аутентификации.",
 
+  "cmd.daemon.stop.Usage": "Остановить демон",
+  "cmd.daemon.stop.Description": "Останавливает демон. Примечание: это очистит правила брандмауэра nftables!",
+
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
   "invalid log encoding": "Неверная настройка encoding. Сейчас указан: {{.Encoding}}. Допустимые значения: {{.Encodings}}",
   "parameter is not specified": "Не указан параметр \"{{.Parameter}}\"",
   "failed to create directory": "Не смогли создать директорию: {{.Directory}}",
-  "failed to open file for writing": "Доступ запрещен: {{.File}}"
+  "failed to open file for writing": "Доступ запрещен: {{.File}}",
+  "socket file is not specified": "Файл сокета не указан",
+  "daemon stopped": "Демон остановлен",
+  "daemon stop failed": "Остановка демона не удалась"
 }
