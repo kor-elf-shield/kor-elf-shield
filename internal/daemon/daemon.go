@@ -57,6 +57,7 @@ func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16
 
 func (d *daemon) Stop() {
 	d.firewall.ClearRules()
+	d.logger.Info("Service stopped")
 }
 
 func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval uint16) {
