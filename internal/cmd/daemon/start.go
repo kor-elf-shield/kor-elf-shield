@@ -21,8 +21,6 @@ func CmdStart() *cli.Command {
 }
 
 func runDaemon(ctx context.Context, _ *cli.Command) error {
-	var err error
-
 	logOptions, err := setting.Config.Log.ToLoggerOptions()
 	if err != nil {
 		return err
