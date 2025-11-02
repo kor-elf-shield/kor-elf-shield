@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
@@ -102,6 +103,10 @@ func (s *socket) Run(ctx context.Context, handleCommand HandleCommand) {
 				s.logger.Debug("The socket has closed. Shutdown")
 				return
 			default:
+				if isUseOfClosedNetworkError(err) {
+					s.logger.Debug("The socket has closed")
+					return
+				}
 				s.logger.Error(fmt.Sprintf("Failed to accept connection: %s", err))
 				continue
 			}
@@ -136,4 +141,8 @@ func canConnect(path string) bool {
 	}()
 
 	return true
+}
+
+func isUseOfClosedNetworkError(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "use of closed network connection")
 }
