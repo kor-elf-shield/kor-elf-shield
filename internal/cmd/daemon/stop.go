@@ -27,7 +27,7 @@ func stopDaemon(_ context.Context, _ *cli.Command) error {
 
 	sock, err := socket.NewSocketClient(setting.Config.SocketFile)
 	if err != nil {
-		return err
+		return errors.New(i18n.Lang.T("daemon is not running"))
 	}
 	defer func() {
 		_ = sock.Close()
