@@ -9,6 +9,9 @@
   "cmd.daemon.stop.Usage": "Демонды тоқтату",
   "cmd.daemon.stop.Description": "Демонды тоқтатады. Ескерту: Бұл nftables брандмауэр ережелерін жояды!",
 
+  "cmd.daemon.status.Usage": "Демонның жұмыс істеп тұрғанын тексеру",
+  "cmd.daemon.status.Description": "Демонның жұмыс істеп тұрғанын тексеру",
+
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
   "invalid log encoding": "Жарамсыз кодтау параметрі. Қазіргі уақытта орнатылған: {{.Encoding}}. Жарамды мәндер: {{.Encodings}}",
@@ -17,5 +20,6 @@
   "failed to open file for writing": "Кіруге тыйым салынды: {{.File}}",
   "socket file is not specified": "сокет файлы көрсетілмеген",
   "daemon stopped": "Жын тоқтатылды",
-  "daemon stop failed": "Жынды тоқтату сәтсіз аяқталды"
+  "daemon stop failed": "Жынды тоқтату сәтсіз аяқталды",
+  "daemon is not running": "Демон жұмыс істемейді"
 }

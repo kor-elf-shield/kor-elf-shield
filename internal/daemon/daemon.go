@@ -95,6 +95,8 @@ func (d *daemon) socketCommand(command string, socket socket.Connect) error {
 	case "stop":
 		d.stopCh <- struct{}{}
 		return socket.Write("ok")
+	case "status":
+		return socket.Write("ok")
 	default:
 		_ = socket.Write("unknown command")
 		return errors.New("unknown command")
