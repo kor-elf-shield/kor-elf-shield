@@ -15,6 +15,7 @@ type setting struct {
 	Language         string `mapstructure:"language"`
 	FallbackLanguage string `mapstructure:"fallback_language"`
 	PidFile          string `mapstructure:"pid_file"`
+	SocketFile       string `mapstructure:"socket_file"`
 
 	Log               *log
 	BinaryLocations   *binaryLocations
@@ -28,6 +29,7 @@ func settingDefault() *setting {
 		Language:         "ru",
 		FallbackLanguage: "ru",
 		PidFile:          "/var/run/kor-elf-shield/kor-elf-shield.pid",
+		SocketFile:       "/var/run/kor-elf-shield/kor-elf-shield.sock",
 
 		Log:               logDefault(),
 		BinaryLocations:   binaryLocationsDefault(),
@@ -39,6 +41,12 @@ func (s setting) ToDaemonOptions() (daemon.DaemonOptions, error) {
 	if s.PidFile == "" {
 		return daemon.DaemonOptions{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
 			"Parameter": "pid_file",
+		}))
+	}
+
+	if s.SocketFile == "" {
+		return daemon.DaemonOptions{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+			"Parameter": "socket_file",
 		}))
 	}
 
@@ -55,6 +63,7 @@ func (s setting) ToDaemonOptions() (daemon.DaemonOptions, error) {
 
 	return daemon.DaemonOptions{
 		PathPidFile:    s.PidFile,
+		PathSocketFile: s.SocketFile,
 		PathNftables:   s.BinaryLocations.Nftables,
 		ConfigFirewall: firewallConfig,
 	}, nil
@@ -68,6 +77,9 @@ func (s setting) Validate() error {
 		return err
 	}
 	if err := s.validatePidFile(); err != nil {
+		return err
+	}
+	if err := s.validateSocketFile(); err != nil {
 		return err
 	}
 
@@ -110,4 +122,14 @@ func validateLanguage(language string, parameterName string) error {
 		return nil
 	}
 	return errors.New("invalid " + parameterName + ". Must be ru, en, kk")
+}
+
+func (s setting) validateSocketFile() error {
+	if err := validate.PathFile(s.SocketFile, "socket_file"); err != nil {
+		return err
+	}
+	if !strings.HasSuffix(strings.ToLower(s.SocketFile), ".sock") {
+		return errors.New("invalid socket_file. Must be .sock")
+	}
+	return nil
 }

@@ -5,6 +5,7 @@ import (
 
 	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
@@ -18,10 +19,16 @@ func NewDaemon(opts DaemonOptions, logger log.Logger) (Daemon, error) {
 		return nil, err
 	}
 
+	sock, err := socket.New(opts.PathSocketFile, logger)
+	if err != nil {
+		return nil, err
+	}
+
 	firewall, err := firewall2.New(opts.PathNftables, logger, opts.ConfigFirewall)
 
 	return &daemon{
 		pidFile:  pidFile,
+		socket:   sock,
 		logger:   logger,
 		firewall: firewall,
 	}, nil

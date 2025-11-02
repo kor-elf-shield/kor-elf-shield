@@ -67,6 +67,15 @@ fallback_language = "ru"
 ###
 pid_file = "/var/run/kor-elf-shield/kor-elf-shield.pid"
 
+###
+# Путь, по которому будет создан файл сокета.
+# По умолчанию: "/var/run/kor-elf-shield/kor-elf-shield.sock"
+# ***
+# Path where the socket file will be created.
+# Default: "/var/run/kor-elf-shield/kor-elf-shield.sock"
+###
+socket_file = "/var/run/kor-elf-shield/kor-elf-shield.sock"
+
 ###############################################################################
 # РАЗДЕЛ:Log
 # ***

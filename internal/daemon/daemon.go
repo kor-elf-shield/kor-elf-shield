@@ -6,6 +6,7 @@ import (
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
@@ -16,12 +17,16 @@ type Daemon interface {
 
 type daemon struct {
 	pidFile  pidfile.PidFile
+	socket   socket.Socket
 	logger   log.Logger
 	firewall firewall.API
 }
 
 func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16) error {
 	if err := d.pidFile.EnsureNoOtherProcess(); err != nil {
+		return err
+	}
+	if err := d.socket.EnsureNoOtherProcess(); err != nil {
 		return err
 	}
 	if err := d.firewall.Reload(); err != nil {
@@ -37,6 +42,14 @@ func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16
 		_ = d.pidFile.Remove()
 	}()
 
+	if err := d.socket.Create(); err != nil {
+		return err
+	}
+	defer func() {
+		_ = d.socket.Close()
+	}()
+
+	go d.socket.Run(ctx, d.socketCommand)
 	d.runWorker(ctx, isTesting, testingInterval)
 
 	return nil
@@ -67,4 +80,9 @@ func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval 
 			return
 		}
 	}
+}
+
+func (d *daemon) socketCommand(command string) error {
+	println(command)
+	return nil
 }
