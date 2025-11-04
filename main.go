@@ -18,7 +18,7 @@ import (
 var (
 	Version     = "development" // program version for this build
 	MakeVersion = ""            // "make" program version if built with make
-	ConfigPath  = "/etc/kor-elf-shield/kor-elf-shield.conf"
+	ConfigPath  = "/etc/kor-elf-shield/kor-elf-shield.toml"
 )
 
 func init() {
