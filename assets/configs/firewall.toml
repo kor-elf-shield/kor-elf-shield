@@ -1,0 +1,486 @@
+###############################################################################
+# РАЗДЕЛ:Настройки портов
+# ***
+# SECTION:Port settings
+###############################################################################
+###
+# Убираем не нужные и добавляем нужные порты.
+#
+# Пример:
+# [[ports]]
+# numbers = [80, 443] # Номер портов (обязательное поле)
+# directions = ["in", "out"] # Входящий (in), исходящий трафик (out) (обязательное поле)
+# protocols = ["tcp", "udp"] # Протокол: tcp, udp (обязательное поле)
+# action = "accept" # Действие: accept, drop или reject (обязательное поле)
+# limit_rate = "10/second" # Указыаваем ограничения если будет нужно (не обязательное поле)
+#
+# numbers - можно указывать одно или несколько портов, но правила будут создаваться отдельно для каждого порта.
+# directions - если указываем in и out, то создаться каждое правило отдельно в своей цепочке.
+# protocols - если указано tcp и udp, то создаться каждое правило отдельно для каждого протокола.
+#
+# action:
+# accept = разрешить
+# drop   = блокировать молча
+# reject = блокировка с обратной связью
+#
+# limit_rate устанавливайте его в соответствии с документацией nftables (limit rate).
+###
+# Remove unnecessary ports and add necessary ones.
+#
+# Example:
+# [[ports]]
+# numbers = [80, 443] # Port number (required)
+# directions = ["in", "out"] # Incoming (in), outgoing (out) traffic (required)
+# protocols = ["tcp", "udp"] # Protocol: tcp, udp (required)
+# action = "accept" # Action: accept, drop, or reject (required)
+# limit_rate = "10/second" # Specify limits if needed (optional)
+#
+# numbers - you can specify one or more ports, but rules will be created separately for each port.
+# directions - if you specify "in" and "out", each rule will be created separately in its own chain.
+# protocols - if you specify "tcp" and "udp", each rule will be created separately for each protocol.
+#
+# action:
+# accept = allow
+# drop   = silent block
+# reject = feedback blocking
+#
+# Set limit_rate according to the nftables documentation (limit rate).
+###
+# FTP
+[[ports]]
+numbers = [20, 21]
+directions = ["in", "out"]
+protocols = ["tcp", "udp"]
+action = "accept"
+
+# SSH
+[[ports]]
+numbers = [22]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# SMTP
+[[ports]]
+numbers = [25, 587, 465]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# POP3
+[[ports]]
+numbers = [110, 995]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# IMAP
+[[ports]]
+numbers = [143, 993]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# Time Protocol
+[[ports]]
+numbers = [37]
+directions = ["out"]
+protocols = ["tcp"]
+action = "accept"
+
+# NTP — Network Time Protocol
+[[ports]]
+numbers = [123]
+directions = ["out"]
+protocols = ["udp"]
+action = "accept"
+
+# WHOIS
+[[ports]]
+numbers = [43]
+directions = ["out"]
+protocols = ["tcp"]
+action = "accept"
+
+# DNS
+[[ports]]
+numbers = [53]
+directions = ["in", "out"]
+protocols = ["tcp", "udp"]
+action = "accept"
+
+# HTTP / HTTPS
+[[ports]]
+numbers = [80,443]
+directions = ["in", "out"]
+protocols = ["tcp"]
+action = "accept"
+
+# DNS-over-TLS (DoT)
+[[ports]]
+numbers = [853]
+directions = ["in", "out"]
+protocols = ["tcp", "udp"]
+action = "accept"
+
+# rsync
+[[ports]]
+numbers = [873]
+directions = ["out"]
+protocols = ["tcp", "udp"]
+action = "accept"
+
+###
+# Указываем IP адреса, которые надо разрешить или запретить.
+# Примеры:
+# [[ips]]
+# ips = ["192.168.1.1", "fe80::260:8ff:fe52:f9d8"] # (обязательное поле)
+# action = "accept" # Дейстиве: accept, drop или reject (обязательное поле)
+# directions = ["in", "out"] (обязательное поле)
+# protocols = ["tcp", "udp"] (не обязательное поле)
+# ports = ["80"] # (не обязательное поле)
+# limit_rate = "10/second" # (не обязательное поле)
+#
+# [[ips]]
+# ips = ["192.168.1.2"]
+# action = "accept"
+# directions = ["in"]
+#
+# [[ips]]
+# ips = ["192.168.1.7"]
+# action = "accept"
+# directions = ["in"]
+# ports = ["80"]
+# Внимание:
+# Если protocols не указан, но указан ports, то правила будут добавляться с протоколом TCP.
+# protocols работает вместе с ports. Если protocols указан, а ports нет, то добавится правило
+# без учёта этих полей.
+# ***
+# Specify the IP addresses to allow or deny.
+# Examples:
+# [[ips]]
+# ips = ["192.168.1.1", "fe80::260:8ff:fe52:f9d8"] # (required)
+# action = "accept" # Action: accept, drop, or reject (required)
+# directions = ["in", "out"] # (required)
+# protocols = ["tcp", "udp"] # (optional)
+# ports = ["80"] # (optional)
+# limit_rate = "10/second" # (optional)
+#
+# [[ips]]
+# ips = ["192.168.1.2"]
+# action = "accept"
+# directions = ["in"]
+#
+# [[ips]]
+# ips = ["192.168.1.7"]
+# action = "accept"
+# directions = ["in"]
+# ports = ["80"]
+#
+# [[ips]]
+# ips = ["192.168.2.0/24"]
+# action = "accept"
+# directions = ["in"]
+# ports = ["80"]
+# Attention:
+# If protocols is not specified, but ports is specified, then the rules will be added with the TCP protocol.
+# protocols works in conjunction with ports. If protocols are specified but ports are not, a rule will be
+# added without taking these fields into account.
+###
+
+###############################################################################
+# РАЗДЕЛ:Настройки IP4
+# ***
+# SECTION:IP4 settings
+###############################################################################
+[ip4]
+###
+# Разрешить входящий PING. Отключение PING может нарушить работу внешнего мониторинга.
+# По умолчанию: true
+# ***
+# Allow incoming PING. Disabling PING may disrupt external monitoring.
+# Default: true
+###
+icmp_in = true
+
+###
+# Установите ограничения на количество одновременных пакетов в секунду.
+# Если превысит количество пакетов за указанный период, оставшиеся пакеты будут отброшены.
+# Если вы заметите нежелательные потери, увеличьте значение или отключите его.
+#
+# Чтобы отключить ограничение скорости, установите значение «0», в противном
+# случае установите его в соответствии с документацией nftables (limit rate).
+# Например, «1/second» ограничит передачу одним пакетом в секунду.
+# По умолчанию: 1/second
+# ***
+# Set limits on the number of simultaneous packets per second.
+# If the number of packets exceeds the specified period, the remaining packets will be dropped.
+# If you notice unwanted packet loss, increase the value or disable it.
+#
+# To disable rate limiting, set the value to "0." Otherwise, set it according to the nftables
+# documentation (limit rate). For example, "1/second" will limit transmission to one packet per second.
+# Default: 1/second
+###
+icmp_in_rate = "1/second"
+
+###
+# Разрешить исходящий PING. Если нет особых причин, то лучше не отключать иначе может нарушить работу ОС.
+# По умолчанию: true
+# ***
+# Allow outgoing PING. Unless there's a specific reason, it's best to leave this enabled, as it may
+# disrupt the operating system.
+# Default: true
+###
+icmp_out = true
+
+###
+# Установите ограничения на количество одновременных пакетов в секунду в исходящих ICMP-пакетов для запросов PING
+# на IP-адрес. Если превысит количество пакетов за указанный период, оставшиеся пакеты будут отброшены.
+# Если нет особых причин, то лучше не включать ограничения иначе может нарушить работу ОС.
+#
+# Чтобы отключить ограничение скорости, установите значение «0», в противном
+# случае установите его в соответствии с документацией nftables (limit rate).
+# Например, «1/second» ограничит передачу одним пакетом в секунду.
+# По умолчанию: 0
+# ***
+# Set limits on the number of concurrent packets per second in outgoing ICMP packets for PING requests to an IP address.
+# If the number of packets exceeds the specified period, the remaining packets will be discarded.
+# If there are no special reasons, it is better not to enable restrictions, otherwise it may disrupt the
+# operation of the OS.
+#
+# To disable rate limiting, set the value to "0." Otherwise, set it according to the nftables
+# documentation (limit rate). For example, "1/second" will limit transmission to one packet per second.
+# Default: 0
+###
+icmp_out_rate = "0"
+
+###
+# Блокировать ICMP timestamp-запросы. На самом деле реальной угрозы почти нет, но иногда ИТ-аудиторы
+# настаивают на блокировке ICMP timestamp-запросов.
+# По умолчанию: false
+# ***
+# Block ICMP timestamp requests. There's virtually no real threat, but sometimes IT auditors
+# insist on blocking ICMP timestamp requests.
+# Default: false
+###
+icmp_timestamp_drop = false
+
+###############################################################################
+# РАЗДЕЛ:Настройки IP6
+# ***
+# SECTION:IP6 settings
+###############################################################################
+[ip6]
+###
+# Включает поддержку IP6.
+# По умолчанию: false
+# ***
+# Includes IP6 support.
+# Default: false
+###
+enable = false
+
+###
+# IP6 активно использует пакеты ICMPV6, поэтому по умолчанию строгий режим ICMPV6 выключен.
+# Однако это может увеличить риск атак на ICMPV6. Можно включить строгий режим, но это может
+# спровоцировать проблемы с некоторыми типами подключений.
+# По умолчанию: false
+# ***
+# IP6 actively uses ICMPV6 packets, so strict ICMPV6 mode is disabled by default.
+# However, this may increase the risk of ICMPV6 attacks. You can enable strict mode, but this may
+# cause problems with some connection types.
+# Default: false
+###
+icmp_strict = false
+
+###############################################################################
+# РАЗДЕЛ:Общие настройки
+# ***
+# SECTION:General Settings
+###############################################################################
+[options]
+###
+# Будет ли демон сохранять правила в системный файл nftables.
+# Не забудьте проверить, что путь к nftables соответствует вашей ОС.
+# По умолчанию: false
+# ***
+# Will the daemon save rules to the system nftables file.
+# Don't forget to check that the path to nftables matches your OS.
+# Default: false
+###
+saves_rules = false
+
+###
+# Путь, где будут сохранены правила для nftables. Укажите путь, соответствующий вашей ОС.
+# По умолчанию: /etc/nftables.conf
+# ***
+# Path where rules for nftables will be saved. Please specify the path specific to your OS.
+# Default: /etc/nftables.conf
+###
+saves_rules_path = "/etc/nftables.conf"
+
+###
+# Включает строгие правила nftables к DNS-трафику. Если включить этот режим, то некоторые правила,
+# связанные с DNS, не добавятся в nftables. Что улучшит безопасность и предотвратить злоупотребление
+# локальным DNS-сервером. Но может вызвать проблемы связанным с DNS.
+# По умолчанию: false
+###
+# Enables strict nftables rules for DNS traffic. If this mode is enabled, some DNS-related rules
+# will not be added to nftables. This improves security and prevents abuse of the local DNS server.
+# However, it may cause DNS-related issues.
+# Default: false
+###
+dns_strict = false
+
+###
+# Включает строгие правила nftables к DNS-трафику. Если включить этот режим, то не добавятся правила,
+# разрешающие IP адресам порт 53 (входящим и исходящим), которые указаны в /etc/resolv.conf.
+# Это может спровоцировать проблему с DNS.
+# По умолчанию: false
+###
+# Enable strict nftables rules for DNS traffic. If this mode is enabled, the rules that resolve IP addresses
+# on port 53 (incoming and outgoing) specified in /etc/resolv.conf will not be applied. This may cause DNS issues.
+# Default: false
+###
+dns_strict_ns = false
+
+###
+# Добавляет в nftables фильтирацию пакетов, которые нарушают порядок.
+# По умолчанию: true
+###
+# Adds out-of-order packet filtering to nftables.
+# Default: true
+###
+packet_filter = true
+
+###############################################################################
+# РАЗДЕЛ:Политика действий по умолчанию
+# ***
+# SECTION:Default action policy
+###############################################################################
+[policy]
+###
+# Разрешить входящий трафик по умолчанию.
+#
+# По умолчанию: false
+# ***
+# Allow incoming traffic by default.
+#
+# Default: false
+###
+default_allow_input = false
+
+###
+# Разрешить исходящий трафик по умолчанию.
+#
+# По умолчанию: false
+# ***
+# Allow outgoing traffic by default.
+#
+# Default: false
+###
+default_allow_output = false
+
+###
+# Разрешить forward трафик по умолчанию.
+#
+# По умолчанию: false
+# ***
+# Allow forward traffic by default.
+#
+# Default: false
+###
+default_allow_forward = false
+
+###
+# Как заблокировать входящий трафик. Блокировать молча или с обратной связью.
+# Допустимые значения:
+# drop   = блокировать молча
+# reject = блокировка с обратной связью
+#
+# По умолчанию: drop
+# ***
+# How to block incoming traffic. Block silently or with feedback.
+# Valid values:
+# drop   = block silently
+# reject = block with feedback
+#
+# Default: drop
+###
+input_drop = "drop"
+
+###
+# Как заблокировать исходящий трафик. Блокировать молча или с обратной связью.
+# Допустимые значения:
+# drop   = блокировать молча
+# reject = блокировка с обратной связью
+#
+# По умолчанию: reject
+# ***
+# How to block outgoing traffic. Block silently or with feedback.
+# Valid values:
+# drop   = block silently
+# reject = block with feedback
+#
+# Default: reject
+###
+output_drop = "reject"
+
+###
+# Как заблокировать трафик forward. Блокировать молча или с обратной связью.
+# Допустимые значения:
+# drop   = блокировать молча
+# reject = блокировка с обратной связью
+#
+# По умолчанию: drop
+# ***
+# How to block forward traffic. Block silently or with feedback.
+# Valid values:
+# drop   = block silently
+# reject = block with feedback
+#
+# Default: drop
+###
+forward_drop = "drop"
+
+###############################################################################
+# РАЗДЕЛ:Именование метаданных
+# ***
+# SECTION:Metadata Naming
+###############################################################################
+[metadataNaming]
+###
+# Имя таблицы в nftables
+# По умолчанию: "shield"
+# ***
+# Table name in nftables
+# Default: "shield"
+###
+table_name = "shield"
+
+###
+# Имя chain для input
+# По умолчанию: "input"
+# ***
+# Chain name for input
+# Default: "input"
+###
+chain_input_name = "input"
+
+###
+# Имя chain для output
+# По умолчанию: "output"
+# ***
+# Chain name for output
+# Default: "output"
+###
+chain_output_name = "output"
+
+###
+# Имя chain для forward
+# По умолчанию: "forward"
+# ***
+# Chain name for forward
+# Default: "forward"
+###
+chain_forward_name = "forward"

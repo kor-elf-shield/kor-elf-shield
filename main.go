@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"kor-elf-shield/internal/cmd"
-	"kor-elf-shield/internal/i18n"
-	"kor-elf-shield/internal/setting"
 	"os"
 	"runtime"
 	"strings"
 	"time"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/cmd"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
 
 	"golang.org/x/sys/unix"
 )
@@ -17,7 +18,7 @@ import (
 var (
 	Version     = "development" // program version for this build
 	MakeVersion = ""            // "make" program version if built with make
-	ConfigPath  = "/etc/kor-elf-shield/kor-elf-shield.conf"
+	ConfigPath  = "/etc/kor-elf-shield/kor-elf-shield.toml"
 )
 
 func init() {
@@ -39,13 +40,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = i18n.InitLang(setting.Config.GetFallbackLanguage())
+	err = i18n.InitLang(setting.Config.FallbackLanguage)
 	if err != nil {
 		fmt.Printf("\033[31m%s\033[0m\n", err.Error())
 		os.Exit(1)
 	}
 
-	err = i18n.Lang.ChangeLang(setting.Config.GetLanguage())
+	err = i18n.Lang.ChangeLang(setting.Config.Language)
 	if err != nil {
 		fmt.Printf("\033[31m%s\033[0m\n", err.Error())
 		os.Exit(1)

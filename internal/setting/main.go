@@ -3,6 +3,7 @@ package setting
 import (
 	"time"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 	"github.com/spf13/viper"
 )
 
@@ -15,32 +16,36 @@ var (
 
 	// AppStartTime program start time
 	AppStartTime time.Time
-	Config       settingContract
+	Config       *setting
 )
 
 func init() {
 	if AppVer == "" {
 		AppVer = "development"
 	}
-
-	// Default config
-	Config = &setting{
-		Language:         "ru",
-		FallbackLanguage: "ru",
-	}
 }
 
 func InitSetting(path string) error {
-	v := viper.New()
-	v.SetConfigType("toml")
-	v.SetConfigFile(path)
-	err := v.ReadInConfig()
-	if err != nil {
+	if err := validate.IsTomlFile(path, "config"); err != nil {
 		return err
 	}
 
-	err = v.Unmarshal(&Config)
-	if err != nil {
+	// Default config
+	Config = settingDefault()
+
+	v := viper.New()
+	v.SetConfigType("toml")
+	v.SetConfigFile(path)
+
+	if err := v.ReadInConfig(); err != nil {
+		return err
+	}
+
+	if err := v.Unmarshal(&Config); err != nil {
+		return err
+	}
+
+	if err := Config.Validate(); err != nil {
 		return err
 	}
 

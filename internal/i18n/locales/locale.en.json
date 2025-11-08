@@ -1,5 +1,29 @@
 {
   "app.Usage": "A simple script to manage the nftables firewall and protect against password attacks",
   "app.Description": "This suite of scripts provides:\n - A straight-forward SPI nftables firewall script\n - A daemon process that checks for Login Authentication",
-  "app.flags.config.Usage": "Path to the configuration file"
+  "app.flags.config.Usage": "Path to the configuration file",
+
+  "cmd.daemon.start.Usage": "Run the nftables firewall management daemon",
+  "cmd.daemon.start.Description": "Launches a daemon that will configure the nftables firewall according to your settings and monitor any authentication attempts.",
+
+  "cmd.daemon.stop.Usage": "Stop the daemon",
+  "cmd.daemon.stop.Description": "Stops the daemon. Note: This will clear the nftables firewall rules!",
+
+  "cmd.daemon.status.Usage": "Checking if the daemon is running",
+  "cmd.daemon.status.Description": "Checking if the daemon is running",
+
+  "cmd.daemon.reopen_logger.Usage": "Reopen the file for logging",
+  "cmd.daemon.reopen_logger.Description": "Reopen the file where the daemon's logs are written",
+
+  "Command error": "Command error",
+  "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
+  "invalid log encoding": "Invalid encoding setting. Currently set to: {{.Encoding}}. Valid values: {{.Encodings}}",
+  "parameter is not specified": "The \"{{.Parameter}}\" parameter is not specified",
+  "failed to create directory": "Unable to create directory: {{.Directory}}",
+  "failed to open file for writing": "Permission denied: {{.File}}",
+  "socket file is not specified": "Socket file is not specified",
+  "daemon stopped": "Daemon stopped",
+  "daemon stop failed": "Daemon stop failed",
+  "daemon is not running": "Daemon is not running",
+  "daemon is not reopening logger": "The daemon did not reopen the log"
 }

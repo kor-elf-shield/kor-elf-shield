@@ -1,5 +1,29 @@
 {
   "app.Usage": "Nftables брандмауэрін басқаруға және құпия сөз шабуылдарынан қорғауға арналған қарапайым сценарий",
   "app.Description": "Бұл сценарийлер жинағы мыналарды қамтамасыз етеді:\n– Қарапайым SPI nftables брандмауэр сценарийі\n– Жүйеге кіру кезінде аутентификацияны тексеретін демон процесі",
-  "app.flags.config.Usage": "Конфигурация файлына жол"
+  "app.flags.config.Usage": "Конфигурация файлына жол",
+
+  "cmd.daemon.start.Usage": "nftables брандмауэрін басқару daemon іске қосыңыз",
+  "cmd.daemon.start.Description": "Параметрлеріңізге сәйкес nftables брандмауэрін конфигурациялайтын және кез келген аутентификация әрекеттерін бақылайтын daemon іске қосады.",
+
+  "cmd.daemon.stop.Usage": "Демонды тоқтату",
+  "cmd.daemon.stop.Description": "Демонды тоқтатады. Ескерту: Бұл nftables брандмауэр ережелерін жояды!",
+
+  "cmd.daemon.status.Usage": "Демонның жұмыс істеп тұрғанын тексеру",
+  "cmd.daemon.status.Description": "Демонның жұмыс істеп тұрғанын тексеру",
+
+  "cmd.daemon.reopen_logger.Usage": "Файлды тіркеу үшін қайта ашыңыз",
+  "cmd.daemon.reopen_logger.Description": "Демонның журналдары жазылған файлды қайта ашыңыз.",
+
+  "Command error": "Командалық қате",
+  "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
+  "invalid log encoding": "Жарамсыз кодтау параметрі. Қазіргі уақытта орнатылған: {{.Encoding}}. Жарамды мәндер: {{.Encodings}}",
+  "parameter is not specified": "\"{{.Parameter}}\" параметрі көрсетілмеген",
+  "failed to create directory": "Каталог жасау мүмкін емес: {{.Directory}}",
+  "failed to open file for writing": "Кіруге тыйым салынды: {{.File}}",
+  "socket file is not specified": "сокет файлы көрсетілмеген",
+  "daemon stopped": "Жын тоқтатылды",
+  "daemon stop failed": "Жынды тоқтату сәтсіз аяқталды",
+  "daemon is not running": "Демон жұмыс істемейді",
+  "daemon is not reopening logger": "Жын журналды қайта ашпады"
 }

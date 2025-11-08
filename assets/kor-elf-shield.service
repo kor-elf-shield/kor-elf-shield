@@ -1,0 +1,10 @@
+[Unit]
+Description=kor-elf-shield
+After=network.target
+
+[Service]
+ExecStart=/usr/sbin/kor-elf-shield start
+ExecStop=/usr/sbin/kor-elf-shield stop
+
+[Install]
+WantedBy=sysinit.target

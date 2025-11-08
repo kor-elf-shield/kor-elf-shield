@@ -1,0 +1,212 @@
+###############################################################################
+# РАЗДЕЛ:Базовые настройки
+# ***
+# SECTION:Basic settings
+###############################################################################
+
+###
+# Тестовый режим. Это необходимо, чтобы убедиться, что всё настроено правильно.
+# !!! После завершения настройки не забудьте отключить тестовый режим. !!!
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: true
+# ***
+# Test mode. This is necessary to ensure that everything is configured correctly.
+# !!! After complete setup, don't forget to disable test mode. !!!
+# false = Disables.
+# true  = Enables.
+#
+# Default: true
+###
+testing = true
+
+###
+# Тестовый период, по истечении которого брандмауэр удалит правила и демон завершит работу.
+# Период указывается в минутах.
+# Мин: 1
+# Макс: 30000
+# По умолчанию: 5
+# ***
+# The test period after which the firewall will clear the rules and the daemon will shut down.
+# The period is specified in minutes.
+# Min: 1
+# Max: 30000
+# Default: 5
+###
+testing_interval = 5
+
+###
+# Настройки языка.
+# На данный момент поддерживаются 3 языка "ru" (русский), "kk" (казахский), "en" (английский).
+# По умолчанию: "ru"
+# ***
+# Language settings.
+# Currently 3 languages are supported: "ru" (Russian), "kk" (Kazakh), "en" (English).
+# Default: "ru"
+###
+language = "ru"
+
+###
+# Второй язык, если вдруг у текущего языка не будет перевода.
+# Рекомендуется вторым языком выбирать "ru" или "en".
+# По умолчанию: "ru"
+# ***
+# Second language, in case the current language doesn't have a translation.
+# It is recommended to choose "ru" or "en" as the second language.
+# Default: "ru"
+###
+fallback_language = "ru"
+
+###
+# Путь, по которому будет создан pid-файл.
+# По умолчанию: "/var/run/kor-elf-shield/kor-elf-shield.pid"
+# ***
+# The path where the pid file will be created.
+# Default: "/var/run/kor-elf-shield/kor-elf-shield.pid"
+###
+pid_file = "/var/run/kor-elf-shield/kor-elf-shield.pid"
+
+###
+# Путь, по которому будет создан файл сокета.
+# По умолчанию: "/var/run/kor-elf-shield/kor-elf-shield.sock"
+# ***
+# Path where the socket file will be created.
+# Default: "/var/run/kor-elf-shield/kor-elf-shield.sock"
+###
+socket_file = "/var/run/kor-elf-shield/kor-elf-shield.sock"
+
+###############################################################################
+# РАЗДЕЛ:Log
+# ***
+# SECTION:Log
+###############################################################################
+[log]
+###
+# Включает или выключает ведение журнала.
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: true
+# ***
+# Enables or disables logging.
+# false = Disables.
+# true = Enables.
+#
+# Default: true
+###
+enabled = true
+
+###
+# Уровень ведения журнала:
+# debug = Журнал для отладки и рекомендуется не выберать в production.
+# info  = Подробное ведение журнала. Записывает информацию о запуске, остановке и т.д.
+# warn  = Предупреждения о потенциально проблемных ситуациях, которые не мешают работе приложения, но требуют внимания.
+# error = Ошибки, которые возникли во время работы, но не привели к остановке программы.
+# fatal = Критичные ошибки, после которых приложение завершает работу.
+#
+# По умолчанию: info
+# ***
+# Logging level:
+# debug = The log is for debugging and is not recommended to be selected in production.
+# info  = Detailed logging. Records information when the program starts, stops, etc.
+# warn  = Warnings about potential problematic situations that do not interfere with the operation of the application,
+# but require attention.
+# error = Errors that occurred during operation but did not cause the program to stop.
+# fatal = Critical errors that cause the application to terminate.
+#
+# Default: info
+###
+level = "info"
+
+###
+# Нужен для отладки в тестовых окружениях.
+# В production всегда должен быть выключен.
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: false
+# ***
+# Needed for debugging in test environments.
+# Should always be disabled in production.
+# false = Disables.
+# true  = Enables.
+#
+# Default: false
+###
+development = false
+
+###
+# В каком формате следует записывать данные в журнал.
+# json = В формате json.
+# text = В формате обычного текста. Каждый параметр в журнале будет разделён пробелом.
+#
+# По умолчанию: json
+# ***
+# The format in which to write data to the log.
+# json = In json format.
+# text = In plain text format. Each parameter in the log will be separated by a space.
+#
+# Default: json
+###
+encoding = "json"
+
+###
+# Список мест для основных логов.
+# Можно указать несколько путей. Например output_paths = ["stdout", "/var/log/kor-elf-shield.log"].
+# Где "stdout" - вывод данных в консоль.
+# По умолчанию: ["/var/log/kor-elf-shield.log"]
+# ***
+# List of locations for main logs.
+# Multiple paths can be specified. For example, output_paths = ["stdout", "/var/log/kor-elf-shield.log"].
+# Where "stdout" is the console output.
+# Default: ["/var/log/kor-elf-shield.log"]
+###
+paths = ["/var/log/kor-elf-shield.log"]
+
+###
+# Список мест для ошибок логгирования. Например журнал не смог записать какие-то данные.
+# Можно указать несколько путей. Например output_paths = ["stderr", "/var/log/kor-elf-shield-log-error.log"].
+# Где "stderr" - вывод данных в консоль.
+# По умолчанию: ["stderr"]
+# ***
+# List of locations for logging errors. For example, the log failed to write some data.
+# Multiple paths can be specified. For example, output_paths = ["stderr", "/var/log/kor-elf-shield-log-error.log"].
+# Where "stderr" is the data output to the console.
+# Default: ["stderr"]
+###
+log_error_paths = ["stderr"]
+
+###############################################################################
+# РАЗДЕЛ:Настройки, специфичные для ОС
+# ***
+# SECTION:OS Specific Settings
+###############################################################################
+[binaryLocations]
+###
+# Укажите путь к nftables. Возможно в вашей ОС путь может отличаться.
+# По умолчанию: /usr/sbin/nft
+# ***
+# Specify the path to nftables. The path may differ in your OS.
+# Default: /usr/sbin/nft
+###
+nftables = "/usr/sbin/nft"
+
+###############################################################################
+# РАЗДЕЛ:Пути к другим настройкам
+# ***
+# SECTION:Paths to other settings
+###############################################################################
+[otherSettingsPath]
+###
+# Укажите путь к настройкам брандмауэра. В этих настройках мы указываем, какие порты открыть или закрыть.
+# Какие IP адреса заблокировать или наоборот, что бы никогда не блокировались.
+# Файл должен иметь расширение .toml.
+# По умолчанию: /etc/kor-elf-shield/firewall.toml
+# ***
+# Specify the path to the firewall settings. These settings specify which ports to open or close.
+# Which IP addresses to block or, conversely, to ensure they are never blocked.
+# The file must have the .toml extension.
+# Default: /etc/kor-elf-shield/firewall.toml
+###
+firewall = "/etc/kor-elf-shield/firewall.toml"

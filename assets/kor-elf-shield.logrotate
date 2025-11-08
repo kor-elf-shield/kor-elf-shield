@@ -1,0 +1,11 @@
+/var/log/kor-elf-shield.log {
+    rotate 3
+    weekly
+    compress
+    maxsize 100M
+    missingok
+    notifempty
+    postrotate
+        /usr/sbin/kor-elf-shield reopen_logger
+    endscript
+}
