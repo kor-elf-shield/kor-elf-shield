@@ -36,6 +36,11 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 		return firewall.Config{}, err
 	}
 
+	optionClearMode, err := setting.Options.ToClearMode()
+	if err != nil {
+		return firewall.Config{}, err
+	}
+
 	return firewall.Config{
 		InPorts:  inPorts,
 		OutPorts: outPorts,
@@ -55,6 +60,7 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 			OutIPs:     IPs.OutIP6,
 		},
 		Options: firewall.ConfigOptions{
+			ClearMode:      optionClearMode,
 			SavesRules:     setting.Options.SavesRules,
 			SavesRulesPath: setting.Options.SavesRulesPath,
 			DnsStrict:      setting.Options.DnsStrict,

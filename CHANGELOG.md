@@ -1,3 +1,11 @@
+## 0.2.0 (скоро / soon)
+***
+#### Русский
+* Добавлен параметр clear_mode в firewall.toml. Он позволяет переключать режим очистки всех правил в nftables или только таблицу относящие к программе.
+***
+#### English
+* Added the clear_mode parameter to firewall.toml. It allows you to toggle clearing of all rules in nftables or only the program-specific table.
+***
 ## 0.1.0 (8.11.2025)
 ***
 #### Русский

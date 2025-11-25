@@ -1,6 +1,8 @@
 package chain
 
 import (
+	"strings"
+
 	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client"
 	nftFamily "git.kor-elf.net/kor-elf-shield/go-nftables-client/family"
 )
@@ -23,6 +25,8 @@ type Chains interface {
 
 	NewLocalOutput() error
 	LocalOutput() LocalOutput
+
+	ClearRules() error
 }
 
 type chains struct {
@@ -40,11 +44,12 @@ type chains struct {
 }
 
 func NewChains(nft nft.NFT, table string) (Chains, error) {
-	if err := nft.Clear(); err != nil {
+	family := nftFamily.INET
+
+	if err := clearRules(nft, family, table); err != nil {
 		return nil, err
 	}
 
-	family := nftFamily.INET
 	if err := nft.Table().Add(family, table); err != nil {
 		return nil, err
 	}
@@ -136,4 +141,18 @@ func (c *chains) NewLocalOutput() error {
 
 func (c *chains) LocalOutput() LocalOutput {
 	return c.localOutput
+}
+
+func (c *chains) ClearRules() error {
+	return clearRules(c.nft, c.family, c.table)
+}
+
+func clearRules(nft nft.NFT, family nftFamily.Type, table string) error {
+	if err := nft.Table().Delete(family, table); err != nil {
+		if !strings.Contains(string(err.Error()), "delete table "+family.String()+" "+table) {
+			return err
+		}
+	}
+
+	return nil
 }

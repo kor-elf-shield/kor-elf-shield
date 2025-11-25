@@ -43,6 +43,12 @@ func New(pathNFT string, logger log.Logger, config Config) (API, error) {
 
 func (f *firewall) Reload() error {
 	f.logger.Debug("Reload nftables rules")
+	if f.config.Options.ClearMode == ClearModeGlobal {
+		if err := f.nft.Clear(); err != nil {
+			return err
+		}
+	}
+
 	chains, err := chain.NewChains(f.nft, f.config.MetadataNaming.TableName)
 	if err != nil {
 		return err
@@ -67,9 +73,20 @@ func (f *firewall) Reload() error {
 
 func (f *firewall) ClearRules() {
 	f.logger.Debug("Clear nftables rules")
-	if err := f.nft.Clear(); err != nil {
-		f.logger.Error(fmt.Sprintf("Failed to clear rules: %s", err))
+
+	switch f.config.Options.ClearMode {
+	case ClearModeGlobal:
+		if err := f.nft.Clear(); err != nil {
+			f.logger.Error(fmt.Sprintf("Failed to clear rules: %s", err))
+		}
+		break
+	case ClearModeOwn:
+		if err := f.chains.ClearRules(); err != nil {
+			f.logger.Error(fmt.Sprintf("Failed to clear rules: %s", err))
+		}
+		break
 	}
+
 	f.logger.Debug("Clear nftables rules done")
 }
 

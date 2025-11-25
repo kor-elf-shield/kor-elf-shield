@@ -299,6 +299,26 @@ icmp_strict = false
 # SECTION:General Settings
 ###############################################################################
 [options]
+
+###
+# Переключения режима очистки фаервола nftables. Если указать "own", то может получиться конфликт в правилах.
+# Может спровоцировать проблему в безопасности. Указывайте "own" если вы уверены в своих действиях.
+# Допустимые значения:
+# global = очищает полностью все правила
+# own    = очищает только правила от таблицы, которые указаны в параметре table_name
+#
+# По умолчанию: global
+# ***
+# Switching the nftables firewall cleaning mode. If you specify "own", a conflict in the rules may occur.
+# This may cause a security issue. Use "own" if you are confident in your actions.
+# Valid values:
+# global = clears all rules completely
+# own    = clears only the rules from the table that are specified in the table_name parameter
+#
+# Default: global
+###
+clear_mode = "global"
+
 ###
 # Будет ли демон сохранять правила в системный файл nftables.
 # Не забудьте проверить, что путь к nftables соответствует вашей ОС.

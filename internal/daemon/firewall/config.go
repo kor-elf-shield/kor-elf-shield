@@ -13,6 +13,7 @@ type Config struct {
 }
 
 type ConfigOptions struct {
+	ClearMode      ClearMode
 	SavesRules     bool
 	SavesRulesPath string
 	DnsStrict      bool
@@ -143,3 +144,10 @@ func (d Direction) String() string {
 		return fmt.Sprintf("Direction(%d)", d)
 	}
 }
+
+type ClearMode int8
+
+const (
+	ClearModeGlobal ClearMode = iota + 1
+	ClearModeOwn
+)
