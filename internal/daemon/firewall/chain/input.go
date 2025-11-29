@@ -17,7 +17,7 @@ type input struct {
 	chain  string
 }
 
-func newInput(nft nft.NFT, family family.Type, table string, chain string, defaultAllow bool) (Input, error) {
+func newInput(nft nft.NFT, family family.Type, table string, chain string, defaultAllow bool, priority int) (Input, error) {
 	policy := nftChain.PolicyDrop
 	if defaultAllow {
 		policy = nftChain.PolicyAccept
@@ -26,7 +26,7 @@ func newInput(nft nft.NFT, family family.Type, table string, chain string, defau
 	baseChain := nftChain.BaseChainOptions{
 		Type:     nftChain.TypeFilter,
 		Hook:     nftChain.HookInput,
-		Priority: 0,
+		Priority: int32(priority),
 		Policy:   policy,
 		Device:   "",
 	}

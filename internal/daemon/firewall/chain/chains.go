@@ -11,13 +11,13 @@ type Chains interface {
 	NewPacketFilter(enable bool) error
 	PacketFilter() PacketFilter
 
-	NewInput(chain string, defaultAllow bool) error
+	NewInput(chain string, defaultAllow bool, priority int) error
 	Input() Input
 
-	NewOutput(chain string, defaultAllow bool) error
+	NewOutput(chain string, defaultAllow bool, priority int) error
 	Output() Output
 
-	NewForward(chain string, defaultAllow bool) error
+	NewForward(chain string, defaultAllow bool, priority int) error
 	Forward() Forward
 
 	NewLocalInput() error
@@ -75,8 +75,8 @@ func (c *chains) PacketFilter() PacketFilter {
 	return c.packetFilter
 }
 
-func (c *chains) NewInput(chain string, defaultAllow bool) error {
-	input, err := newInput(c.nft, c.family, c.table, chain, defaultAllow)
+func (c *chains) NewInput(chain string, defaultAllow bool, priority int) error {
+	input, err := newInput(c.nft, c.family, c.table, chain, defaultAllow, priority)
 	if err != nil {
 		return err
 	}
@@ -89,8 +89,8 @@ func (c *chains) Input() Input {
 	return c.input
 }
 
-func (c *chains) NewOutput(chain string, defaultAllow bool) error {
-	output, err := newOutput(c.nft, c.family, c.table, chain, defaultAllow)
+func (c *chains) NewOutput(chain string, defaultAllow bool, priority int) error {
+	output, err := newOutput(c.nft, c.family, c.table, chain, defaultAllow, priority)
 	if err != nil {
 		return err
 	}
@@ -103,8 +103,8 @@ func (c *chains) Output() Output {
 	return c.output
 }
 
-func (c *chains) NewForward(chain string, defaultAllow bool) error {
-	forward, err := newForward(c.nft, c.family, c.table, chain, defaultAllow)
+func (c *chains) NewForward(chain string, defaultAllow bool, priority int) error {
+	forward, err := newForward(c.nft, c.family, c.table, chain, defaultAllow, priority)
 	if err != nil {
 		return err
 	}

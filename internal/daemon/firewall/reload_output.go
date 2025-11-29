@@ -10,7 +10,7 @@ import (
 
 func (f *firewall) reloadOutput() error {
 	f.logger.Debug("Reloading output chain")
-	err := f.chains.NewOutput(f.config.MetadataNaming.ChainOutputName, f.config.Policy.DefaultAllowOutput)
+	err := f.chains.NewOutput(f.config.MetadataNaming.ChainOutputName, f.config.Policy.DefaultAllowOutput, f.config.Policy.OutputPriority)
 	if err != nil {
 		return err
 	}

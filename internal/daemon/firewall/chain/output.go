@@ -17,7 +17,7 @@ type output struct {
 	chain  string
 }
 
-func newOutput(nft nft.NFT, family family.Type, table string, chain string, defaultAllow bool) (Output, error) {
+func newOutput(nft nft.NFT, family family.Type, table string, chain string, defaultAllow bool, priority int) (Output, error) {
 	policy := nftChain.PolicyDrop
 	if defaultAllow {
 		policy = nftChain.PolicyAccept
@@ -26,7 +26,7 @@ func newOutput(nft nft.NFT, family family.Type, table string, chain string, defa
 	baseChain := nftChain.BaseChainOptions{
 		Type:     nftChain.TypeFilter,
 		Hook:     nftChain.HookOutput,
-		Priority: 0,
+		Priority: int32(priority),
 		Policy:   policy,
 		Device:   "",
 	}

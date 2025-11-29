@@ -33,8 +33,11 @@ type ConfigPolicy struct {
 	DefaultAllowOutput  bool
 	DefaultAllowForward bool
 	InputDrop           PolicyDrop
+	InputPriority       int
 	OutputDrop          PolicyDrop
+	OutputPriority      int
 	ForwardDrop         PolicyDrop
+	ForwardPriority     int
 }
 
 type PolicyDrop int8

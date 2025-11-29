@@ -430,6 +430,21 @@ default_allow_forward = false
 input_drop = "drop"
 
 ###
+# Приоритет chain для input.
+# От: -50
+# По: 50
+#
+# По умолчанию: -10
+# ***
+# Chain priority for input.
+# From: -50
+# To: 50
+#
+# Default: -10
+###
+input_priority = -10
+
+###
 # Как заблокировать исходящий трафик. Блокировать молча или с обратной связью.
 # Допустимые значения:
 # drop   = блокировать молча
@@ -447,6 +462,21 @@ input_drop = "drop"
 output_drop = "reject"
 
 ###
+# Приоритет chain для output.
+# От: -50
+# По: 50
+#
+# По умолчанию: -10
+# ***
+# Chain priority for output.
+# From: -50
+# To: 50
+#
+# Default: -10
+###
+output_priority = -10
+
+###
 # Как заблокировать трафик forward. Блокировать молча или с обратной связью.
 # Допустимые значения:
 # drop   = блокировать молча
@@ -462,6 +492,21 @@ output_drop = "reject"
 # Default: drop
 ###
 forward_drop = "drop"
+
+###
+# Приоритет chain для forward.
+# От: -50
+# По: 50
+#
+# По умолчанию: -10
+# ***
+# Chain priority for forward.
+# From: -50
+# To: 50
+#
+# Default: -10
+###
+forward_priority = -10
 
 ###############################################################################
 # РАЗДЕЛ:Именование метаданных
