@@ -17,7 +17,7 @@ type forward struct {
 	chain  string
 }
 
-func newForward(nft nft.NFT, family family.Type, table string, chain string, defaultAllow bool) (Forward, error) {
+func newForward(nft nft.NFT, family family.Type, table string, chain string, defaultAllow bool, priority int) (Forward, error) {
 	policy := nftChain.PolicyDrop
 	if defaultAllow {
 		policy = nftChain.PolicyAccept
@@ -26,7 +26,7 @@ func newForward(nft nft.NFT, family family.Type, table string, chain string, def
 	baseChain := nftChain.BaseChainOptions{
 		Type:     nftChain.TypeFilter,
 		Hook:     nftChain.HookForward,
-		Priority: 0,
+		Priority: int32(priority),
 		Policy:   policy,
 		Device:   "",
 	}

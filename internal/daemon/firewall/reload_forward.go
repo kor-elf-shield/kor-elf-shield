@@ -2,7 +2,7 @@ package firewall
 
 func (f *firewall) reloadForward() error {
 	f.logger.Debug("Reloading forward chain")
-	err := f.chains.NewForward(f.config.MetadataNaming.ChainForwardName, f.config.Policy.DefaultAllowForward)
+	err := f.chains.NewForward(f.config.MetadataNaming.ChainForwardName, f.config.Policy.DefaultAllowForward, f.config.Policy.ForwardPriority)
 	if err != nil {
 		return err
 	}

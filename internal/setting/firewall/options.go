@@ -4,10 +4,12 @@ import (
 	"errors"
 	"strings"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
 type options struct {
+	ClearMode      string `mapstructure:"clear_mode"`
 	SavesRules     bool   `mapstructure:"saves_rules"`
 	SavesRulesPath string `mapstructure:"saves_rules_path"`
 	DnsStrict      bool   `mapstructure:"dns_strict"`
@@ -17,6 +19,7 @@ type options struct {
 
 func defaultOptions() options {
 	return options{
+		ClearMode:      "global",
 		SavesRules:     false,
 		SavesRulesPath: "/etc/nftables.conf",
 		DnsStrict:      false,
@@ -44,4 +47,15 @@ func (o options) ValidateSavesRulesPath() error {
 	}
 
 	return nil
+}
+
+func (o options) ToClearMode() (firewall.ClearMode, error) {
+	switch o.ClearMode {
+	case "global":
+		return firewall.ClearModeGlobal, nil
+	case "own":
+		return firewall.ClearModeOwn, nil
+	}
+
+	return firewall.ClearModeGlobal, errors.New("invalid option clear_mode. Must be 'global' or 'own'")
 }

@@ -10,7 +10,7 @@ import (
 
 func (f *firewall) reloadInput() error {
 	f.logger.Debug("Reloading input chain")
-	err := f.chains.NewInput(f.config.MetadataNaming.ChainInputName, f.config.Policy.DefaultAllowInput)
+	err := f.chains.NewInput(f.config.MetadataNaming.ChainInputName, f.config.Policy.DefaultAllowInput, f.config.Policy.InputPriority)
 	if err != nil {
 		return err
 	}

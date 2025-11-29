@@ -1,6 +1,8 @@
 package chain
 
 import (
+	"strings"
+
 	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client"
 	nftFamily "git.kor-elf.net/kor-elf-shield/go-nftables-client/family"
 )
@@ -9,13 +11,13 @@ type Chains interface {
 	NewPacketFilter(enable bool) error
 	PacketFilter() PacketFilter
 
-	NewInput(chain string, defaultAllow bool) error
+	NewInput(chain string, defaultAllow bool, priority int) error
 	Input() Input
 
-	NewOutput(chain string, defaultAllow bool) error
+	NewOutput(chain string, defaultAllow bool, priority int) error
 	Output() Output
 
-	NewForward(chain string, defaultAllow bool) error
+	NewForward(chain string, defaultAllow bool, priority int) error
 	Forward() Forward
 
 	NewLocalInput() error
@@ -23,6 +25,8 @@ type Chains interface {
 
 	NewLocalOutput() error
 	LocalOutput() LocalOutput
+
+	ClearRules() error
 }
 
 type chains struct {
@@ -40,11 +44,12 @@ type chains struct {
 }
 
 func NewChains(nft nft.NFT, table string) (Chains, error) {
-	if err := nft.Clear(); err != nil {
+	family := nftFamily.INET
+
+	if err := clearRules(nft, family, table); err != nil {
 		return nil, err
 	}
 
-	family := nftFamily.INET
 	if err := nft.Table().Add(family, table); err != nil {
 		return nil, err
 	}
@@ -70,8 +75,8 @@ func (c *chains) PacketFilter() PacketFilter {
 	return c.packetFilter
 }
 
-func (c *chains) NewInput(chain string, defaultAllow bool) error {
-	input, err := newInput(c.nft, c.family, c.table, chain, defaultAllow)
+func (c *chains) NewInput(chain string, defaultAllow bool, priority int) error {
+	input, err := newInput(c.nft, c.family, c.table, chain, defaultAllow, priority)
 	if err != nil {
 		return err
 	}
@@ -84,8 +89,8 @@ func (c *chains) Input() Input {
 	return c.input
 }
 
-func (c *chains) NewOutput(chain string, defaultAllow bool) error {
-	output, err := newOutput(c.nft, c.family, c.table, chain, defaultAllow)
+func (c *chains) NewOutput(chain string, defaultAllow bool, priority int) error {
+	output, err := newOutput(c.nft, c.family, c.table, chain, defaultAllow, priority)
 	if err != nil {
 		return err
 	}
@@ -98,8 +103,8 @@ func (c *chains) Output() Output {
 	return c.output
 }
 
-func (c *chains) NewForward(chain string, defaultAllow bool) error {
-	forward, err := newForward(c.nft, c.family, c.table, chain, defaultAllow)
+func (c *chains) NewForward(chain string, defaultAllow bool, priority int) error {
+	forward, err := newForward(c.nft, c.family, c.table, chain, defaultAllow, priority)
 	if err != nil {
 		return err
 	}
@@ -136,4 +141,18 @@ func (c *chains) NewLocalOutput() error {
 
 func (c *chains) LocalOutput() LocalOutput {
 	return c.localOutput
+}
+
+func (c *chains) ClearRules() error {
+	return clearRules(c.nft, c.family, c.table)
+}
+
+func clearRules(nft nft.NFT, family nftFamily.Type, table string) error {
+	if err := nft.Table().Delete(family, table); err != nil {
+		if !strings.Contains(string(err.Error()), "delete table "+family.String()+" "+table) {
+			return err
+		}
+	}
+
+	return nil
 }

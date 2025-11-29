@@ -13,6 +13,7 @@ type Config struct {
 }
 
 type ConfigOptions struct {
+	ClearMode      ClearMode
 	SavesRules     bool
 	SavesRulesPath string
 	DnsStrict      bool
@@ -32,8 +33,11 @@ type ConfigPolicy struct {
 	DefaultAllowOutput  bool
 	DefaultAllowForward bool
 	InputDrop           PolicyDrop
+	InputPriority       int
 	OutputDrop          PolicyDrop
+	OutputPriority      int
 	ForwardDrop         PolicyDrop
+	ForwardPriority     int
 }
 
 type PolicyDrop int8
@@ -143,3 +147,10 @@ func (d Direction) String() string {
 		return fmt.Sprintf("Direction(%d)", d)
 	}
 }
+
+type ClearMode int8
+
+const (
+	ClearModeGlobal ClearMode = iota + 1
+	ClearModeOwn
+)
