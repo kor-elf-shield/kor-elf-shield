@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
@@ -34,6 +35,17 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		_ = logger.Sync()
 	}()
 
+	notificationsConfig, err := setting.Config.OtherSettingsPath.ToNotificationsConfig()
+	if err != nil {
+		logger.Fatal(err.Error())
+
+		// Fatal should call os.Exit(1), but there's a chance that might not happen,
+		// so we return err just in case.
+		return err
+	}
+
+	notificationsClient := notifications.New(notificationsConfig, logger)
+
 	config, err := setting.Config.ToDaemonOptions()
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -43,7 +55,7 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	d, err := daemon.NewDaemon(config, logger)
+	d, err := daemon.NewDaemon(config, logger, notificationsClient)
 	if err != nil {
 		logger.Fatal(err.Error())
 

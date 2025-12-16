@@ -210,3 +210,14 @@ nftables = "/usr/sbin/nft"
 # Default: /etc/kor-elf-shield/firewall.toml
 ###
 firewall = "/etc/kor-elf-shield/firewall.toml"
+
+###
+# Укажите путь к настройкам уведомлений.
+# Файл должен иметь расширение .toml.
+# По умолчанию: /etc/kor-elf-shield/notifications.toml
+# ***
+# Specify the path to notification settings.
+# The file must have the .toml extension.
+# Default: /etc/kor-elf-shield/notifications.toml
+###
+notifications = "/etc/kor-elf-shield/notifications.toml"

@@ -54,6 +54,17 @@ func Name(name string, parameterName string) error {
 	return nil
 }
 
+func NameWithDot(name string, parameterName string) error {
+	if name == "" {
+		return fmt.Errorf("%s is empty", parameterName)
+	}
+	re := regexp.MustCompile(`^[a-zA-Z0-9_\-\.]{1,64}$`)
+	if !re.MatchString(name) {
+		return fmt.Errorf("%s must not contain special characters", parameterName)
+	}
+	return nil
+}
+
 func Port(port int, parameterName string) error {
 	if port < 0 || port > 65535 {
 		return fmt.Errorf("%s must be in range 0-65535", parameterName)

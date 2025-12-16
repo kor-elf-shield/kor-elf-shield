@@ -2,16 +2,21 @@ package setting
 
 import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	firewallSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/firewall"
+	notificationsSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/notifications"
+	"github.com/wneessen/go-mail"
 )
 
 type otherSettingsPath struct {
-	Firewall string `mapstructure:"firewall"`
+	Firewall      string `mapstructure:"firewall"`
+	Notifications string `mapstructure:"notifications"`
 }
 
 func otherSettingsPathDefault() *otherSettingsPath {
 	return &otherSettingsPath{
-		Firewall: "/etc/kor-elf-shield/firewall.toml",
+		Firewall:      "/etc/kor-elf-shield/firewall.toml",
+		Notifications: "/etc/kor-elf-shield/notifications.toml",
 	}
 }
 
@@ -74,5 +79,41 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 			ChainForwardName: setting.MetadataNaming.ChainForwardName,
 		},
 		Policy: configPolicy,
+	}, nil
+}
+
+func (o *otherSettingsPath) ToNotificationsConfig() (notifications.Config, error) {
+	setting, err := notificationsSetting.InitSetting(o.Notifications)
+	if err != nil {
+		return notifications.Config{}, err
+	}
+
+	authType := mail.SMTPAuthPlain
+	tls := notifications.TLS{}
+	if setting.Enabled {
+		authType, err = notificationsSetting.ParseAuthType(setting.Email.AuthType)
+		if err != nil {
+			return notifications.Config{}, err
+		}
+
+		tls, err = setting.Email.ToTLSConfig()
+		if err != nil {
+			return notifications.Config{}, err
+		}
+	}
+
+	return notifications.Config{
+		Enabled:    setting.Enabled,
+		ServerName: setting.ServerName,
+		Email: notifications.Email{
+			Host:     setting.Email.Host,
+			Port:     uint(setting.Email.Port),
+			Username: setting.Email.Username,
+			Password: setting.Email.Password,
+			AuthType: authType,
+			TLS:      tls,
+			From:     setting.Email.From,
+			To:       setting.Email.To,
+		},
 	}, nil
 }
