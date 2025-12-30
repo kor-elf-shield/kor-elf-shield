@@ -35,17 +35,6 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		_ = logger.Sync()
 	}()
 
-	notificationsConfig, err := setting.Config.OtherSettingsPath.ToNotificationsConfig()
-	if err != nil {
-		logger.Fatal(err.Error())
-
-		// Fatal should call os.Exit(1), but there's a chance that might not happen,
-		// so we return err just in case.
-		return err
-	}
-
-	notificationsClient := notifications.New(notificationsConfig, logger)
-
 	config, err := setting.Config.ToDaemonOptions()
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -55,7 +44,16 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	d, err := daemon.NewDaemon(config, logger, notificationsClient)
+	notificationsService, err := newNotificationsService(logger)
+	if err != nil {
+		logger.Fatal(err.Error())
+
+		// Fatal should call os.Exit(1), but there's a chance that might not happen,
+		// so we return err just in case.return err
+		return err
+	}
+
+	d, err := daemon.NewDaemon(config, logger, notificationsService)
 	if err != nil {
 		logger.Fatal(err.Error())
 
@@ -74,4 +72,13 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 	}
 
 	return nil
+}
+
+func newNotificationsService(logger log.Logger) (notifications.Notifications, error) {
+	config, err := setting.Config.OtherSettingsPath.ToNotificationsConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	return notifications.New(config, logger), nil
 }

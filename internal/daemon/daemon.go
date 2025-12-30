@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
@@ -23,6 +24,7 @@ type daemon struct {
 	logger        log.Logger
 	firewall      firewall.API
 	notifications notifications.Notifications
+	analyzer      analyzer.Analyzer
 
 	stopCh chan struct{}
 }
@@ -57,6 +59,11 @@ func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16
 	d.notifications.Run()
 	defer func() {
 		_ = d.notifications.Close()
+	}()
+
+	d.analyzer.Run()
+	defer func() {
+		_ = d.analyzer.Close()
 	}()
 
 	go d.socket.Run(ctx, d.socketCommand)

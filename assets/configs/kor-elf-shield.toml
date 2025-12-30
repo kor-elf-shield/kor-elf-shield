@@ -221,3 +221,14 @@ firewall = "/etc/kor-elf-shield/firewall.toml"
 # Default: /etc/kor-elf-shield/notifications.toml
 ###
 notifications = "/etc/kor-elf-shield/notifications.toml"
+
+###
+# Укажите путь к настройкам парсинга логов.
+# Файл должен иметь расширение .toml.
+# По умолчанию: /etc/kor-elf-shield/analyzer.toml
+# ***
+# Specify the path to the log parsing settings.
+# The file must have the .toml extension.
+# Default: /etc/kor-elf-shield/analyzer.toml
+###
+analyzer = "/etc/kor-elf-shield/analyzer.toml"

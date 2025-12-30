@@ -3,6 +3,7 @@ package daemon
 import (
 	"errors"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
@@ -27,11 +28,14 @@ func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notification
 
 	firewall, err := firewall2.New(opts.PathNftables, logger, opts.ConfigFirewall)
 
+	analyzerService := analyzer.New(opts.ConfigAnalyzer, logger, notifications)
+
 	return &daemon{
 		pidFile:       pidFile,
 		socket:        sock,
 		logger:        logger,
 		firewall:      firewall,
 		notifications: notifications,
+		analyzer:      analyzerService,
 	}, nil
 }

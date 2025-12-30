@@ -1,8 +1,11 @@
 package setting
 
 import (
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
+	analyzerSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/analyzer"
 	firewallSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/firewall"
 	notificationsSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/notifications"
 	"github.com/wneessen/go-mail"
@@ -11,12 +14,14 @@ import (
 type otherSettingsPath struct {
 	Firewall      string `mapstructure:"firewall"`
 	Notifications string `mapstructure:"notifications"`
+	Analyzer      string `mapstructure:"analyzer"`
 }
 
 func otherSettingsPathDefault() *otherSettingsPath {
 	return &otherSettingsPath{
 		Firewall:      "/etc/kor-elf-shield/firewall.toml",
 		Notifications: "/etc/kor-elf-shield/notifications.toml",
+		Analyzer:      "/etc/kor-elf-shield/analyzer.toml",
 	}
 }
 
@@ -115,5 +120,29 @@ func (o *otherSettingsPath) ToNotificationsConfig() (notifications.Config, error
 			From:     setting.Email.From,
 			To:       setting.Email.To,
 		},
+	}, nil
+}
+
+func (o *otherSettingsPath) ToAnalyzerConfig() (analyzer.Config, error) {
+	setting, err := analyzerSetting.InitSetting(o.Analyzer)
+	if err != nil {
+		return analyzer.Config{}, err
+	}
+
+	if err := setting.Validate(); err != nil {
+		return analyzer.Config{}, err
+	}
+
+	login := config.Login{
+		Enabled: setting.Enabled,
+		Notify:  setting.Notify,
+		SSH: config.LoginSSH{
+			Enabled: setting.SSHEnable,
+			Notify:  setting.SSHNotify,
+		},
+	}
+
+	return analyzer.Config{
+		Login: login,
 	}, nil
 }
