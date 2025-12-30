@@ -192,6 +192,15 @@ log_error_paths = ["stderr"]
 ###
 nftables = "/usr/sbin/nft"
 
+###
+# Укажите путь к journalctl. Возможно в вашей ОС путь может отличаться.
+# По умолчанию: /bin/journalctl
+# ***
+# Specify the path to journalctl. The path may differ in your OS.
+# Default: /bin/journalctl
+###
+journalctl = "/bin/journalctl"
+
 ###############################################################################
 # РАЗДЕЛ:Пути к другим настройкам
 # ***

@@ -1,10 +1,13 @@
 package setting
 
 import (
+	"errors"
+
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	analyzerSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/analyzer"
 	firewallSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/firewall"
 	notificationsSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/notifications"
@@ -123,7 +126,13 @@ func (o *otherSettingsPath) ToNotificationsConfig() (notifications.Config, error
 	}, nil
 }
 
-func (o *otherSettingsPath) ToAnalyzerConfig() (analyzer.Config, error) {
+func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (analyzer.Config, error) {
+	if binaryLocations.Journalctl == "" {
+		return analyzer.Config{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+			"Parameter": "binaryLocations.journalctl",
+		}))
+	}
+
 	setting, err := analyzerSetting.InitSetting(o.Analyzer)
 	if err != nil {
 		return analyzer.Config{}, err
@@ -133,16 +142,21 @@ func (o *otherSettingsPath) ToAnalyzerConfig() (analyzer.Config, error) {
 		return analyzer.Config{}, err
 	}
 
+	binPath := config.BinPath{
+		Journalctl: binaryLocations.Journalctl,
+	}
+
 	login := config.Login{
-		Enabled: setting.Enabled,
-		Notify:  setting.Notify,
+		Enabled: setting.Login.Enabled,
+		Notify:  setting.Login.Notify,
 		SSH: config.LoginSSH{
-			Enabled: setting.SSHEnable,
-			Notify:  setting.SSHNotify,
+			Enabled: setting.Login.SSHEnable,
+			Notify:  setting.Login.SSHNotify,
 		},
 	}
 
 	return analyzer.Config{
-		Login: login,
+		BinPath: binPath,
+		Login:   login,
 	}, nil
 }

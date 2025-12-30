@@ -61,7 +61,7 @@ func (s setting) ToDaemonOptions() (daemon.DaemonOptions, error) {
 		return daemon.DaemonOptions{}, err
 	}
 
-	analyzerConfig, err := s.OtherSettingsPath.ToAnalyzerConfig()
+	analyzerConfig, err := s.OtherSettingsPath.ToAnalyzerConfig(s.BinaryLocations)
 	if err != nil {
 		return daemon.DaemonOptions{}, err
 	}

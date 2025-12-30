@@ -61,7 +61,7 @@ func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16
 		_ = d.notifications.Close()
 	}()
 
-	d.analyzer.Run()
+	d.analyzer.Run(ctx)
 	defer func() {
 		_ = d.analyzer.Close()
 	}()

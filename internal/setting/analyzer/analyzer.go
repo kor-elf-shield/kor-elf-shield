@@ -6,10 +6,7 @@ import (
 )
 
 type Setting struct {
-	Enabled   bool `mapstructure:"enabled"`
-	Notify    bool `mapstructure:"notify"`
-	SSHEnable bool `mapstructure:"ssh_enable"`
-	SSHNotify bool `mapstructure:"ssh_notify"`
+	Login Login
 }
 
 func InitSetting(path string) (Setting, error) {
@@ -35,14 +32,14 @@ func InitSetting(path string) (Setting, error) {
 
 func settingDefault() Setting {
 	return Setting{
-		Enabled:   true,
-		Notify:    true,
-		SSHEnable: true,
-		SSHNotify: true,
+		Login: defaultLogin(),
 	}
 }
 
 func (s Setting) Validate() error {
+	if err := s.Login.Validate(); err != nil {
+		return err
+	}
 
 	return nil
 }
