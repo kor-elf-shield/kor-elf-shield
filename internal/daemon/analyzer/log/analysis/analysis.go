@@ -17,6 +17,6 @@ type Entry struct {
 
 type EmptyAnalysis struct{}
 
-func (empty *EmptyAnalysis) Process(entry *Entry) error {
+func (empty *EmptyAnalysis) Process(_ *Entry) error {
 	return nil
 }
