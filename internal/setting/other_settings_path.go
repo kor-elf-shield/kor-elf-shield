@@ -3,7 +3,6 @@ package setting
 import (
 	"errors"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
@@ -126,20 +125,20 @@ func (o *otherSettingsPath) ToNotificationsConfig() (notifications.Config, error
 	}, nil
 }
 
-func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (analyzer.Config, error) {
+func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (config.Config, error) {
 	if binaryLocations.Journalctl == "" {
-		return analyzer.Config{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+		return config.Config{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
 			"Parameter": "binaryLocations.journalctl",
 		}))
 	}
 
 	setting, err := analyzerSetting.InitSetting(o.Analyzer)
 	if err != nil {
-		return analyzer.Config{}, err
+		return config.Config{}, err
 	}
 
 	if err := setting.Validate(); err != nil {
-		return analyzer.Config{}, err
+		return config.Config{}, err
 	}
 
 	binPath := config.BinPath{
@@ -155,7 +154,7 @@ func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (
 		},
 	}
 
-	return analyzer.Config{
+	return config.Config{
 		BinPath: binPath,
 		Login:   login,
 	}, nil

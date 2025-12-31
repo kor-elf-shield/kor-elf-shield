@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	config2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	analyzerLog "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log"
+	analysisServices "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
@@ -15,43 +17,55 @@ type Analyzer interface {
 }
 
 type analyzer struct {
-	config  Config
-	logger  log.Logger
-	notify  notifications.Notifications
-	systemd analyzerLog.Systemd
+	config   config2.Config
+	logger   log.Logger
+	notify   notifications.Notifications
+	systemd  analyzerLog.Systemd
+	analysis analyzerLog.Analysis
 }
 
-func New(config Config, logger log.Logger, notify notifications.Notifications) Analyzer {
+func New(config config2.Config, logger log.Logger, notify notifications.Notifications) Analyzer {
 	units := []string{}
 	if config.Login.Enabled && config.Login.SSH.Enabled {
 		units = append(units, "ssh")
 	}
 
 	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, units, logger)
+	analysisService := analyzerLog.NewAnalysis(&config, logger, notify)
 
 	return &analyzer{
-		config:  config,
-		logger:  logger,
-		notify:  notify,
-		systemd: systemdService,
+		config:   config,
+		logger:   logger,
+		notify:   notify,
+		systemd:  systemdService,
+		analysis: analysisService,
 	}
 }
 
 func (a *analyzer) Run(ctx context.Context) {
-	logChan := make(chan analyzerLog.Entry, 1000)
+	logChan := make(chan analysisServices.Entry, 1000)
 
 	go a.systemd.Run(ctx, logChan)
 	go a.processLogs(ctx, logChan)
 	a.logger.Debug("Analyzer is start")
 }
 
-func (a *analyzer) processLogs(ctx context.Context, logChan <-chan analyzerLog.Entry) {
+func (a *analyzer) processLogs(ctx context.Context, logChan <-chan analysisServices.Entry) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case entry := <-logChan:
 			a.logger.Debug(fmt.Sprintf("Received log entry: %s", entry))
+			switch entry.Unit {
+			case "ssh.service":
+				if err := a.analysis.SSH(&entry); err != nil {
+					a.logger.Error(fmt.Sprintf("Failed to analyze SSH logs: %s", err))
+				}
+				break
+			default:
+				a.logger.Warn(fmt.Sprintf("Unknown unit: %s", entry.Unit))
+			}
 		}
 	}
 }

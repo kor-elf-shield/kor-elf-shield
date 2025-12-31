@@ -10,11 +10,12 @@ import (
 	"sync"
 	"time"
 
+	analysisServices "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
 type Systemd interface {
-	Run(ctx context.Context, logChan chan<- Entry)
+	Run(ctx context.Context, logChan chan<- analysisServices.Entry)
 	Close() error
 }
 
@@ -43,7 +44,7 @@ func NewSystemd(path string, units []string, logger log.Logger) Systemd {
 	}
 }
 
-func (s *systemd) Run(ctx context.Context, logChan chan<- Entry) {
+func (s *systemd) Run(ctx context.Context, logChan chan<- analysisServices.Entry) {
 	if len(s.units) == 0 {
 		s.logger.Debug("No units specified for journalctl")
 		return
@@ -76,7 +77,7 @@ func (s *systemd) Run(ctx context.Context, logChan chan<- Entry) {
 	}
 }
 
-func (s *systemd) watch(ctx context.Context, args []string, logChan chan<- Entry) error {
+func (s *systemd) watch(ctx context.Context, args []string, logChan chan<- analysisServices.Entry) error {
 	cmd := exec.CommandContext(ctx, s.path, args...)
 
 	s.mu.Lock()
@@ -114,7 +115,7 @@ func (s *systemd) watch(ctx context.Context, args []string, logChan chan<- Entry
 			entryTime = time.Now()
 		}
 
-		logChan <- Entry{
+		logChan <- analysisServices.Entry{
 			Message: raw.Message,
 			Unit:    raw.Unit,
 			PID:     raw.PID,
