@@ -2,7 +2,9 @@
 ***
 #### Русский
 * Добавлены настройки для уведомлений по электронной почте.
+  * Добавлен файл настроек notifications.toml.
 * Реализовано уведомление о входах по SSH.
+  * Добавлен файл настроек analyzer.toml.
 * Служба systemd
   * Изменено WantedBy с multi-user.target на multi-user.target
   * Убрано ExecStop. По факту это не работало. Чтобы остановить сервис с очисткой правил nftables выпоните команду: kor-elf-shield stop
@@ -10,7 +12,9 @@
 ***
 #### English
 * Added settings for email notifications.
+  * Added notifications.toml settings file.
 * Implemented notification of SSH logins.
+  * Added analyzer.toml settings file.
 * Systemd service
   * Changed WantedBy from multi-user.target to multi-user.target
   * Removed ExecStop. It didn't actually work. To stop the service and clear the nftables rules, run the command: kor-elf-shield stop
