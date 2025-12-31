@@ -1,12 +1,16 @@
 ## 0.3.0 (soon)
 ***
 #### Русский
+* Добавлены настройки для уведомлений по электронной почте.
+* Реализовано уведомление о входах по SSH.
 * Служба systemd
   * Изменено WantedBy с multi-user.target на multi-user.target
   * Убрано ExecStop. По факту это не работало. Чтобы остановить сервис с очисткой правил nftables выпоните команду: kor-elf-shield stop
   * Добавлено Restart=on-failure. Нужно для того, чтобы программа перезапустилась после критической ошибки.
 ***
 #### English
+* Added settings for email notifications.
+* Implemented notification of SSH logins.
 * Systemd service
   * Changed WantedBy from multi-user.target to multi-user.target
   * Removed ExecStop. It didn't actually work. To stop the service and clear the nftables rules, run the command: kor-elf-shield stop
