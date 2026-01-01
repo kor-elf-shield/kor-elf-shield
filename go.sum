@@ -1,5 +1,5 @@
-git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.0 h1:jglai6XEk1uSCxd1TEpx6IBqWhkc+KgonV6rUDTkyyU=
-git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.0/go.mod h1:a7F+XdL1pK5P3ucQRR2EK/fABAP37LLBENiA4hX7L6A=
+git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.1 h1:3oGtZ/r1YAdlvI16OkZSCaxcWztHe/33ITWfI2LaQm0=
+git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.1/go.mod h1:a7F+XdL1pK5P3ucQRR2EK/fABAP37LLBENiA4hX7L6A=
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
