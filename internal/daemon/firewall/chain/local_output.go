@@ -32,10 +32,10 @@ func newLocalOutput(nft nft.NFT, family family.Type, table string) (LocalOutput,
 	}, nil
 }
 
-func (c *localOutput) AddRule(expr ...string) error {
-	return c.nft.Rule().Add(c.family, c.table, c.chain, expr...)
+func (l *localOutput) AddRule(expr ...string) error {
+	return l.nft.Rule().Add(l.family, l.table, l.chain, expr...)
 }
 
-func (f *localOutput) AddRuleOut(AddRuleFunc func(expr ...string) error) error {
-	return AddRuleFunc("oifname != \"lo\" counter jump " + f.chain)
+func (l *localOutput) AddRuleOut(AddRuleFunc func(expr ...string) error) error {
+	return AddRuleFunc("oifname != \"lo\" counter jump " + l.chain)
 }
