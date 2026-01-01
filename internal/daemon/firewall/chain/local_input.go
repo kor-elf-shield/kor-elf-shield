@@ -32,10 +32,10 @@ func newLocalInput(nft nft.NFT, family family.Type, table string) (LocalInput, e
 	}, nil
 }
 
-func (c *localInput) AddRule(expr ...string) error {
-	return c.nft.Rule().Add(c.family, c.table, c.chain, expr...)
+func (l *localInput) AddRule(expr ...string) error {
+	return l.nft.Rule().Add(l.family, l.table, l.chain, expr...)
 }
 
-func (f *localInput) AddRuleIn(AddRuleFunc func(expr ...string) error) error {
-	return AddRuleFunc("iifname != \"lo\" counter jump " + f.chain)
+func (l *localInput) AddRuleIn(AddRuleFunc func(expr ...string) error) error {
+	return AddRuleFunc("iifname != \"lo\" counter jump " + l.chain)
 }
