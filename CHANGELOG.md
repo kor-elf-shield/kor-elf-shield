@@ -9,7 +9,7 @@
 * Реализовано уведомление о входах по SSH.
   * Добавлен файл настроек analyzer.toml.
 * Служба systemd
-  * Изменено WantedBy с multi-user.target на multi-user.target
+  * Изменено WantedBy с sysinit.target на multi-user.target
   * Убрано ExecStop. По факту это не работало. Чтобы остановить сервис с очисткой правил nftables выпоните команду: kor-elf-shield stop
   * Добавлено Restart=on-failure. Нужно для того, чтобы программа перезапустилась после критической ошибки.
 ***
@@ -22,7 +22,7 @@
 * Implemented notification of SSH logins.
   * Added analyzer.toml settings file.
 * Systemd service
-  * Changed WantedBy from multi-user.target to multi-user.target
+  * Changed WantedBy from sysinit.target to multi-user.target
   * Removed ExecStop. It didn't actually work. To stop the service and clear the nftables rules, run the command: kor-elf-shield stop
   * Added Restart=on-failure. This is necessary to ensure the program restarts after a critical error.
 ## 0.2.0 (29.11.2025)
