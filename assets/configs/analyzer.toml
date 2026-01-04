@@ -1,0 +1,47 @@
+###############################################################################
+# РАЗДЕЛ:Отслеживать авторизаций
+# ***
+# SECTION:Track authorizations
+###############################################################################
+[login]
+###
+# Включает группу отслеживания авторизации.
+# Если отключено, отслеживание авторизации работать не будет.
+# По умолчанию: true
+# ***
+# Enables the authorization tracking group.
+# If disabled, no authorization tracking will work.
+# Default: true
+###
+enabled = true
+
+###
+# Включает уведомления об авторизации.
+# Если отключено, они будут отображаться в логах только на уровне = "info".
+# По умолчанию: true
+# ***
+# Enables authorization notifications.
+# If disabled, they will only appear in the logs under level = "info".
+# Default: true
+###
+notify = true
+
+###
+# Включает отслеживание авторизации по ssh.
+# По умолчанию: true
+# ***
+# Enables tracking of SSH authorization.
+# Default: true
+###
+ssh_enable = true
+
+###
+# Включает уведомления об авторизации по ssh.
+# Если отключено, они будут отображаться в логах только на уровне = "info".
+# По умолчанию: true
+# ***
+# Enables SSH authorization notifications.
+# If disabled, they will only appear in the logs under level = "info".
+# Default: true
+###
+ssh_notify = true

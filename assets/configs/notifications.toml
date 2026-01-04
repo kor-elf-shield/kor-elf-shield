@@ -1,0 +1,170 @@
+###############################################################################
+# РАЗДЕЛ:Базовые настройки
+# ***
+# SECTION:Basic settings
+###############################################################################
+
+###
+# Включает или выключает уведомления.
+# !!! Не забудьте перед включением настроить email !!!
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: false
+# ***
+# Turns notifications on or off.
+# !!! Don't forget to set up your email before turning it on !!!
+# false = Disables.
+# true = Enables.
+#
+# Default: false
+###
+enabled = false
+
+###
+# Название сервера в уведомлениях
+# По умолчанию: server
+# ***
+# Server name in notifications
+# Default: server
+###
+server_name = "server"
+
+###############################################################################
+# РАЗДЕЛ:email
+# ***
+# SECTION:email
+###############################################################################
+[email]
+
+###
+# Сервер, через который будет отправляться почта.
+# Например: smtp.gmail.com
+# По умолчанию:
+# ***
+# The server through which mail will be sent.
+# For example: smtp.gmail.com
+# Default:
+###
+host = ""
+
+###
+# Указать порт сервера, через который будет отправляться почта.
+# Например: 587
+# По умолчанию:
+# ***
+# Specify the server port through which mail will be sent.
+# For example: 587
+# Default:
+###
+port = ""
+
+###
+# Логин к серверу, через который будет отправляться почта.
+# По умолчанию:
+# ***
+# Login to the server through which mail will be sent.
+# Default:
+###
+username = ""
+
+###
+# Пароль к серверу, через который будет отправляться почта.
+# По умолчанию:
+# ***
+# Password for the server through which mail will be sent.
+# Default:
+###
+password = ""
+
+###
+# Тип авторизации.
+# Варианты: "PLAIN", "LOGIN", "CRAM-MD5", "NONE"
+# Обычно используется "PLAIN". Если у вас внутренний релей без пароля - используйте "NONE".
+# По умолчанию: "PLAIN"
+# ***
+# Authorization type.
+# Options: "PLAIN", "LOGIN", "CRAM-MD5", "NONE"
+# Usually "PLAIN" is used. If you have an internal relay without a password - use "NONE".
+# Default: "PLAIN"
+###
+auth_type = "PLAIN"
+
+###
+# Защищённое соединение.
+# Варианты: "NONE", "STARTTLS", "IMPLICIT"
+#
+# "NONE" — без TLS
+# "STARTTLS" — обычный SMTP на 587 (или 25) + upgrade через STARTTLS
+# "IMPLICIT" — SMTPS (TLS сразу), обычно 465
+#
+# По умолчанию: "STARTTLS"
+# ***
+# Secure connection.
+# Options: "NONE", "STARTTLS", "IMPLICIT"
+#
+# "NONE" — without TLS
+# "STARTTLS" — regular SMTP on 587 (or 25) + upgrade via STARTTLS
+# "IMPLICIT" — SMTPS (TLS Immediately), typically 465
+#
+# Default: "STARTTLS"
+###
+tls_mode = "STARTTLS"
+
+###
+# Только если тип защищённого соединения в режиме starttls.
+# Варианты: "MANDATORY", "OPPORTUNISTIC"
+#
+# "MANDATORY" — если STARTTLS недоступен/не удался будет вызвана ошибка
+# "OPPORTUNISTIC" — попытаться STARTTLS, но если нельзя, то попытается отправить без TLS
+#
+# По умолчанию: "MANDATORY"
+# ***
+# Only if the secure connection type is in starttls mode.
+# Options: "MANDATORY", "OPPORTUNISTIC"
+#
+# "MANDATORY" — if STARTTLS is unavailable/failed, an error will be raised
+# "OPPORTUNISTIC" — try STARTTLS, but if that fails, it will try to send without TLS
+#
+# Default: "MANDATORY"
+###
+tls_policy = "MANDATORY"
+
+###
+# Проверять ли сертификат защищённого соединения.
+#
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: true
+# ***
+# Whether to check the secure connection certificate.
+#
+# false = Disables.
+# true = Enables.
+#
+# Default: true
+###
+tls_verify = true
+
+###
+# Email, который будет указываться при отправки почты.
+# Например: test@localhost
+# По умолчанию:
+# ***
+# Email that will be specified when sending mail.
+# For example: test@localhost
+# Default:
+###
+from = ""
+
+###
+# Адрес электронной почты, на который будет отправлено письмо.
+# Например: root@localhost
+# По умолчанию:
+# ***
+# Email to whom the mail will be sent.
+# For example: root@localhost
+# Default:
+###
+to = ""

@@ -1,3 +1,30 @@
+## 0.3.0 (4.1.2026)
+***
+#### Русский
+* Добавлена частичная поддержка Docker.
+  * Добавлен параметр options.docker_support в firewall.toml. Это включает поддержку Docker.
+  * Каждый запуск контейнера будет полностью пересчитываться правила у chain, которые относятся к Docker. (в будущем планирую это переработать)
+* Добавлены настройки для уведомлений по электронной почте.
+  * Добавлен файл настроек notifications.toml.
+* Реализовано уведомление о входах по SSH.
+  * Добавлен файл настроек analyzer.toml.
+* Служба systemd
+  * Изменено WantedBy с sysinit.target на multi-user.target
+  * Убрано ExecStop. По факту это не работало. Чтобы остановить сервис с очисткой правил nftables выпоните команду: kor-elf-shield stop
+  * Добавлено Restart=on-failure. Нужно для того, чтобы программа перезапустилась после критической ошибки.
+***
+#### English
+* Added partial Docker support.
+  * Added the options.docker_support parameter to firewall.toml. This enables Docker support.
+  * Each container launch will completely recalculate the Docker-specific rules in chain. (I plan to rework this in the future)
+* Added settings for email notifications.
+  * Added notifications.toml settings file.
+* Implemented notification of SSH logins.
+  * Added analyzer.toml settings file.
+* Systemd service
+  * Changed WantedBy from sysinit.target to multi-user.target
+  * Removed ExecStop. It didn't actually work. To stop the service and clear the nftables rules, run the command: kor-elf-shield stop
+  * Added Restart=on-failure. This is necessary to ensure the program restarts after a critical error.
 ## 0.2.0 (29.11.2025)
 ***
 #### Русский

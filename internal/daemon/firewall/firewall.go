@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 
@@ -19,6 +20,8 @@ type API interface {
 
 	// ClearRules Clear all rules.
 	ClearRules()
+
+	DockerSupport() bool
 }
 
 type firewall struct {
@@ -26,9 +29,10 @@ type firewall struct {
 	logger log.Logger
 	config *Config
 	chains chain.Chains
+	docker docker_monitor.Docker
 }
 
-func New(pathNFT string, logger log.Logger, config Config) (API, error) {
+func New(pathNFT string, logger log.Logger, config Config, docker docker_monitor.Docker) (API, error) {
 	nft, err := nftables.NewWithPath(pathNFT)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create nft client: %w %s", err, pathNFT)
@@ -38,6 +42,7 @@ func New(pathNFT string, logger log.Logger, config Config) (API, error) {
 		nft:    nft,
 		logger: logger,
 		config: &config,
+		docker: docker,
 	}, nil
 }
 
@@ -54,6 +59,11 @@ func (f *firewall) Reload() error {
 		return err
 	}
 	f.chains = chains
+
+	if err := f.docker.NftReload(f.chains.NewNoneChain); err != nil {
+		return err
+	}
+
 	if err := f.chains.NewPacketFilter(f.config.Options.PacketFilter); err != nil {
 		return err
 	}
@@ -65,6 +75,11 @@ func (f *firewall) Reload() error {
 	}
 	if err := f.reloadForward(); err != nil {
 		return err
+	}
+	if f.config.Options.DockerSupport {
+		if err := f.reloadDocker(); err != nil {
+			return err
+		}
 	}
 
 	f.logger.Debug("Reload nftables rules done")
@@ -116,4 +131,8 @@ func (f *firewall) SavesRules() {
 	}
 
 	f.logger.Info("Save nftables rules")
+}
+
+func (f *firewall) DockerSupport() bool {
+	return f.config.Options.DockerSupport
 }

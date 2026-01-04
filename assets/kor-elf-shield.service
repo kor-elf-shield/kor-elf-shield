@@ -3,8 +3,10 @@ Description=kor-elf-shield
 After=network.target
 
 [Service]
+Type=simple
 ExecStart=/usr/sbin/kor-elf-shield start
-ExecStop=/usr/sbin/kor-elf-shield stop
+Restart=on-failure
+RestartSec=10s
 
 [Install]
-WantedBy=sysinit.target
+WantedBy=multi-user.target

@@ -1,6 +1,8 @@
 package firewall
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Config struct {
 	InPorts        []ConfigPort
@@ -19,6 +21,7 @@ type ConfigOptions struct {
 	DnsStrict      bool
 	DnsStrictNs    bool
 	PacketFilter   bool
+	DockerSupport  bool
 }
 
 type ConfigMetadata struct {

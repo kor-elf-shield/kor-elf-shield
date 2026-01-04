@@ -12,6 +12,17 @@ const (
 	IPv6
 )
 
+func (v Version) ToNft() string {
+	switch v {
+	case IPv4:
+		return "ip"
+	case IPv6:
+		return "ip6"
+	default:
+		return "unknown"
+	}
+}
+
 func DetermineIPVersion(ip string) (ipNet string, version Version, err error) {
 	ipNet, version, err = parseCIDR(ip)
 	if err != nil {
@@ -19,6 +30,11 @@ func DetermineIPVersion(ip string) (ipNet string, version Version, err error) {
 	}
 
 	return
+}
+
+func IPVersion(ip string) (Version, error) {
+	_, version, err := parseIP(ip)
+	return version, err
 }
 
 func parseCIDR(parseIP string) (ipNet string, version Version, err error) {

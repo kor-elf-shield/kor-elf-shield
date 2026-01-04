@@ -61,11 +61,17 @@ func (s setting) ToDaemonOptions() (daemon.DaemonOptions, error) {
 		return daemon.DaemonOptions{}, err
 	}
 
+	analyzerConfig, err := s.OtherSettingsPath.ToAnalyzerConfig(s.BinaryLocations)
+	if err != nil {
+		return daemon.DaemonOptions{}, err
+	}
+
 	return daemon.DaemonOptions{
 		PathPidFile:    s.PidFile,
 		PathSocketFile: s.SocketFile,
 		PathNftables:   s.BinaryLocations.Nftables,
 		ConfigFirewall: firewallConfig,
+		ConfigAnalyzer: analyzerConfig,
 	}, nil
 }
 

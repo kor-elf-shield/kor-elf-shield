@@ -3,16 +3,17 @@ module git.kor-elf.net/kor-elf-shield/kor-elf-shield
 go 1.25
 
 require (
+	git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.1
 	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/spf13/viper v1.21.0
 	github.com/urfave/cli/v3 v3.4.1
+	github.com/wneessen/go-mail v0.7.2
 	go.uber.org/zap v1.27.0
 	golang.org/x/sys v0.36.0
 	golang.org/x/text v0.29.0
 )
 
 require (
-	git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
