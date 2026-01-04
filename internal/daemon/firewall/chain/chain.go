@@ -7,6 +7,7 @@ import (
 
 type Chain interface {
 	AddRule(expr ...string) error
+	Clear() error
 }
 
 type chain struct {
@@ -18,4 +19,8 @@ type chain struct {
 
 func (c *chain) AddRule(expr ...string) error {
 	return c.nft.Rule().Add(c.family, c.table, c.chain, expr...)
+}
+
+func (c *chain) Clear() error {
+	return c.nft.Chain().Clear(c.family, c.table, c.chain)
 }

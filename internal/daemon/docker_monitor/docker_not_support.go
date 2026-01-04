@@ -22,3 +22,11 @@ func (d *DockerNotSupport) NftReload(_ func(chain string) (nftChain.Chain, error
 func (d *DockerNotSupport) NftChains() chain.Chains {
 	return d.chains
 }
+
+func (d *DockerNotSupport) Run() {
+
+}
+
+func (d *DockerNotSupport) Close() error {
+	return nil
+}

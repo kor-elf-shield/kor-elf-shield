@@ -20,6 +20,8 @@ type API interface {
 
 	// ClearRules Clear all rules.
 	ClearRules()
+
+	DockerSupport() bool
 }
 
 type firewall struct {
@@ -129,4 +131,8 @@ func (f *firewall) SavesRules() {
 	}
 
 	f.logger.Info("Save nftables rules")
+}
+
+func (f *firewall) DockerSupport() bool {
+	return f.config.Options.DockerSupport
 }

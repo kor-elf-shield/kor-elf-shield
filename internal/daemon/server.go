@@ -38,5 +38,6 @@ func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notification
 		firewall:      firewall,
 		notifications: notifications,
 		analyzer:      analyzerService,
+		docker:        docker,
 	}, nil
 }

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"os/exec"
@@ -19,6 +20,8 @@ type Docker interface {
 
 	Containers(bridgeID string) ([]string, error)
 	ContainerNetworks(containerID string) (DockerContainerInspect, error)
+
+	Events() (<-chan string, <-chan error)
 }
 
 type docker struct {
@@ -117,4 +120,39 @@ func (d *docker) command(args ...string) ([]byte, error) {
 		return nil, fmt.Errorf(string(result))
 	}
 	return result, nil
+}
+
+func (d *docker) Events() (<-chan string, <-chan error) {
+	eventsChan := make(chan string)
+	errChan := make(chan error)
+
+	go func() {
+		defer close(eventsChan)
+		defer close(errChan)
+
+		args := []string{
+			"events",
+			"--filter", "type=container",
+			"--filter", "event=start",
+			"--filter", "event=die",
+			"--format",
+			"{{json .}}",
+		}
+		cmd := exec.CommandContext(d.ctx, "docker", args...)
+		stdout, err := cmd.StdoutPipe()
+		if err != nil {
+			errChan <- err
+			return
+		}
+		if err := cmd.Start(); err != nil {
+			errChan <- err
+			return
+		}
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			eventsChan <- scanner.Text()
+		}
+	}()
+
+	return eventsChan, errChan
 }

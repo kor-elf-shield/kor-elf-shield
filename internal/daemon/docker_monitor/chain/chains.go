@@ -73,3 +73,7 @@ func (d *Data) JumpTo(data *Data, rule string) error {
 func (d *Data) AddRule(rule ...string) error {
 	return d.chain.AddRule(rule...)
 }
+
+func (d *Data) Clear() error {
+	return d.chain.Clear()
+}
