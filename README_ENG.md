@@ -23,11 +23,11 @@
     * Port configuration.
     * Setting up white and black lists of IP addresses.
 * Setting up logging.
-
-### The plans include:
-* Make friends with docker.
+* Make friends with docker (partially).
 * Implement notification settings (for now only by e-mail).
 * Send notifications during ssh authorization.
+
+### The plans include:
 * Password brute-force protection.
 * Notify if a new user appears in the system.
 * Notify if system files have changed.
