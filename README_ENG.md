@@ -6,6 +6,15 @@
 
 ***
 
+<p style="color: red; font-weight: bold; font-size: 20px;">Requirements:</p>
+
+* Run as root
+* Linux 5.2+
+* nftables
+* Systemd
+
+***
+
 ### Done:
 * The ability to configure nftables has been implemented:
     * Allow or block incoming traffic by default.
