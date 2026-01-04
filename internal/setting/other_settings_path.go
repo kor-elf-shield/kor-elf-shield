@@ -78,6 +78,7 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 			DnsStrict:      setting.Options.DnsStrict,
 			DnsStrictNs:    setting.Options.DnsStrictNs,
 			PacketFilter:   setting.Options.PacketFilter,
+			DockerSupport:  setting.Options.DockerSupport,
 		},
 		MetadataNaming: firewall.ConfigMetadata{
 			TableName:        setting.MetadataNaming.TableName,

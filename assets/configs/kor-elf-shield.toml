@@ -201,6 +201,15 @@ nftables = "/usr/sbin/nft"
 ###
 journalctl = "/bin/journalctl"
 
+###
+# Укажите путь к docker. Возможно в вашей ОС путь может отличаться.
+# По умолчанию: /usr/bin/docker
+# ***
+# Specify the path to docker. The path may differ in your OS.
+# Default: /usr/bin/docker
+###
+docker = "/usr/bin/docker"
+
 ###############################################################################
 # РАЗДЕЛ:Пути к другим настройкам
 # ***
@@ -241,3 +250,14 @@ notifications = "/etc/kor-elf-shield/notifications.toml"
 # Default: /etc/kor-elf-shield/analyzer.toml
 ###
 analyzer = "/etc/kor-elf-shield/analyzer.toml"
+
+###
+# Укажите путь к настройкам docker.
+# Файл должен иметь расширение .toml.
+# По умолчанию: /etc/kor-elf-shield/docker.toml
+# ***
+# Specify the path to the docker settings.
+# The file must have the .toml extension.
+# Default: /etc/kor-elf-shield/docker.toml
+###
+docker = "/etc/kor-elf-shield/docker.toml"

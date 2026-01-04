@@ -8,6 +8,12 @@ func (f *firewall) reloadForward() error {
 	}
 	chain := f.chains.Forward()
 
+	if f.config.Options.DockerSupport {
+		if err := f.docker.NftChains().ForwardFilterJump(chain.AddRule); err != nil {
+			return err
+		}
+	}
+
 	if f.config.Policy.DefaultAllowForward == false {
 		drop := f.config.Policy.ForwardDrop.String()
 		if err := chain.AddRule(drop); err != nil {

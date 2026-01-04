@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
@@ -11,7 +12,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
-func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notifications.Notifications) (Daemon, error) {
+func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notifications.Notifications, docker docker_monitor.Docker) (Daemon, error) {
 	if logger == nil {
 		return nil, errors.New("logger is nil")
 	}
@@ -26,7 +27,7 @@ func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notification
 		return nil, err
 	}
 
-	firewall, err := firewall2.New(opts.PathNftables, logger, opts.ConfigFirewall)
+	firewall, err := firewall2.New(opts.PathNftables, logger, opts.ConfigFirewall, docker)
 
 	analyzerService := analyzer.New(opts.ConfigAnalyzer, logger, notifications)
 

@@ -2,8 +2,10 @@ package daemon
 
 import (
 	"context"
+	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
@@ -53,7 +55,12 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	d, err := daemon.NewDaemon(config, logger, notificationsService)
+	dockerService, err := newDockerService(ctx, logger, config.ConfigFirewall.Options.DockerSupport)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to create docker service: %s", err))
+	}
+
+	d, err := daemon.NewDaemon(config, logger, notificationsService, dockerService)
 	if err != nil {
 		logger.Fatal(err.Error())
 
@@ -81,4 +88,19 @@ func newNotificationsService(logger log.Logger) (notifications.Notifications, er
 	}
 
 	return notifications.New(config, logger), nil
+}
+
+func newDockerService(ctx context.Context, logger log.Logger, dockerSupport bool) (dockerService docker_monitor.Docker, err error) {
+	if dockerSupport {
+		dockerPath := setting.Config.BinaryLocations.Docker
+		if dockerPath == "" {
+			return docker_monitor.NewDockerNotSupport(), fmt.Errorf("docker path is empty")
+		}
+
+		dockerService = docker_monitor.New(dockerPath, ctx, logger)
+	} else {
+		dockerService = docker_monitor.NewDockerNotSupport()
+	}
+
+	return dockerService, nil
 }
