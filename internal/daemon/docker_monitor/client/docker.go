@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"sync"
+	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
@@ -21,13 +23,17 @@ type Docker interface {
 	Containers(bridgeID string) ([]string, error)
 	ContainerNetworks(containerID string) (DockerContainerInspect, error)
 
-	Events() (<-chan string, <-chan error)
+	Events() <-chan string
+	EventsClose() error
 }
 
 type docker struct {
 	path   string
 	ctx    context.Context
 	logger log.Logger
+
+	cmd *exec.Cmd
+	mu  sync.Mutex
 }
 
 func NewDocker(path string, ctx context.Context, logger log.Logger) Docker {
@@ -122,37 +128,83 @@ func (d *docker) command(args ...string) ([]byte, error) {
 	return result, nil
 }
 
-func (d *docker) Events() (<-chan string, <-chan error) {
+func (d *docker) Events() <-chan string {
 	eventsChan := make(chan string)
-	errChan := make(chan error)
 
+	d.logger.Debug("Starting docker monitor")
 	go func() {
 		defer close(eventsChan)
-		defer close(errChan)
+		for {
+			select {
+			case <-d.ctx.Done():
+				return
+			default:
+				if err := d.watch(eventsChan); err != nil {
+					d.logger.Error(fmt.Sprintf("Docker monitor exited with error: %v", err))
+				}
 
-		args := []string{
-			"events",
-			"--filter", "type=container",
-			"--filter", "event=start",
-			"--filter", "event=die",
-			"--format",
-			"{{json .}}",
-		}
-		cmd := exec.CommandContext(d.ctx, "docker", args...)
-		stdout, err := cmd.StdoutPipe()
-		if err != nil {
-			errChan <- err
-			return
-		}
-		if err := cmd.Start(); err != nil {
-			errChan <- err
-			return
-		}
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			eventsChan <- scanner.Text()
+				// Pause before restarting to avoid CPU load during persistent errors
+				select {
+				case <-d.ctx.Done():
+					return
+				case <-time.After(15 * time.Second):
+					d.logger.Warn("Docker connection lost. Restarting in 15s...")
+					continue
+				}
+			}
 		}
 	}()
 
-	return eventsChan, errChan
+	return eventsChan
+}
+
+func (d *docker) watch(eventsChan chan string) error {
+	args := []string{
+		"events",
+		"--filter", "type=container",
+		"--filter", "event=start",
+		"--filter", "event=die",
+		"--format",
+		"{{json .}}",
+	}
+	cmd := exec.CommandContext(d.ctx, d.path, args...)
+	d.mu.Lock()
+	d.cmd = cmd
+	d.mu.Unlock()
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		if err := scanner.Err(); err != nil {
+			return err
+		}
+
+		if scanner.Text() == "" {
+			return fmt.Errorf("empty line")
+		}
+		eventsChan <- scanner.Text()
+	}
+
+	return scanner.Err()
+}
+
+func (d *docker) EventsClose() error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	if d.cmd != nil && d.cmd.Process != nil {
+		d.logger.Debug("Stopping docker monitor")
+
+		// Force docker monitor to quit on shutdown
+		return d.cmd.Process.Kill()
+	}
+
+	d.logger.Debug("Docker monitor stopped")
+
+	return nil
 }

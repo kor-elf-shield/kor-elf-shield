@@ -50,7 +50,7 @@ func (d *docker) NftChains() chain.Chains {
 }
 
 func (d *docker) Run() {
-	events, errs := d.client.Events()
+	events := d.client.Events()
 	for {
 		select {
 		case <-d.ctx.Done():
@@ -91,14 +91,12 @@ func (d *docker) Run() {
 			}
 
 			d.nftRuleReload()
-		case err := <-errs:
-			d.logger.Error("Docker events error: " + err.Error())
 		}
 	}
 }
 
 func (d *docker) Close() error {
-	return nil
+	return d.client.EventsClose()
 }
 
 func (d *docker) chainCommand(chainData chain.Data, rule string) {
