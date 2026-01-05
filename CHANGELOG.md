@@ -1,3 +1,15 @@
+## (soon)
+***
+#### Русский
+* Исправлена ошибка:
+  * Настройка binaryLocations.docker не работала.
+  * Программа аварийно завершалась после остановки Docker'а.
+***
+#### English
+* Fixed error:
+  * The binaryLocations.docker setting did not work.
+  * The program crashed after Docker was stopped.
+***
 ## 0.3.0 (4.1.2026)
 ***
 #### Русский
