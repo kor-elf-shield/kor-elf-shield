@@ -56,6 +56,9 @@ func (d *docker) Run() {
 		case <-d.ctx.Done():
 			return
 		case msg := <-events:
+			if msg == "" {
+				continue
+			}
 			d.logger.Debug("Docker event received: " + msg)
 			// TODO: A temporary solution to test how it will interact with nftables in a production environment
 			listChains := d.NftChains().List()
