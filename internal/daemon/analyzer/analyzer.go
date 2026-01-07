@@ -57,7 +57,11 @@ func (a *analyzer) processLogs(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case entry := <-a.logChan:
+		case entry, ok := <-a.logChan:
+			if !ok {
+				// Channel closed
+				return
+			}
 			a.logger.Debug(fmt.Sprintf("Received log entry: %s", entry))
 			switch entry.Unit {
 			case "ssh.service":
