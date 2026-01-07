@@ -27,7 +27,7 @@ type analyzer struct {
 }
 
 func New(config config2.Config, logger log.Logger, notify notifications.Notifications) Analyzer {
-	units := []string{}
+	var units []string
 	if config.Login.Enabled && config.Login.SSH.Enabled {
 		units = append(units, "ssh")
 	}
