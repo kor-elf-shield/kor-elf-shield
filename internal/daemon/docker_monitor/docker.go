@@ -25,9 +25,9 @@ type docker struct {
 	chains chain.Chains
 }
 
-func New(path string, ctx context.Context, logger log.Logger) Docker {
+func New(config *Config, ctx context.Context, logger log.Logger) Docker {
 	return &docker{
-		client: client.NewDocker(path, ctx, logger),
+		client: client.NewDocker(config.Path, ctx, logger),
 		logger: logger,
 		ctx:    ctx,
 	}

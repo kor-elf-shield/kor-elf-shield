@@ -4,10 +4,12 @@ import (
 	"errors"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	analyzerSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/analyzer"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/docker"
 	firewallSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/firewall"
 	notificationsSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/notifications"
 	"github.com/wneessen/go-mail"
@@ -17,6 +19,7 @@ type otherSettingsPath struct {
 	Firewall      string `mapstructure:"firewall"`
 	Notifications string `mapstructure:"notifications"`
 	Analyzer      string `mapstructure:"analyzer"`
+	Docker        string `mapstructure:"docker"`
 }
 
 func otherSettingsPathDefault() *otherSettingsPath {
@@ -24,10 +27,11 @@ func otherSettingsPathDefault() *otherSettingsPath {
 		Firewall:      "/etc/kor-elf-shield/firewall.toml",
 		Notifications: "/etc/kor-elf-shield/notifications.toml",
 		Analyzer:      "/etc/kor-elf-shield/analyzer.toml",
+		Docker:        "/etc/kor-elf-shield/docker.toml",
 	}
 }
 
-func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
+func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewall.Config, error) {
 	setting, err := firewallSetting.InitSetting(o.Firewall)
 	if err != nil {
 		return firewall.Config{}, err
@@ -78,7 +82,7 @@ func (o *otherSettingsPath) ToFirewallConfig() (firewall.Config, error) {
 			DnsStrict:      setting.Options.DnsStrict,
 			DnsStrictNs:    setting.Options.DnsStrictNs,
 			PacketFilter:   setting.Options.PacketFilter,
-			DockerSupport:  setting.Options.DockerSupport,
+			DockerSupport:  dockerSupport,
 		},
 		MetadataNaming: firewall.ConfigMetadata{
 			TableName:        setting.MetadataNaming.TableName,
@@ -159,4 +163,25 @@ func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (
 		BinPath: binPath,
 		Login:   login,
 	}, nil
+}
+
+func (o *otherSettingsPath) ToDockerConfig(binaryLocations *binaryLocations) (config docker_monitor.Config, dockerSupport bool, err error) {
+	if binaryLocations.Docker == "" {
+		return docker_monitor.Config{}, false, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+			"Parameter": "binaryLocations.docker",
+		}))
+	}
+
+	setting, err := docker.InitSetting(o.Docker)
+	if err != nil {
+		return docker_monitor.Config{}, false, err
+	}
+
+	if err := setting.Validate(); err != nil {
+		return docker_monitor.Config{}, false, err
+	}
+
+	return docker_monitor.Config{
+		Path: binaryLocations.Docker,
+	}, setting.Enabled, nil
 }

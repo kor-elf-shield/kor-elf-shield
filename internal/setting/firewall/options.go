@@ -15,7 +15,6 @@ type options struct {
 	DnsStrict      bool   `mapstructure:"dns_strict"`
 	DnsStrictNs    bool   `mapstructure:"dns_strict_ns"`
 	PacketFilter   bool   `mapstructure:"packet_filter"`
-	DockerSupport  bool   `mapstructure:"docker_support"`
 }
 
 func defaultOptions() options {
@@ -26,7 +25,6 @@ func defaultOptions() options {
 		DnsStrict:      false,
 		DnsStrictNs:    false,
 		PacketFilter:   true,
-		DockerSupport:  false,
 	}
 }
 

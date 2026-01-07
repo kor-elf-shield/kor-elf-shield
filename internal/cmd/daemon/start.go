@@ -37,7 +37,12 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		_ = logger.Sync()
 	}()
 
-	config, err := setting.Config.ToDaemonOptions()
+	dockerService, dockerSupport, err := newDockerService(ctx, logger)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to create docker service: %s", err))
+	}
+
+	config, err := setting.Config.ToDaemonOptions(dockerSupport)
 	if err != nil {
 		logger.Fatal(err.Error())
 
@@ -53,11 +58,6 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		// Fatal should call os.Exit(1), but there's a chance that might not happen,
 		// so we return err just in case.return err
 		return err
-	}
-
-	dockerService, err := newDockerService(ctx, logger, config.ConfigFirewall.Options.DockerSupport)
-	if err != nil {
-		logger.Error(fmt.Sprintf("Failed to create docker service: %s", err))
 	}
 
 	d, err := daemon.NewDaemon(config, logger, notificationsService, dockerService)
@@ -90,17 +90,18 @@ func newNotificationsService(logger log.Logger) (notifications.Notifications, er
 	return notifications.New(config, logger), nil
 }
 
-func newDockerService(ctx context.Context, logger log.Logger, dockerSupport bool) (dockerService docker_monitor.Docker, err error) {
-	if dockerSupport {
-		dockerPath := setting.Config.BinaryLocations.Docker
-		if dockerPath == "" {
-			return docker_monitor.NewDockerNotSupport(), fmt.Errorf("docker path is empty")
-		}
-
-		dockerService = docker_monitor.New(dockerPath, ctx, logger)
-	} else {
-		dockerService = docker_monitor.NewDockerNotSupport()
+func newDockerService(ctx context.Context, logger log.Logger) (dockerService docker_monitor.Docker, dockerSupport bool, err error) {
+	config, dockerSupport, err := setting.Config.OtherSettingsPath.ToDockerConfig(setting.Config.BinaryLocations)
+	if err != nil {
+		return docker_monitor.NewDockerNotSupport(), false, err
 	}
 
-	return dockerService, nil
+	if !dockerSupport {
+		dockerService = docker_monitor.NewDockerNotSupport()
+		return dockerService, false, nil
+	}
+
+	dockerService = docker_monitor.New(&config, ctx, logger)
+
+	return dockerService, dockerSupport, nil
 }

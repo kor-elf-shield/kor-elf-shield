@@ -340,15 +340,6 @@ saves_rules = false
 saves_rules_path = "/etc/nftables.conf"
 
 ###
-# Включает поддержку docker.
-# По умолчанию: false
-# ***
-# Includes docker support.
-# Default: false
-###
-docker_support = false
-
-###
 # Включает строгие правила nftables к DNS-трафику. Если включить этот режим, то некоторые правила,
 # связанные с DNS, не добавятся в nftables. Что улучшит безопасность и предотвратить злоупотребление
 # локальным DNS-сервером. Но может вызвать проблемы связанным с DNS.

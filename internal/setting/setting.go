@@ -37,7 +37,7 @@ func settingDefault() *setting {
 	}
 }
 
-func (s setting) ToDaemonOptions() (daemon.DaemonOptions, error) {
+func (s setting) ToDaemonOptions(dockerSupport bool) (daemon.DaemonOptions, error) {
 	if s.PidFile == "" {
 		return daemon.DaemonOptions{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
 			"Parameter": "pid_file",
@@ -56,7 +56,7 @@ func (s setting) ToDaemonOptions() (daemon.DaemonOptions, error) {
 		}))
 	}
 
-	firewallConfig, err := s.OtherSettingsPath.ToFirewallConfig()
+	firewallConfig, err := s.OtherSettingsPath.ToFirewallConfig(dockerSupport)
 	if err != nil {
 		return daemon.DaemonOptions{}, err
 	}

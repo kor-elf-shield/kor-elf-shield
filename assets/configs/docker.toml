@@ -1,0 +1,8 @@
+###
+# Включает поддержку docker.
+# По умолчанию: false
+# ***
+# Includes docker support.
+# Default: false
+###
+enabled = false
