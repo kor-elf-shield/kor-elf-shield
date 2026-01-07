@@ -1,11 +1,13 @@
-## (soon)
+## 0.4.0 (soon)
 ***
 #### Русский
+* Удалён параметр options.docker_support из файла firewall.toml. Настройки от Docker перенесены в файл docker.toml.
 * Исправлена ошибка:
   * Настройка binaryLocations.docker не работала.
   * Программа аварийно завершалась после остановки Docker'а.
 ***
 #### English
+* Removed the options.docker_support parameter from firewall.toml. Docker settings have been moved to the docker.toml file.
 * Fixed error:
   * The binaryLocations.docker setting did not work.
   * The program crashed after Docker was stopped.
