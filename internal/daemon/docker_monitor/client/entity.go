@@ -5,6 +5,10 @@ import (
 	"net"
 )
 
+type Event struct {
+	Message string
+}
+
 type Bridges []Bridge
 
 type Bridge struct {

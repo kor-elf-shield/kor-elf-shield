@@ -181,7 +181,13 @@ func (o *otherSettingsPath) ToDockerConfig(binaryLocations *binaryLocations) (co
 		return docker_monitor.Config{}, false, err
 	}
 
+	ruleStrategy, err := setting.ToRuleStrategy()
+	if err != nil {
+		return docker_monitor.Config{}, false, err
+	}
+
 	return docker_monitor.Config{
-		Path: binaryLocations.Docker,
+		Path:         binaryLocations.Docker,
+		RuleStrategy: ruleStrategy,
 	}, setting.Enabled, nil
 }

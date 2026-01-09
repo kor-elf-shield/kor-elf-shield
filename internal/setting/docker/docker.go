@@ -1,12 +1,16 @@
 package docker
 
 import (
+	"errors"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 	"github.com/spf13/viper"
 )
 
 type Setting struct {
-	Enabled bool `mapstructure:"enabled"`
+	Enabled      bool   `mapstructure:"enabled"`
+	RuleStrategy string `mapstructure:"rule_strategy"`
 }
 
 func InitSetting(path string) (Setting, error) {
@@ -40,11 +44,21 @@ func InitSetting(path string) (Setting, error) {
 
 func settingDefault() Setting {
 	return Setting{
-		Enabled: false,
+		Enabled:      false,
+		RuleStrategy: "rebuild",
 	}
 }
 
 func (s Setting) Validate() error {
 
 	return nil
+}
+
+func (s Setting) ToRuleStrategy() (docker_monitor.RuleStrategy, error) {
+	switch s.RuleStrategy {
+	case "rebuild":
+		return docker_monitor.RuleStrategyRebuild, nil
+	}
+
+	return docker_monitor.RuleStrategyRebuild, errors.New("invalid option rule_strategy. Must be rebuild")
 }

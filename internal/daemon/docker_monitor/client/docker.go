@@ -23,7 +23,7 @@ type Docker interface {
 	Containers(bridgeID string) ([]string, error)
 	ContainerNetworks(containerID string) (DockerContainerInspect, error)
 
-	Events() <-chan string
+	Events() <-chan Event
 	EventsClose() error
 }
 
@@ -128,8 +128,8 @@ func (d *docker) command(args ...string) ([]byte, error) {
 	return result, nil
 }
 
-func (d *docker) Events() <-chan string {
-	eventsChan := make(chan string)
+func (d *docker) Events() <-chan Event {
+	eventsChan := make(chan Event)
 
 	d.logger.Debug("Starting docker monitor")
 	go func() {
@@ -158,7 +158,7 @@ func (d *docker) Events() <-chan string {
 	return eventsChan
 }
 
-func (d *docker) watch(eventsChan chan string) error {
+func (d *docker) watch(eventsChan chan Event) error {
 	args := []string{
 		"events",
 		"--filter", "type=container",
@@ -187,7 +187,9 @@ func (d *docker) watch(eventsChan chan string) error {
 		if scanner.Text() == "" {
 			return fmt.Errorf("empty line")
 		}
-		eventsChan <- scanner.Text()
+		eventsChan <- Event{
+			Message: scanner.Text(),
+		}
 	}
 
 	return scanner.Err()

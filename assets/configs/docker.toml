@@ -6,3 +6,16 @@
 # Default: false
 ###
 enabled = false
+
+###
+# Стратегия управления правилами:
+# rebuild = при любом изменении все цепочки Docker пересоздаются целиком
+#
+# По умолчанию: "rebuild"
+# ***
+# Rule Management Strategy:
+# rebuild = any change causes all Docker chains to be rebuilt entirely
+#
+# Default: "rebuild"
+###
+rule_strategy = "rebuild"

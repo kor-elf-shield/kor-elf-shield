@@ -101,7 +101,10 @@ func newDockerService(ctx context.Context, logger log.Logger) (dockerService doc
 		return dockerService, false, nil
 	}
 
-	dockerService = docker_monitor.New(&config, ctx, logger)
+	dockerService, err = docker_monitor.New(&config, ctx, logger)
+	if err != nil {
+		return docker_monitor.NewDockerNotSupport(), false, err
+	}
 
 	return dockerService, dockerSupport, nil
 }
