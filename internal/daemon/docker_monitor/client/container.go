@@ -7,7 +7,7 @@ import (
 )
 
 func (d *docker) Containers(bridgeID string) ([]string, error) {
-	args := []string{"ps", "-q", "--filter", fmt.Sprintf("network=%s", bridgeID)}
+	args := []string{"ps", "-q", "--no-trunc", "--filter", fmt.Sprintf("network=%s", bridgeID)}
 	result, err := d.command(args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get docker containers: %s", err.Error())
