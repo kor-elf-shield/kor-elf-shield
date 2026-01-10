@@ -6,18 +6,18 @@ import (
 	nftChain "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
 )
 
-type RebuildStrategy struct {
+type rebuildStrategy struct {
 	chains    chain.Chains
 	generator Generator
 }
 
 func NewRebuildStrategy(generator Generator) Strategy {
-	return &RebuildStrategy{
+	return &rebuildStrategy{
 		generator: generator,
 	}
 }
 
-func (r *RebuildStrategy) Reload(newNoneChain func(chain string) (nftChain.Chain, error)) error {
+func (r *rebuildStrategy) Reload(newNoneChain func(chain string) (nftChain.Chain, error)) error {
 	chains, err := chain.NewChains(newNoneChain)
 	if err != nil {
 		return err
@@ -29,11 +29,11 @@ func (r *RebuildStrategy) Reload(newNoneChain func(chain string) (nftChain.Chain
 	return nil
 }
 
-func (r *RebuildStrategy) Chains() chain.Chains {
+func (r *rebuildStrategy) Chains() chain.Chains {
 	return r.chains
 }
 
-func (r *RebuildStrategy) Event(_ *client.Event) {
+func (r *rebuildStrategy) Event(_ *client.Event) {
 	r.generator.ClearChains(r.chains)
 	r.generator.GenerateAll(r.chains)
 }
