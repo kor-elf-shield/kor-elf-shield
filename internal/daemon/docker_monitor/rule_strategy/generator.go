@@ -9,7 +9,7 @@ import (
 )
 
 type Generator interface {
-	GenerateAll(chains chain.Chains)
+	GenerateAll(chains chain.Chains, isComment bool)
 	ClearChains(chains chain.Chains)
 	AddRule(chainData chain.Data, rule string)
 }
@@ -26,19 +26,19 @@ func NewGenerator(dockerClient client.Docker, logger log.Logger) Generator {
 	}
 }
 
-func (g *generator) GenerateAll(chains chain.Chains) {
+func (g *generator) GenerateAll(chains chain.Chains, isComment bool) {
 	listChains := chains.List()
 
-	if err := listChains.ForwardCT.JumpTo(&listChains.ForwardFilter, ""); err != nil {
+	if err := listChains.ForwardCT.JumpTo(&listChains.ForwardFilter, "", ""); err != nil {
 		g.logger.Error(err.Error())
 	}
-	if err := listChains.ForwardBridge.JumpTo(&listChains.ForwardFilter, ""); err != nil {
+	if err := listChains.ForwardBridge.JumpTo(&listChains.ForwardFilter, "", ""); err != nil {
 		g.logger.Error(err.Error())
 	}
-	if err := listChains.DockerFilterFirst.JumpTo(&listChains.DockerFilter, ""); err != nil {
+	if err := listChains.DockerFilterFirst.JumpTo(&listChains.DockerFilter, "", ""); err != nil {
 		g.logger.Error(err.Error())
 	}
-	if err := listChains.DockerFilterSecond.JumpTo(&listChains.DockerFilter, ""); err != nil {
+	if err := listChains.DockerFilterSecond.JumpTo(&listChains.DockerFilter, "", ""); err != nil {
 		g.logger.Error(err.Error())
 	}
 
@@ -49,36 +49,47 @@ func (g *generator) GenerateAll(chains chain.Chains) {
 	}
 	var rule string
 	for _, bridge := range bridges {
-		rule = fmt.Sprintf("iifname != \"%s\" oifname \"%s\" counter drop", bridge.Name, bridge.Name)
+		comment := ""
+		if isComment {
+			comment = fmt.Sprintf("comment \"bridge_id:%s\"", bridge.ID)
+		}
+
+		rule = fmt.Sprintf("iifname != \"%s\" oifname \"%s\" counter drop %s", bridge.Name, bridge.Name, comment)
 		g.AddRule(listChains.DockerFilterSecond, rule)
 
-		rule = fmt.Sprintf("iifname \"%s\" counter accept", bridge.Name)
+		rule = fmt.Sprintf("iifname \"%s\" counter accept %s", bridge.Name, comment)
 		g.AddRule(listChains.ForwardFilter, rule)
 
 		rule = fmt.Sprintf("oifname \"%s\" counter", bridge.Name)
-		if err := listChains.DockerFilter.JumpTo(&listChains.ForwardBridge, rule); err != nil {
+		if err := listChains.DockerFilter.JumpTo(&listChains.ForwardBridge, rule, comment); err != nil {
 			g.logger.Error(err.Error())
 		}
 
-		rule = fmt.Sprintf("oifname \"%s\" ct state related,established counter accept", bridge.Name)
+		rule = fmt.Sprintf("oifname \"%s\" ct state related,established counter accept %s", bridge.Name, comment)
 		g.AddRule(listChains.ForwardCT, rule)
 
-		rule = fmt.Sprintf("ip saddr %s oifname != \"%s\" counter masquerade", bridge.Subnet, bridge.Name)
-		g.AddRule(listChains.PostroutingNat, rule)
+		for _, subnet := range bridge.Subnets {
+			rule = fmt.Sprintf("ip saddr %s oifname != \"%s\" counter masquerade %s", subnet, bridge.Name, comment)
+			g.AddRule(listChains.PostroutingNat, rule)
+		}
 
 		if bridge.Containers == nil {
 			continue
 		}
 		for _, container := range bridge.Containers {
+			if isComment {
+				comment = fmt.Sprintf("comment \"container_id:%s\"", container.ID)
+			}
+
 			for _, ipInfo := range container.Networks.IPAddresses {
-				rule = fmt.Sprintf("%s daddr %s iifname != \"%s\" counter drop", ipInfo.NftPrefix(), ipInfo.Address, bridge.Name)
+				rule = fmt.Sprintf("%s daddr %s iifname != \"%s\" counter drop %s", ipInfo.NftPrefix(), ipInfo.Address, bridge.Name, comment)
 				g.AddRule(listChains.PreroutingFilter, rule)
 
 				for _, port := range container.Networks.Ports {
 					isZeroAddress := false
 					for _, hostInfo := range port.HostPort {
 						if hostInfo.IP.Address != "0.0.0.0" && hostInfo.IP.Address != "::" && (hostInfo.IP.Address == "127.0.0.1" || hostInfo.IP.Address == "::1") {
-							rule = fmt.Sprintf("%s daddr %s iifname != \"lo\" %s dport %s counter drop", hostInfo.IP.NftPrefix(), hostInfo.IP.Address, port.Protocol, hostInfo.Port)
+							rule = fmt.Sprintf("%s daddr %s iifname != \"lo\" %s dport %s counter drop %s", hostInfo.IP.NftPrefix(), hostInfo.IP.Address, port.Protocol, hostInfo.Port, comment)
 							g.AddRule(listChains.PreroutingFilter, rule)
 						}
 
@@ -87,17 +98,17 @@ func (g *generator) GenerateAll(chains chain.Chains) {
 								continue
 							}
 							isZeroAddress = true
-							rule = fmt.Sprintf("iifname != \"%s\" %s dport %s counter dnat %s to %s:%s", bridge.Name, port.Protocol, hostInfo.Port, ipInfo.NftPrefix(), ipInfo.Address, port.Port)
+							rule = fmt.Sprintf("iifname != \"%s\" %s dport %s counter dnat %s to %s:%s %s", bridge.Name, port.Protocol, hostInfo.Port, ipInfo.NftPrefix(), ipInfo.Address, port.Port, comment)
 							g.AddRule(listChains.DockerNat, rule)
 
-							rule = fmt.Sprintf("%s daddr %s iifname != \"%s\" oifname \"%s\" %s dport %s counter accept", ipInfo.NftPrefix(), ipInfo.Address, bridge.Name, bridge.Name, port.Protocol, port.Port)
+							rule = fmt.Sprintf("%s daddr %s iifname != \"%s\" oifname \"%s\" %s dport %s counter accept %s", ipInfo.NftPrefix(), ipInfo.Address, bridge.Name, bridge.Name, port.Protocol, port.Port, comment)
 							g.AddRule(listChains.DockerFilterFirst, rule)
 							continue
 						}
-						rule = fmt.Sprintf("%s daddr %s iifname != \"%s\" oifname \"%s\" %s dport %s counter accept", ipInfo.NftPrefix(), ipInfo.Address, bridge.Name, bridge.Name, port.Protocol, port.Port)
+						rule = fmt.Sprintf("%s daddr %s iifname != \"%s\" oifname \"%s\" %s dport %s counter accept %s", ipInfo.NftPrefix(), ipInfo.Address, bridge.Name, bridge.Name, port.Protocol, port.Port, comment)
 						g.AddRule(listChains.DockerFilterFirst, rule)
 
-						rule = fmt.Sprintf("%s daddr %s iifname != \"%s\" %s dport %s counter dnat to %s:%s", hostInfo.IP.NftPrefix(), hostInfo.IP.Address, bridge.Name, port.Protocol, hostInfo.Port, ipInfo.Address, port.Port)
+						rule = fmt.Sprintf("%s daddr %s iifname != \"%s\" %s dport %s counter dnat to %s:%s %s", hostInfo.IP.NftPrefix(), hostInfo.IP.Address, bridge.Name, port.Protocol, hostInfo.Port, ipInfo.Address, port.Port, comment)
 						g.AddRule(listChains.DockerNat, rule)
 					}
 				}
