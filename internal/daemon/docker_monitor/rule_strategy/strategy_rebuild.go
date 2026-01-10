@@ -24,7 +24,7 @@ func (r *rebuildStrategy) Reload(newNoneChain func(chain string) (nftChain.Chain
 	}
 	r.chains = chains
 
-	r.generator.GenerateAll(r.chains)
+	r.generator.GenerateAll(r.chains, false)
 
 	return nil
 }
@@ -33,7 +33,11 @@ func (r *rebuildStrategy) Chains() chain.Chains {
 	return r.chains
 }
 
-func (r *rebuildStrategy) Event(_ *client.Event) {
+func (r *rebuildStrategy) Event(event *client.Event) {
+	if event == nil || event.Type != "container" {
+		return
+	}
+
 	r.generator.ClearChains(r.chains)
-	r.generator.GenerateAll(r.chains)
+	r.generator.GenerateAll(r.chains, false)
 }
