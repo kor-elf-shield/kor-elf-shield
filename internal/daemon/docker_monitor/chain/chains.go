@@ -65,8 +65,8 @@ func (d *Data) Jump(addRule func(expr ...string) error, rule string) error {
 	return addRule(args...)
 }
 
-func (d *Data) JumpTo(data *Data, rule string) error {
-	args := []string{rule, "jump", d.name}
+func (d *Data) JumpTo(data *Data, rule string, comment string) error {
+	args := []string{rule, "jump", d.name, comment}
 	return data.AddRule(args...)
 }
 
