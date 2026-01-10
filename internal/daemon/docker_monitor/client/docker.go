@@ -16,9 +16,7 @@ type Docker interface {
 	FetchContainers(bridgeID string) (Containers, error)
 
 	Bridges() ([]string, error)
-	BridgeNames() ([]string, error)
-	BridgeName(bridgeID string) (string, error)
-	BridgeSubnet(bridgeID string) (string, error)
+	BridgeInfo(bridgeID string) (DockerBridgeInspect, error)
 
 	Containers(bridgeID string) ([]string, error)
 	ContainerNetworks(containerID string) (DockerContainerInspect, error)
@@ -52,13 +50,7 @@ func (d *docker) FetchBridges() (Bridges, error) {
 	}
 
 	for _, bridgeId := range list {
-		bridgeName, err := d.BridgeName(bridgeId)
-		if err != nil {
-			d.logger.Error(err.Error())
-			continue
-		}
-
-		bridgeSubnet, err := d.BridgeSubnet(bridgeId)
+		bridgeInfo, err := d.BridgeInfo(bridgeId)
 		if err != nil {
 			d.logger.Error(err.Error())
 			continue
@@ -70,10 +62,22 @@ func (d *docker) FetchBridges() (Bridges, error) {
 			d.logger.Error(err.Error())
 		}
 
+		bridgeName := fmt.Sprintf("br-%s", bridgeId)
+		if bridgeInfo.Options.Name != "" {
+			bridgeName = bridgeInfo.Options.Name
+		}
+
+		var bridgeSubnet []string
+		if bridgeInfo.IPAM.Config != nil {
+			for _, config := range bridgeInfo.IPAM.Config {
+				bridgeSubnet = append(bridgeSubnet, config.Subnet)
+			}
+		}
+
 		bridges = append(bridges, Bridge{
-			ID:         bridgeId,
+			ID:         bridgeInfo.ID,
 			Name:       bridgeName,
-			Subnet:     bridgeSubnet,
+			Subnets:    bridgeSubnet,
 			Containers: containers,
 		})
 	}

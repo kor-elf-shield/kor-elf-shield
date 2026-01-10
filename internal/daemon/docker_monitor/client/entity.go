@@ -14,8 +14,20 @@ type Bridges []Bridge
 type Bridge struct {
 	ID         string
 	Name       string
-	Subnet     string
+	Subnets    []string
 	Containers Containers
+}
+
+type DockerBridgeInspect struct {
+	ID      string `json:"Id"`
+	Options struct {
+		Name string `json:"com.docker.network.bridge.name"`
+	} `json:"Options"`
+	IPAM struct {
+		Config []struct {
+			Subnet string `json:"Subnet"`
+		} `json:"Config"`
+	} `json:"IPAM"`
 }
 
 type Containers []Container
