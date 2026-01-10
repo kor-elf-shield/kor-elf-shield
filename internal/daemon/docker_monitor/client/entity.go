@@ -6,7 +6,18 @@ import (
 )
 
 type Event struct {
-	Message string
+	Type    string
+	Action  string
+	ID      string // Full 64-char ID (Actor.ID)
+	Message string // debug
+}
+
+type DockerEvent struct {
+	Type   string `json:"Type"`   // container, network
+	Action string `json:"Action"` // start, die, create, destroy
+	Actor  struct {
+		ID string `json:"ID"`
+	} `json:"Actor"`
 }
 
 type Bridges []Bridge

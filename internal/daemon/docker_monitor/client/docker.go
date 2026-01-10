@@ -3,6 +3,7 @@ package client
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"sync"
@@ -165,9 +166,15 @@ func (d *docker) Events() <-chan Event {
 func (d *docker) watch(eventsChan chan Event) error {
 	args := []string{
 		"events",
+
 		"--filter", "type=container",
 		"--filter", "event=start",
 		"--filter", "event=die",
+
+		"--filter", "type=network",
+		"--filter", "event=create",
+		"--filter", "event=destroy",
+
 		"--format",
 		"{{json .}}",
 	}
@@ -191,7 +198,20 @@ func (d *docker) watch(eventsChan chan Event) error {
 		if scanner.Text() == "" {
 			return fmt.Errorf("empty line")
 		}
+
+		var dockerEvent DockerEvent
+		if err := json.Unmarshal([]byte(scanner.Text()), &dockerEvent); err != nil {
+			return fmt.Errorf("failed to unmarshal docker event: %v", err)
+		}
+
+		if dockerEvent.Type == "" || dockerEvent.Action == "" || dockerEvent.Actor.ID == "" {
+			continue
+		}
+
 		eventsChan <- Event{
+			Type:    dockerEvent.Type,
+			Action:  dockerEvent.Action,
+			ID:      dockerEvent.Actor.ID,
 			Message: scanner.Text(),
 		}
 	}
