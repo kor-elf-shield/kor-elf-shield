@@ -16,12 +16,6 @@ type Docker interface {
 	FetchBridges() (Bridges, error)
 	FetchContainers(bridgeID string) (Containers, error)
 
-	Bridges() ([]string, error)
-	BridgeInfo(bridgeID string) (DockerBridgeInspect, error)
-
-	Containers(bridgeID string) ([]string, error)
-	ContainerNetworks(containerID string) (DockerContainerInspect, error)
-
 	Events() <-chan Event
 	EventsClose() error
 }
@@ -45,13 +39,13 @@ func NewDocker(path string, ctx context.Context, logger log.Logger) Docker {
 
 func (d *docker) FetchBridges() (Bridges, error) {
 	bridges := Bridges{}
-	list, err := d.Bridges()
+	list, err := d.bridges()
 	if err != nil {
 		return nil, err
 	}
 
 	for _, bridgeId := range list {
-		bridgeInfo, err := d.BridgeInfo(bridgeId)
+		bridgeInfo, err := d.bridgeInfo(bridgeId)
 		if err != nil {
 			d.logger.Error(err.Error())
 			continue
@@ -89,12 +83,12 @@ func (d *docker) FetchBridges() (Bridges, error) {
 func (d *docker) FetchContainers(bridgeID string) (Containers, error) {
 	containers := Containers{}
 
-	list, err := d.Containers(bridgeID)
+	list, err := d.containers(bridgeID)
 	if err != nil {
 		return nil, err
 	}
 	for _, containerID := range list {
-		info, err := d.ContainerNetworks(containerID)
+		info, err := d.containerNetworks(containerID)
 		if err != nil {
 			d.logger.Error(err.Error())
 			continue

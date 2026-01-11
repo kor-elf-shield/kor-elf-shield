@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (d *docker) Bridges() ([]string, error) {
+func (d *docker) bridges() ([]string, error) {
 	args := []string{"network", "ls", "-q", "--filter", "Driver=bridge"}
 	result, err := d.command(args...)
 	if err != nil {
@@ -26,7 +26,7 @@ func (d *docker) Bridges() ([]string, error) {
 	return lines, nil
 }
 
-func (d *docker) BridgeInfo(bridgeID string) (DockerBridgeInspect, error) {
+func (d *docker) bridgeInfo(bridgeID string) (DockerBridgeInspect, error) {
 	args := []string{"network", "inspect", bridgeID}
 	result, err := d.command(args...)
 	if err != nil {

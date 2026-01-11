@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (d *docker) Containers(bridgeID string) ([]string, error) {
+func (d *docker) containers(bridgeID string) ([]string, error) {
 	args := []string{"ps", "-q", "--no-trunc", "--filter", fmt.Sprintf("network=%s", bridgeID)}
 	result, err := d.command(args...)
 	if err != nil {
@@ -26,7 +26,7 @@ func (d *docker) Containers(bridgeID string) ([]string, error) {
 	return lines, nil
 }
 
-func (d *docker) ContainerNetworks(containerID string) (DockerContainerInspect, error) {
+func (d *docker) containerNetworks(containerID string) (DockerContainerInspect, error) {
 	result, err := d.command("inspect", containerID)
 
 	if err != nil {
