@@ -72,9 +72,9 @@ func (d *docker) FetchBridge(bridgeID string) (Bridge, error) {
 		d.logger.Error(err.Error())
 	}
 
-	bridgeName := fmt.Sprintf("br-%s", bridgeID)
-	if bridgeInfo.Options.Name != "" {
-		bridgeName = bridgeInfo.Options.Name
+	bridgeName := bridgeInfo.Options.Name
+	if bridgeName == "" {
+		bridgeName = bridgeNameFromID(bridgeID)
 	}
 
 	var bridgeSubnet []string
@@ -129,7 +129,11 @@ func (d *docker) FetchContainer(containerID string) (Container, error) {
 				d.logger.Error(err.Error())
 				continue
 			}
-			networks.IPAddresses = append(networks.IPAddresses, IPInfo{Address: networkData.IPAddress, Version: ipVesion})
+			networks.IPAddresses = append(networks.IPAddresses, IPInfo{
+				Address:   networkData.IPAddress,
+				Version:   ipVesion,
+				NetworkID: networkData.NetworkID,
+			})
 		}
 	}
 
@@ -248,4 +252,11 @@ func (d *docker) EventsClose() error {
 	d.logger.Debug("Docker monitor stopped")
 
 	return nil
+}
+
+func bridgeNameFromID(bridgeID string) string {
+	if len(bridgeID) > 12 {
+		bridgeID = bridgeID[:12]
+	}
+	return fmt.Sprintf("br-%s", bridgeID)
 }
