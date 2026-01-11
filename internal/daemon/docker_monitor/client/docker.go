@@ -14,6 +14,7 @@ import (
 
 type Docker interface {
 	FetchBridges() (Bridges, error)
+	FetchBridge(bridgeID string) (Bridge, error)
 	FetchContainers(bridgeID string) (Containers, error)
 
 	Events() <-chan Event
@@ -45,39 +46,49 @@ func (d *docker) FetchBridges() (Bridges, error) {
 	}
 
 	for _, bridgeId := range list {
-		bridgeInfo, err := d.bridgeInfo(bridgeId)
+		bridge, err := d.FetchBridge(bridgeId)
 		if err != nil {
 			d.logger.Error(err.Error())
 			continue
 		}
 
-		var containers Containers
-		containers, err = d.FetchContainers(bridgeId)
-		if err != nil {
-			d.logger.Error(err.Error())
-		}
-
-		bridgeName := fmt.Sprintf("br-%s", bridgeId)
-		if bridgeInfo.Options.Name != "" {
-			bridgeName = bridgeInfo.Options.Name
-		}
-
-		var bridgeSubnet []string
-		if bridgeInfo.IPAM.Config != nil {
-			for _, config := range bridgeInfo.IPAM.Config {
-				bridgeSubnet = append(bridgeSubnet, config.Subnet)
-			}
-		}
-
-		bridges = append(bridges, Bridge{
-			ID:         bridgeInfo.ID,
-			Name:       bridgeName,
-			Subnets:    bridgeSubnet,
-			Containers: containers,
-		})
+		bridges = append(bridges, bridge)
 	}
 
 	return bridges, nil
+}
+
+func (d *docker) FetchBridge(bridgeID string) (Bridge, error) {
+
+	bridgeInfo, err := d.bridgeInfo(bridgeID)
+	if err != nil {
+		return Bridge{}, err
+	}
+
+	var containers Containers
+	containers, err = d.FetchContainers(bridgeID)
+	if err != nil {
+		d.logger.Error(err.Error())
+	}
+
+	bridgeName := fmt.Sprintf("br-%s", bridgeID)
+	if bridgeInfo.Options.Name != "" {
+		bridgeName = bridgeInfo.Options.Name
+	}
+
+	var bridgeSubnet []string
+	if bridgeInfo.IPAM.Config != nil {
+		for _, config := range bridgeInfo.IPAM.Config {
+			bridgeSubnet = append(bridgeSubnet, config.Subnet)
+		}
+	}
+
+	return Bridge{
+		ID:         bridgeInfo.ID,
+		Name:       bridgeName,
+		Subnets:    bridgeSubnet,
+		Containers: containers,
+	}, nil
 }
 
 func (d *docker) FetchContainers(bridgeID string) (Containers, error) {
