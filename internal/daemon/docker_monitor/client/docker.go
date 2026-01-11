@@ -16,6 +16,7 @@ type Docker interface {
 	FetchBridges() (Bridges, error)
 	FetchBridge(bridgeID string) (Bridge, error)
 	FetchContainers(bridgeID string) (Containers, error)
+	FetchContainer(containerID string) (Container, error)
 
 	Events() <-chan Event
 	EventsClose() error
@@ -99,34 +100,43 @@ func (d *docker) FetchContainers(bridgeID string) (Containers, error) {
 		return nil, err
 	}
 	for _, containerID := range list {
-		info, err := d.containerNetworks(containerID)
+		container, err := d.FetchContainer(containerID)
 		if err != nil {
 			d.logger.Error(err.Error())
 			continue
 		}
 
-		networks := ContainerNetworks{
-			IPAddresses: []IPInfo{},
-			Ports:       d.parsePorts(info),
-		}
-		for _, networkData := range info.NetworkSettings.Networks {
-			if networkData.IPAddress != "" {
-				ipVesion, err := ipVersion(networkData.IPAddress)
-				if err != nil {
-					d.logger.Error(err.Error())
-					continue
-				}
-				networks.IPAddresses = append(networks.IPAddresses, IPInfo{Address: networkData.IPAddress, Version: ipVesion})
-			}
-		}
-
-		containers = append(containers, Container{
-			ID:       containerID,
-			Networks: networks,
-		})
+		containers = append(containers, container)
 	}
 
 	return containers, nil
+}
+
+func (d *docker) FetchContainer(containerID string) (Container, error) {
+	info, err := d.containerNetworks(containerID)
+	if err != nil {
+		return Container{}, err
+	}
+
+	networks := ContainerNetworks{
+		IPAddresses: []IPInfo{},
+		Ports:       d.parsePorts(info),
+	}
+	for _, networkData := range info.NetworkSettings.Networks {
+		if networkData.IPAddress != "" {
+			ipVesion, err := ipVersion(networkData.IPAddress)
+			if err != nil {
+				d.logger.Error(err.Error())
+				continue
+			}
+			networks.IPAddresses = append(networks.IPAddresses, IPInfo{Address: networkData.IPAddress, Version: ipVesion})
+		}
+	}
+
+	return Container{
+		ID:       containerID,
+		Networks: networks,
+	}, nil
 }
 
 func (d *docker) command(args ...string) ([]byte, error) {
