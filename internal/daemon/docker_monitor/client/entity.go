@@ -54,8 +54,9 @@ type ContainerNetworks struct {
 }
 
 type IPInfo struct {
-	Address string
-	Version int // "4" or "6"
+	Address   string
+	Version   int // "4" or "6"
+	NetworkID string
 }
 
 func (i IPInfo) NftPrefix() string {
@@ -84,6 +85,7 @@ type DockerContainerInspect struct {
 		} `json:"Ports"`
 		Networks map[string]struct {
 			IPAddress string `json:"IPAddress"`
+			NetworkID string `json:"NetworkID"`
 		} `json:"Networks"`
 	} `json:"NetworkSettings"`
 }
