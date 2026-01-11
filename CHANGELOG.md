@@ -1,4 +1,4 @@
-## 0.4.0 (soon)
+## 0.4.0 (11.1.2026)
 ***
 #### Русский
 * Удалён параметр options.docker_support из файла firewall.toml. Настройки от Docker перенесены в файл docker.toml.
