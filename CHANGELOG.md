@@ -8,6 +8,7 @@
 * Исправлена ошибка:
   * Настройка binaryLocations.docker не работала.
   * Программа аварийно завершалась после остановки Docker'а.
+  * Указанные в настройках IP-адреса не блокировались во время перенаправления в контейнер Docker.
 ***
 #### English
 * Removed the options.docker_support parameter from firewall.toml. Docker settings have been moved to the docker.toml file.
@@ -17,6 +18,7 @@
 * Fixed error:
   * The binaryLocations.docker setting did not work.
   * The program crashed after Docker was stopped.
+  * The IP addresses specified in the settings were not blocked during redirection to the Docker container.
 ***
 ## 0.3.0 (4.1.2026)
 ***
