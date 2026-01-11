@@ -2,12 +2,18 @@
 ***
 #### Русский
 * Удалён параметр options.docker_support из файла firewall.toml. Настройки от Docker перенесены в файл docker.toml.
+* В настройках docker.toml добавил возможность переключать режим работы с Docker через параметр rule_strategy.
+  * incremental = добавляются или удаляются только правила конкретного контейнера (сейчас по умолчанию)
+  * rebuild = при любом изменении все цепочки Docker пересоздаются целиком (старый режим)
 * Исправлена ошибка:
   * Настройка binaryLocations.docker не работала.
   * Программа аварийно завершалась после остановки Docker'а.
 ***
 #### English
 * Removed the options.docker_support parameter from firewall.toml. Docker settings have been moved to the docker.toml file.
+* Added the ability to switch Docker operation mode via the rule_strategy parameter to the docker.toml settings.
+  * incremental = only rules for a specific container are added or removed (currently the default)
+  * rebuild = any change rebuilds all Docker chains (old mode)
 * Fixed error:
   * The binaryLocations.docker setting did not work.
   * The program crashed after Docker was stopped.
