@@ -45,7 +45,7 @@ func InitSetting(path string) (Setting, error) {
 func settingDefault() Setting {
 	return Setting{
 		Enabled:      false,
-		RuleStrategy: "rebuild",
+		RuleStrategy: "incremental",
 	}
 }
 
@@ -58,7 +58,9 @@ func (s Setting) ToRuleStrategy() (docker_monitor.RuleStrategy, error) {
 	switch s.RuleStrategy {
 	case "rebuild":
 		return docker_monitor.RuleStrategyRebuild, nil
+	case "incremental":
+		return docker_monitor.RuleStrategyIncremental, nil
 	}
 
-	return docker_monitor.RuleStrategyRebuild, errors.New("invalid option rule_strategy. Must be rebuild")
+	return docker_monitor.RuleStrategyRebuild, errors.New("invalid option rule_strategy. Must be rebuild or incremental")
 }

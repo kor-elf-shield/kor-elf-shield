@@ -8,14 +8,16 @@
 enabled = false
 
 ###
-# Стратегия управления правилами:
-# rebuild = при любом изменении все цепочки Docker пересоздаются целиком
+# Стратегия управления правилами при запуске или остановке контейнеров в Docker:
+# rebuild     = при любом изменении все цепочки Docker пересоздаются целиком
+# incremental = добавляются или удаляются только правила конкретного контейнера
 #
-# По умолчанию: "rebuild"
+# По умолчанию: "incremental"
 # ***
-# Rule Management Strategy:
-# rebuild = any change causes all Docker chains to be rebuilt entirely
+# # Strategy for managing rules when container start or stop events occur in docker:
+# rebuild     = any change causes all Docker chains to be rebuilt entirely
+# incremental = only rules for a specific container are added or removed
 #
-# Default: "rebuild"
+# Default: "incremental"
 ###
-rule_strategy = "rebuild"
+rule_strategy = "incremental"
