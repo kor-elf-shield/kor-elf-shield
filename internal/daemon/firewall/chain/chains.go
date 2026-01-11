@@ -27,6 +27,9 @@ type Chains interface {
 	NewLocalOutput() error
 	LocalOutput() LocalOutput
 
+	NewLocalForward() error
+	LocalForward() LocalForward
+
 	ClearRules() error
 
 	NewNoneChain(chain string) (Chain, error)
@@ -39,8 +42,9 @@ type chains struct {
 	forward      Forward
 	packetFilter PacketFilter
 
-	localInput  LocalInput
-	localOutput LocalOutput
+	localInput   LocalInput
+	localOutput  LocalOutput
+	localForward LocalForward
 
 	family nftFamily.Type
 	table  string
@@ -145,6 +149,19 @@ func (c *chains) NewLocalOutput() error {
 
 func (c *chains) LocalOutput() LocalOutput {
 	return c.localOutput
+}
+
+func (c *chains) NewLocalForward() error {
+	localForward, err := newLocalForward(c.nft, c.family, c.table)
+	if err != nil {
+		return err
+	}
+	c.localForward = localForward
+	return nil
+}
+
+func (c *chains) LocalForward() LocalForward {
+	return c.localForward
 }
 
 func (c *chains) ClearRules() error {

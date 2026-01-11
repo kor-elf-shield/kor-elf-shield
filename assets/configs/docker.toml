@@ -1,0 +1,23 @@
+###
+# Включает поддержку docker.
+# По умолчанию: false
+# ***
+# Includes docker support.
+# Default: false
+###
+enabled = false
+
+###
+# Стратегия управления правилами при запуске или остановке контейнеров в Docker:
+# rebuild     = при любом изменении все цепочки Docker пересоздаются целиком
+# incremental = добавляются или удаляются только правила конкретного контейнера
+#
+# По умолчанию: "incremental"
+# ***
+# # Strategy for managing rules when container start or stop events occur in docker:
+# rebuild     = any change causes all Docker chains to be rebuilt entirely
+# incremental = only rules for a specific container are added or removed
+#
+# Default: "incremental"
+###
+rule_strategy = "incremental"

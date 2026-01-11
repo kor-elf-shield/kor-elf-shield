@@ -5,13 +5,40 @@ import (
 	"net"
 )
 
+type Event struct {
+	Type    string
+	Action  string
+	ID      string // Full 64-char ID (Actor.ID)
+	Message string // debug
+}
+
+type DockerEvent struct {
+	Type   string `json:"Type"`   // container, network
+	Action string `json:"Action"` // start, die, create, destroy
+	Actor  struct {
+		ID string `json:"ID"`
+	} `json:"Actor"`
+}
+
 type Bridges []Bridge
 
 type Bridge struct {
 	ID         string
 	Name       string
-	Subnet     string
+	Subnets    []string
 	Containers Containers
+}
+
+type DockerBridgeInspect struct {
+	ID      string `json:"Id"`
+	Options struct {
+		Name string `json:"com.docker.network.bridge.name"`
+	} `json:"Options"`
+	IPAM struct {
+		Config []struct {
+			Subnet string `json:"Subnet"`
+		} `json:"Config"`
+	} `json:"IPAM"`
 }
 
 type Containers []Container
@@ -27,8 +54,9 @@ type ContainerNetworks struct {
 }
 
 type IPInfo struct {
-	Address string
-	Version int // "4" or "6"
+	Address   string
+	Version   int // "4" or "6"
+	NetworkID string
 }
 
 func (i IPInfo) NftPrefix() string {
@@ -57,6 +85,7 @@ type DockerContainerInspect struct {
 		} `json:"Ports"`
 		Networks map[string]struct {
 			IPAddress string `json:"IPAddress"`
+			NetworkID string `json:"NetworkID"`
 		} `json:"Networks"`
 	} `json:"NetworkSettings"`
 }

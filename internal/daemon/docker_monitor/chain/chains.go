@@ -65,13 +65,21 @@ func (d *Data) Jump(addRule func(expr ...string) error, rule string) error {
 	return addRule(args...)
 }
 
-func (d *Data) JumpTo(data *Data, rule string) error {
-	args := []string{rule, "jump", d.name}
+func (d *Data) JumpTo(data *Data, rule string, comment string) error {
+	args := []string{rule, "jump", d.name, comment}
 	return data.AddRule(args...)
 }
 
 func (d *Data) AddRule(rule ...string) error {
 	return d.chain.AddRule(rule...)
+}
+
+func (d *Data) RemoveRuleByHandle(handle uint64) error {
+	return d.chain.RemoveRuleByHandle(handle)
+}
+
+func (d *Data) ListRules() ([]nftChain.Rule, error) {
+	return d.chain.ListRules()
 }
 
 func (d *Data) Clear() error {

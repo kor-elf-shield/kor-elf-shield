@@ -50,18 +50,13 @@ func (s *systemd) Run(ctx context.Context, logChan chan<- analysisServices.Entry
 		return
 	}
 
-	args := []string{"-f", "-n", "0", "-o", "json"}
-	for _, unit := range s.units {
-		args = append(args, "-u", unit)
-	}
-
 	s.logger.Debug("Journalctl started")
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
-			if err := s.watch(ctx, args, logChan); err != nil {
+			if err := s.watch(ctx, logChan); err != nil {
 				s.logger.Error(fmt.Sprintf("Journalctl exited with error: %v", err))
 			}
 
@@ -77,7 +72,11 @@ func (s *systemd) Run(ctx context.Context, logChan chan<- analysisServices.Entry
 	}
 }
 
-func (s *systemd) watch(ctx context.Context, args []string, logChan chan<- analysisServices.Entry) error {
+func (s *systemd) watch(ctx context.Context, logChan chan<- analysisServices.Entry) error {
+	args := []string{"-f", "-n", "0", "-o", "json"}
+	for _, unit := range s.units {
+		args = append(args, "-u", unit)
+	}
 	cmd := exec.CommandContext(ctx, s.path, args...)
 
 	s.mu.Lock()

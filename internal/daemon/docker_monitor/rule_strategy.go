@@ -1,0 +1,22 @@
+package docker_monitor
+
+import (
+	"fmt"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/client"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/rule_strategy"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+)
+
+func newRuleStrategy(config *Config, dockerClient client.Docker, logger log.Logger) (rule_strategy.Strategy, error) {
+	generate := rule_strategy.NewGenerator(dockerClient, logger)
+
+	switch config.RuleStrategy {
+	case RuleStrategyRebuild:
+		return rule_strategy.NewRebuildStrategy(generate), nil
+	case RuleStrategyIncremental:
+		return rule_strategy.NewIncrementalStrategy(generate, dockerClient, logger), nil
+	}
+
+	return nil, fmt.Errorf("invalid option rule_strategy")
+}
