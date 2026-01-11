@@ -9,4 +9,5 @@ type RuleStrategy int8
 
 const (
 	RuleStrategyRebuild RuleStrategy = iota + 1
+	RuleStrategyIncremental
 )

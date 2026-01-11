@@ -74,6 +74,14 @@ func (d *Data) AddRule(rule ...string) error {
 	return d.chain.AddRule(rule...)
 }
 
+func (d *Data) RemoveRuleByHandle(handle uint64) error {
+	return d.chain.RemoveRuleByHandle(handle)
+}
+
+func (d *Data) ListRules() ([]nftChain.Rule, error) {
+	return d.chain.ListRules()
+}
+
 func (d *Data) Clear() error {
 	return d.chain.Clear()
 }
