@@ -40,7 +40,7 @@ func NewSSH(config *config.Config, logger log.Logger, notify notifications.Notif
 
 func (s *ssh) Process(entry *Entry) error {
 	if s.login.enabled {
-		result, err := s.login.processLogin(entry)
+		result, err := s.login.process(entry)
 		if err != nil {
 			s.logger.Error(fmt.Sprintf("Failed to process ssh login: %s", err))
 		} else if result.found {
@@ -54,7 +54,7 @@ func (s *ssh) Process(entry *Entry) error {
 	return nil
 }
 
-func (l *sshLogin) processLogin(entry *Entry) (processReturn, error) {
+func (l *sshLogin) process(entry *Entry) (processReturn, error) {
 	re := regexp.MustCompile(`^Accepted (\S+) for (\S+) from (\S+) port \S+`)
 	matches := re.FindStringSubmatch(entry.Message)
 
