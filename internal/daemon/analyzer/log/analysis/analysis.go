@@ -15,6 +15,12 @@ type Entry struct {
 	Time    time.Time
 }
 
+type processReturn struct {
+	found   bool
+	subject string
+	body    string
+}
+
 type EmptyAnalysis struct{}
 
 func (empty *EmptyAnalysis) Process(_ *Entry) error {

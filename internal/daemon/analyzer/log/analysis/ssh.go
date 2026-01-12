@@ -22,12 +22,6 @@ type sshLogin struct {
 	notify  bool
 }
 
-type sshProcessReturn struct {
-	found   bool
-	subject string
-	body    string
-}
-
 func NewSSH(config *config.Config, logger log.Logger, notify notifications.Notifications) Analysis {
 	if !config.Login.Enabled || !config.Login.SSH.Enabled {
 		return &EmptyAnalysis{}
@@ -60,7 +54,7 @@ func (s *ssh) Process(entry *Entry) error {
 	return nil
 }
 
-func (l *sshLogin) process(entry *Entry) (sshProcessReturn, error) {
+func (l *sshLogin) process(entry *Entry) (processReturn, error) {
 	re := regexp.MustCompile(`^Accepted (\S+) for (\S+) from (\S+) port \S+`)
 	matches := re.FindStringSubmatch(entry.Message)
 
@@ -68,7 +62,7 @@ func (l *sshLogin) process(entry *Entry) (sshProcessReturn, error) {
 		user := matches[2]
 		ip := matches[3]
 
-		return sshProcessReturn{
+		return processReturn{
 			found: true,
 			subject: i18n.Lang.T("alert.login.subject", map[string]any{
 				"User": user,
@@ -83,5 +77,5 @@ func (l *sshLogin) process(entry *Entry) (sshProcessReturn, error) {
 		}, nil
 	}
 
-	return sshProcessReturn{found: false}, nil
+	return processReturn{found: false}, nil
 }
