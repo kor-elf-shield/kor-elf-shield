@@ -27,6 +27,6 @@
   "daemon is not running": "Демон не запущен",
   "daemon is not reopening logger": "Демон не открыл журнал повторно",
 
-  "alert.login.subject": "SSH-сообщение о входе пользователя {{.User}} с IP-адреса {{.IP}}",
-  "alert.login.body": "Вошли в ОС через ssh:\n   Время: {{.Time}}\n   IP: {{.IP}}\n   Пользователь: {{.User}}\n   Лог: {{.Log}}"
+  "alert.login.ssh.subject": "SSH-сообщение о входе пользователя {{.User}} с IP-адреса {{.IP}}",
+  "alert.login.ssh.body": "Вошли в ОС через ssh:\n   Время: {{.Time}}\n   IP: {{.IP}}\n   Пользователь: {{.User}}\n   Лог: {{.Log}}"
 }

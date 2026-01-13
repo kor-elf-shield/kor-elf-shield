@@ -27,6 +27,6 @@
   "daemon is not running": "Демон жұмыс істемейді",
   "daemon is not reopening logger": "Жын журналды қайта ашпады",
 
-  "alert.login.subject": "{{.IP}} IP мекенжайынан {{.User}} пайдаланушысына арналған SSH кіру хабарламасы",
-  "alert.login.body": "ОС-қа ssh арқылы кірді:\n   Уақыт: {{.Time}}\n   IP: {{.IP}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}"
+  "alert.login.ssh.subject": "{{.IP}} IP мекенжайынан {{.User}} пайдаланушысына арналған SSH кіру хабарламасы",
+  "alert.login.ssh.body": "ОС-қа ssh арқылы кірді:\n   Уақыт: {{.Time}}\n   IP: {{.IP}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}"
 }

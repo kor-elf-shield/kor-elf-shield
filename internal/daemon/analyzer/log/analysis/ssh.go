@@ -64,11 +64,11 @@ func (l *sshLogin) process(entry *Entry) (processReturn, error) {
 
 		return processReturn{
 			found: true,
-			subject: i18n.Lang.T("alert.login.subject", map[string]any{
+			subject: i18n.Lang.T("alert.login.ssh.subject", map[string]any{
 				"User": user,
 				"IP":   ip,
 			}),
-			body: i18n.Lang.T("alert.login.body", map[string]any{
+			body: i18n.Lang.T("alert.login.ssh.body", map[string]any{
 				"User": user,
 				"IP":   ip,
 				"Log":  entry.Message,

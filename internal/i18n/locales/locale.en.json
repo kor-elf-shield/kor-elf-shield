@@ -27,6 +27,6 @@
   "daemon is not running": "Daemon is not running",
   "daemon is not reopening logger": "The daemon did not reopen the log",
 
-  "alert.login.subject": "SSH login alert for user {{.User}} from {{.IP}}",
-  "alert.login.body": "Logged into the OS via ssh:\n   Time: {{.Time}}\n   IP: {{.IP}}\n   User: {{.User}}\n   Log: {{.Log}}"
+  "alert.login.ssh.subject": "SSH login alert for user {{.User}} from {{.IP}}",
+  "alert.login.ssh.body": "Logged into the OS via ssh:\n   Time: {{.Time}}\n   IP: {{.IP}}\n   User: {{.User}}\n   Log: {{.Log}}"
 }
