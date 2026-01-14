@@ -63,3 +63,21 @@ local_enable = true
 # Default: true
 ###
 local_notify = true
+
+###
+# Включает отслеживание, если кто-либо использует команду `su` для доступа к другой учетной записи.
+# По умолчанию: true
+# ***
+# Enables tracking if someone uses the `su` command to access another account.
+# Default: true
+###
+su_enable = true
+
+###
+# Включает уведомления, если кто-либо использует команду `su` для доступа к другой учетной записи.
+# По умолчанию: true
+# ***
+# Enables notifications if someone uses the `su` command to access another account.
+# Default: true
+###
+su_notify = true

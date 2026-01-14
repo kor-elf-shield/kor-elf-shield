@@ -31,5 +31,8 @@
   "alert.login.ssh.body": "Вошли в ОС через ssh:\n   Время: {{.Time}}\n   IP: {{.IP}}\n   Пользователь: {{.User}}\n   Лог: {{.Log}}",
 
   "alert.login.locale.subject": "Сообщение о входе пользователя {{.User}} (TTY)",
-  "alert.login.locale.body": "Вошли в ОС через TTY:\n   Время: {{.Time}}\n   Пользователь: {{.User}}\n   Лог: {{.Log}}"
+  "alert.login.locale.body": "Вошли в ОС через TTY:\n   Время: {{.Time}}\n   Пользователь: {{.User}}\n   Лог: {{.Log}}",
+
+  "alert.login.su.subject": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через su",
+  "alert.login.su.body": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через su.\nВремя: {{.Time}}\nЛог: {{.Log}}"
 }

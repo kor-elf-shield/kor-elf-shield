@@ -31,5 +31,8 @@
   "alert.login.ssh.body": "ОС-қа ssh арқылы кірді:\n   Уақыт: {{.Time}}\n   IP: {{.IP}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}",
 
   "alert.login.locale.subject": "{{.User}} пайдаланушысына арналған кіру хабарламасы (TTY)",
-  "alert.login.locale.body": "ОЖ-ға TTY арқылы кірдіңіз:\n   Уақыт: {{.Time}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}"
+  "alert.login.locale.body": "ОЖ-ға TTY арқылы кірдіңіз:\n   Уақыт: {{.Time}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}",
+
+  "alert.login.su.subject": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына su арқылы кіру мүмкіндігін алды",
+  "alert.login.su.body": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына su арқылы кірді.\nУақыты: {{.Time}}\nЛог: {{.Log}}"
 }

@@ -10,11 +10,13 @@ import (
 type Analysis interface {
 	SSH(entry *analysisServices.Entry) error
 	Locale(entry *analysisServices.Entry) error
+	Su(entry *analysisServices.Entry) error
 }
 
 type analysis struct {
 	sshService    analysisServices.Analysis
 	localeService analysisServices.Analysis
+	suService     analysisServices.Analysis
 
 	logger log.Logger
 	notify notifications.Notifications
@@ -24,6 +26,7 @@ func NewAnalysis(config *config.Config, logger log.Logger, notify notifications.
 	return &analysis{
 		sshService:    analysisServices.NewSSH(config, logger, notify),
 		localeService: analysisServices.NewLocale(config, logger, notify),
+		suService:     analysisServices.NewSu(config, logger, notify),
 		logger:        logger,
 		notify:        notify,
 	}
@@ -35,4 +38,8 @@ func (a *analysis) SSH(entry *analysisServices.Entry) error {
 
 func (a *analysis) Locale(entry *analysisServices.Entry) error {
 	return a.localeService.Process(entry)
+}
+
+func (a *analysis) Su(entry *analysisServices.Entry) error {
+	return a.suService.Process(entry)
 }

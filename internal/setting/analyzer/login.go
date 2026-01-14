@@ -9,6 +9,9 @@ type Login struct {
 
 	LocalEnable bool `mapstructure:"local_enable"`
 	LocalNotify bool `mapstructure:"local_notify"`
+
+	SuEnable bool `mapstructure:"su_enable"`
+	SuNotify bool `mapstructure:"su_notify"`
 }
 
 func defaultLogin() Login {
@@ -21,6 +24,9 @@ func defaultLogin() Login {
 
 		LocalEnable: true,
 		LocalNotify: true,
+
+		SuEnable: true,
+		SuNotify: true,
 	}
 }
 
