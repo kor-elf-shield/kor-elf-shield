@@ -41,6 +41,10 @@ func New(config config2.Config, logger log.Logger, notify notifications.Notifica
 		if config.Login.Su.Enabled {
 			units = append(units, "SYSLOG_IDENTIFIER=su")
 		}
+
+		if config.Login.Sudo.Enabled {
+			units = append(units, "SYSLOG_IDENTIFIER=sudo")
+		}
 	}
 
 	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, units, logger)
@@ -83,6 +87,10 @@ func (a *analyzer) processLogs(ctx context.Context) {
 			case entry.SyslogIdentifier == "login":
 				if err := a.analysis.Locale(&entry); err != nil {
 					a.logger.Error(fmt.Sprintf("Failed to analyze locale logs: %s", err))
+				}
+			case entry.SyslogIdentifier == "sudo":
+				if err := a.analysis.Sudo(&entry); err != nil {
+					a.logger.Error(fmt.Sprintf("Failed to analyze sudo logs: %s", err))
 				}
 			case entry.SyslogIdentifier == "su":
 				if err := a.analysis.Su(&entry); err != nil {

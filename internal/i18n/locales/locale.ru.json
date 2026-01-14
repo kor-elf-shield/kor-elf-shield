@@ -34,5 +34,8 @@
   "alert.login.locale.body": "Вошли в ОС через TTY:\n   Время: {{.Time}}\n   Пользователь: {{.User}}\n   Лог: {{.Log}}",
 
   "alert.login.su.subject": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через su",
-  "alert.login.su.body": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через su.\nВремя: {{.Time}}\nЛог: {{.Log}}"
+  "alert.login.su.body": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через su.\nВремя: {{.Time}}\nЛог: {{.Log}}",
+
+  "alert.login.sudo.subject": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через sudo",
+  "alert.login.sudo.body": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через sudo.\nВремя: {{.Time}}\nЛог: {{.Log}}"
 }

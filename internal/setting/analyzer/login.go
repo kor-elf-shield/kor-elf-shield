@@ -12,6 +12,9 @@ type Login struct {
 
 	SuEnable bool `mapstructure:"su_enable"`
 	SuNotify bool `mapstructure:"su_notify"`
+
+	SudoEnable bool `mapstructure:"sudo_enable"`
+	SudoNotify bool `mapstructure:"sudo_notify"`
 }
 
 func defaultLogin() Login {
@@ -27,6 +30,9 @@ func defaultLogin() Login {
 
 		SuEnable: true,
 		SuNotify: true,
+
+		SudoEnable: false,
+		SudoNotify: true,
 	}
 }
 

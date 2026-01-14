@@ -81,3 +81,30 @@ su_enable = true
 # Default: true
 ###
 su_notify = true
+
+###
+# Включает отслеживание, если кто-либо использует команду `sudo` для доступа к другой учетной записи.
+#
+# ПРИМЕЧАНИЕ: Эта опция может стать обременительной, если команда sudo широко используется
+# для получения root-доступа администраторами или панелями управления.
+#
+# По умолчанию: false
+# ***
+# Enables tracking if someone uses the `sudo` command to access another account.
+#
+# NOTE: This option could become onerous if sudo is used extensively for root
+# access by administrators or control panels.
+#
+# Default: false
+###
+sudo_enable = false
+
+###
+# Включает уведомления, если кто-либо использует команду `sudo` для доступа к другой учетной записи.
+# По умолчанию: true
+# ***
+# Enables notifications if someone uses the `sudo` command to access another account.
+# Default: true
+###
+sudo_notify = true
+

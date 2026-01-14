@@ -34,5 +34,8 @@
   "alert.login.locale.body": "Logged into the OS via TTY:\n   Time: {{.Time}}\n   User: {{.User}}\n   Log: {{.Log}}",
 
   "alert.login.su.subject": "User {{.ByUser}} has accessed user {{.User}} via su",
-  "alert.login.su.body": "User {{.ByUser}} accessed user {{.User}} via su.\nTime: {{.Time}}\nLog: {{.Log}}"
+  "alert.login.su.body": "User {{.ByUser}} accessed user {{.User}} via su.\nTime: {{.Time}}\nLog: {{.Log}}",
+
+  "alert.login.sudo.subject": "User {{.ByUser}} has accessed user {{.User}} via sudo",
+  "alert.login.sudo.body": "User {{.ByUser}} accessed user {{.User}} via sudo.\nTime: {{.Time}}\nLog: {{.Log}}"
 }

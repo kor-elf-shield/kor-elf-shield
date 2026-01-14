@@ -165,6 +165,10 @@ func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (
 			Enabled: setting.Login.SuEnable,
 			Notify:  setting.Login.SuNotify,
 		},
+		Sudo: config.LoginSudo{
+			Enabled: setting.Login.SudoEnable,
+			Notify:  setting.Login.SudoNotify,
+		},
 	}
 
 	return config.Config{

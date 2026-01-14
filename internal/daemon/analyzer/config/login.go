@@ -6,6 +6,7 @@ type Login struct {
 	SSH     LoginSSH
 	Local   LoginLocal
 	Su      LoginSu
+	Sudo    LoginSudo
 }
 
 type LoginSSH struct {
@@ -19,6 +20,11 @@ type LoginLocal struct {
 }
 
 type LoginSu struct {
+	Enabled bool
+	Notify  bool
+}
+
+type LoginSudo struct {
 	Enabled bool
 	Notify  bool
 }

@@ -34,5 +34,8 @@
   "alert.login.locale.body": "ОЖ-ға TTY арқылы кірдіңіз:\n   Уақыт: {{.Time}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}",
 
   "alert.login.su.subject": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына su арқылы кіру мүмкіндігін алды",
-  "alert.login.su.body": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына su арқылы кірді.\nУақыты: {{.Time}}\nЛог: {{.Log}}"
+  "alert.login.su.body": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына su арқылы кірді.\nУақыты: {{.Time}}\nЛог: {{.Log}}",
+
+  "alert.login.sudo.subject": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына sudo арқылы кіру мүмкіндігін алды",
+  "alert.login.sudo.body": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына sudo арқылы кірді.\nУақыты: {{.Time}}\nЛог: {{.Log}}"
 }
