@@ -7,6 +7,9 @@
 * В настройках analyzer.toml добавил параметры su_enable и su_notify.
   * su_enable = Включает отслеживание авторизаций через su. По умолчанию включён.
   * su_notify = Включает уведомления об авторизациях через su. По умолчанию включён.
+* В настройках analyzer.toml добавил параметры sudo_enable и sudo_notify.
+  * sudo_enable = Включает отслеживание авторизаций через sudo. По умолчанию выключен.
+  * sudo_notify = Включает уведомления об авторизациях через sudo. По умолчанию включён.
 ***
 #### English
 * Added local_enable and local_notify parameters to analyzer.toml settings.
@@ -15,6 +18,9 @@
 * Added su_enable and su_notify parameters to analyzer.toml settings.
   * su_enable = Enables tracking of logins via su. Enabled by default.
   * su_notify = Enables notifications about logins via su. Enabled by default.
+* Added sudo_enable and sudo_notify parameters to analyzer.toml settings.
+  * sudo_enable = Enables tracking of logins via sudo. Off by default.
+  * sudo_notify = Enables notifications about logins via sudo. Enabled by default.
 ***
 ## 0.4.0 (11.1.2026)
 ***
