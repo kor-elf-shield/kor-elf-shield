@@ -9,10 +9,12 @@ import (
 
 type Analysis interface {
 	SSH(entry *analysisServices.Entry) error
+	Locale(entry *analysisServices.Entry) error
 }
 
 type analysis struct {
-	sshService analysisServices.Analysis
+	sshService    analysisServices.Analysis
+	localeService analysisServices.Analysis
 
 	logger log.Logger
 	notify notifications.Notifications
@@ -20,12 +22,17 @@ type analysis struct {
 
 func NewAnalysis(config *config.Config, logger log.Logger, notify notifications.Notifications) Analysis {
 	return &analysis{
-		sshService: analysisServices.NewSSH(config, logger, notify),
-		logger:     logger,
-		notify:     notify,
+		sshService:    analysisServices.NewSSH(config, logger, notify),
+		localeService: analysisServices.NewLocale(config, logger, notify),
+		logger:        logger,
+		notify:        notify,
 	}
 }
 
 func (a *analysis) SSH(entry *analysisServices.Entry) error {
 	return a.sshService.Process(entry)
+}
+
+func (a *analysis) Locale(entry *analysisServices.Entry) error {
+	return a.localeService.Process(entry)
 }

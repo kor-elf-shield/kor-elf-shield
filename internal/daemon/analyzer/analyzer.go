@@ -29,7 +29,11 @@ type analyzer struct {
 func New(config config2.Config, logger log.Logger, notify notifications.Notifications) Analyzer {
 	var units []string
 	if config.Login.Enabled && config.Login.SSH.Enabled {
-		units = append(units, "ssh")
+		units = append(units, "_SYSTEMD_UNIT=ssh.service")
+	}
+
+	if config.Login.Enabled && config.Login.Local.Enabled {
+		units = append(units, "SYSLOG_IDENTIFIER=login")
 	}
 
 	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, units, logger)
@@ -63,14 +67,18 @@ func (a *analyzer) processLogs(ctx context.Context) {
 				return
 			}
 			a.logger.Debug(fmt.Sprintf("Received log entry: %s", entry))
-			switch entry.Unit {
-			case "ssh.service":
+
+			switch {
+			case entry.Unit == "ssh.service":
 				if err := a.analysis.SSH(&entry); err != nil {
 					a.logger.Error(fmt.Sprintf("Failed to analyze SSH logs: %s", err))
 				}
-				break
+			case entry.SyslogIdentifier == "login":
+				if err := a.analysis.Locale(&entry); err != nil {
+					a.logger.Error(fmt.Sprintf("Failed to analyze locale logs: %s", err))
+				}
 			default:
-				a.logger.Warn(fmt.Sprintf("Unknown unit: %s", entry.Unit))
+				a.logger.Debug(fmt.Sprintf("Unknown unit or SyslogIdentifier: %s", entry.Unit))
 			}
 		}
 	}

@@ -157,6 +157,10 @@ func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (
 			Enabled: setting.Login.SSHEnable,
 			Notify:  setting.Login.SSHNotify,
 		},
+		Local: config.LoginLocal{
+			Enabled: setting.Login.LocalEnable,
+			Notify:  setting.Login.LocalNotify,
+		},
 	}
 
 	return config.Config{

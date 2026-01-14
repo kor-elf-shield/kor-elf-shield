@@ -32,6 +32,7 @@ type journalRawEntry struct {
 	Message           string `json:"MESSAGE"`
 	Unit              string `json:"_SYSTEMD_UNIT"`
 	PID               string `json:"_PID"`
+	SyslogIdentifier  string `json:"SYSLOG_IDENTIFIER"`
 	SourceTimestamp   string `json:"_SOURCE_REALTIME_TIMESTAMP"`
 	RealtimeTimestamp string `json:"__REALTIME_TIMESTAMP"`
 }
@@ -74,8 +75,11 @@ func (s *systemd) Run(ctx context.Context, logChan chan<- analysisServices.Entry
 
 func (s *systemd) watch(ctx context.Context, logChan chan<- analysisServices.Entry) error {
 	args := []string{"-f", "-n", "0", "-o", "json"}
-	for _, unit := range s.units {
-		args = append(args, "-u", unit)
+	for index, unit := range s.units {
+		if index > 0 {
+			args = append(args, "+")
+		}
+		args = append(args, unit)
 	}
 	cmd := exec.CommandContext(ctx, s.path, args...)
 
@@ -115,10 +119,11 @@ func (s *systemd) watch(ctx context.Context, logChan chan<- analysisServices.Ent
 		}
 
 		logChan <- analysisServices.Entry{
-			Message: raw.Message,
-			Unit:    raw.Unit,
-			PID:     raw.PID,
-			Time:    entryTime,
+			Message:          raw.Message,
+			Unit:             raw.Unit,
+			PID:              raw.PID,
+			SyslogIdentifier: raw.SyslogIdentifier,
+			Time:             entryTime,
 		}
 	}
 

@@ -28,5 +28,8 @@
   "daemon is not reopening logger": "The daemon did not reopen the log",
 
   "alert.login.ssh.subject": "SSH login alert for user {{.User}} from {{.IP}}",
-  "alert.login.ssh.body": "Logged into the OS via ssh:\n   Time: {{.Time}}\n   IP: {{.IP}}\n   User: {{.User}}\n   Log: {{.Log}}"
+  "alert.login.ssh.body": "Logged into the OS via ssh:\n   Time: {{.Time}}\n   IP: {{.IP}}\n   User: {{.User}}\n   Log: {{.Log}}",
+
+  "alert.login.locale.subject": "Login message for user {{.User}} (TTY)",
+  "alert.login.locale.body": "Logged into the OS via TTY:\n   Time: {{.Time}}\n   User: {{.User}}\n   Log: {{.Log}}"
 }

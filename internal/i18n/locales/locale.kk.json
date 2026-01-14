@@ -28,5 +28,8 @@
   "daemon is not reopening logger": "Жын журналды қайта ашпады",
 
   "alert.login.ssh.subject": "{{.IP}} IP мекенжайынан {{.User}} пайдаланушысына арналған SSH кіру хабарламасы",
-  "alert.login.ssh.body": "ОС-қа ssh арқылы кірді:\n   Уақыт: {{.Time}}\n   IP: {{.IP}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}"
+  "alert.login.ssh.body": "ОС-қа ssh арқылы кірді:\n   Уақыт: {{.Time}}\n   IP: {{.IP}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}",
+
+  "alert.login.locale.subject": "{{.User}} пайдаланушысына арналған кіру хабарламасы (TTY)",
+  "alert.login.locale.body": "ОЖ-ға TTY арқылы кірдіңіз:\n   Уақыт: {{.Time}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}"
 }

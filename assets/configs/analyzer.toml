@@ -45,3 +45,21 @@ ssh_enable = true
 # Default: true
 ###
 ssh_notify = true
+
+###
+# Включает отслеживание локальных авторизаций (TTY, физический доступ).
+# По умолчанию: true
+# ***
+# Enables tracking of local authorizations (TTY, physical access).
+# Default: true
+###
+local_enable = true
+
+###
+# Включает уведомления о локальных авторизациях.
+# По умолчанию: true
+# ***
+# Enables local authorization notifications.
+# Default: true
+###
+local_notify = true
