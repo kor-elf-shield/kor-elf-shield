@@ -1,3 +1,15 @@
+## 0.5.0 (soon)
+***
+#### Русский
+* В настройках analyzer.toml добавил параметры local_enable и local_notify.
+  * local_enable = Включает отслеживание локальных авторизаций (TTY, физический доступ). По умолчанию включён.
+  * local_notify = Включает уведомления о локальных авторизациях. По умолчанию включён.
+***
+#### English
+* Added local_enable and local_notify parameters to analyzer.toml settings.
+  * local_enable = Enables tracking of local logins (TTY, physical access). Enabled by default.
+  * local_notify = Enables notifications about local logins. Enabled by default.
+***
 ## 0.4.0 (11.1.2026)
 ***
 #### Русский
