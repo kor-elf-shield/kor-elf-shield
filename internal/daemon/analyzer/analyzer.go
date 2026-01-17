@@ -28,8 +28,23 @@ type analyzer struct {
 
 func New(config config2.Config, logger log.Logger, notify notifications.Notifications) Analyzer {
 	var units []string
-	if config.Login.Enabled && config.Login.SSH.Enabled {
-		units = append(units, "ssh")
+
+	if config.Login.Enabled {
+		if config.Login.SSH.Enabled {
+			units = append(units, "_SYSTEMD_UNIT=ssh.service")
+		}
+
+		if config.Login.Local.Enabled {
+			units = append(units, "SYSLOG_IDENTIFIER=login")
+		}
+
+		if config.Login.Su.Enabled {
+			units = append(units, "SYSLOG_IDENTIFIER=su")
+		}
+
+		if config.Login.Sudo.Enabled {
+			units = append(units, "SYSLOG_IDENTIFIER=sudo")
+		}
 	}
 
 	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, units, logger)
@@ -63,14 +78,26 @@ func (a *analyzer) processLogs(ctx context.Context) {
 				return
 			}
 			a.logger.Debug(fmt.Sprintf("Received log entry: %s", entry))
-			switch entry.Unit {
-			case "ssh.service":
+
+			switch {
+			case entry.Unit == "ssh.service":
 				if err := a.analysis.SSH(&entry); err != nil {
 					a.logger.Error(fmt.Sprintf("Failed to analyze SSH logs: %s", err))
 				}
-				break
+			case entry.SyslogIdentifier == "login":
+				if err := a.analysis.Locale(&entry); err != nil {
+					a.logger.Error(fmt.Sprintf("Failed to analyze locale logs: %s", err))
+				}
+			case entry.SyslogIdentifier == "sudo":
+				if err := a.analysis.Sudo(&entry); err != nil {
+					a.logger.Error(fmt.Sprintf("Failed to analyze sudo logs: %s", err))
+				}
+			case entry.SyslogIdentifier == "su":
+				if err := a.analysis.Su(&entry); err != nil {
+					a.logger.Error(fmt.Sprintf("Failed to analyze su logs: %s", err))
+				}
 			default:
-				a.logger.Warn(fmt.Sprintf("Unknown unit: %s", entry.Unit))
+				a.logger.Debug(fmt.Sprintf("Unknown unit or SyslogIdentifier: %s", entry.Unit))
 			}
 		}
 	}

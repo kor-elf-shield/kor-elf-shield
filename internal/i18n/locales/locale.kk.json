@@ -27,6 +27,15 @@
   "daemon is not running": "Демон жұмыс істемейді",
   "daemon is not reopening logger": "Жын журналды қайта ашпады",
 
-  "alert.login.subject": "{{.IP}} IP мекенжайынан {{.User}} пайдаланушысына арналған SSH кіру хабарламасы",
-  "alert.login.body": "ОС-қа ssh арқылы кірді:\n   Уақыт: {{.Time}}\n   IP: {{.IP}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}"
+  "alert.login.ssh.subject": "{{.IP}} IP мекенжайынан {{.User}} пайдаланушысына арналған SSH кіру хабарламасы",
+  "alert.login.ssh.body": "ОС-қа ssh арқылы кірді:\n   Уақыт: {{.Time}}\n   IP: {{.IP}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}",
+
+  "alert.login.locale.subject": "{{.User}} пайдаланушысына арналған кіру хабарламасы (TTY)",
+  "alert.login.locale.body": "ОЖ-ға TTY арқылы кірдіңіз:\n   Уақыт: {{.Time}}\n   Пайдаланушы: {{.User}}\n   Лог: {{.Log}}",
+
+  "alert.login.su.subject": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына su арқылы кіру мүмкіндігін алды",
+  "alert.login.su.body": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына su арқылы кірді.\nУақыты: {{.Time}}\nЛог: {{.Log}}",
+
+  "alert.login.sudo.subject": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына sudo арқылы кіру мүмкіндігін алды",
+  "alert.login.sudo.body": "{{.ByUser}} пайдаланушысы {{.User}} пайдаланушысына sudo арқылы кірді.\nУақыты: {{.Time}}\nЛог: {{.Log}}"
 }

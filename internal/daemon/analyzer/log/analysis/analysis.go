@@ -9,10 +9,17 @@ type Analysis interface {
 }
 
 type Entry struct {
-	Message string
-	Unit    string
-	PID     string
-	Time    time.Time
+	Message          string
+	Unit             string
+	PID              string
+	SyslogIdentifier string
+	Time             time.Time
+}
+
+type processReturn struct {
+	found   bool
+	subject string
+	body    string
 }
 
 type EmptyAnalysis struct{}
