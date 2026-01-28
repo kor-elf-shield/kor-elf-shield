@@ -1,0 +1,22 @@
+package repository
+
+import (
+	"encoding/binary"
+
+	"go.etcd.io/bbolt"
+)
+
+const (
+	notificationsQueue = "notifications_queue"
+)
+
+func nextID(b *bbolt.Bucket) ([]byte, error) {
+	seq, err := b.NextSequence()
+	if err != nil {
+		return nil, err
+	}
+
+	key := make([]byte, 8)
+	binary.BigEndian.PutUint64(key, seq)
+	return key, nil
+}

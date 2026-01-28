@@ -8,6 +8,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/urfave/cli/v3 v3.4.1
 	github.com/wneessen/go-mail v0.7.2
+	go.etcd.io/bbolt v1.4.3
 	go.uber.org/zap v1.27.0
 	golang.org/x/sys v0.36.0
 	golang.org/x/text v0.29.0
