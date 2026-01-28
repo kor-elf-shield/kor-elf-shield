@@ -5,9 +5,11 @@ import (
 )
 
 type Config struct {
-	Enabled    bool
-	ServerName string
-	Email      Email
+	Enabled       bool
+	EnableRetries bool
+	RetryInterval uint16
+	ServerName    string
+	Email         Email
 }
 
 type Email struct {

@@ -76,6 +76,18 @@ pid_file = "/var/run/kor-elf-shield/kor-elf-shield.pid"
 ###
 socket_file = "/var/run/kor-elf-shield/kor-elf-shield.sock"
 
+###
+# Каталог для постоянных данных приложения (state): локальная база данных, кэш/индексы, файлы состояния
+# и другие служебные файлы. Должен быть доступен на запись пользователю, от имени которого запущен демон.
+# Если каталог не существует — будет создан.
+# По умолчанию: "/var/lib/kor-elf-shield/"
+# ***
+# Directory for persistent application data (state): local database, cache/indexes, state files, and other
+# internal data. Must be writable by the daemon user. If the directory does not exist, it will be created.
+# Default: "/var/lib/kor-elf-shield/"
+###
+data_dir = "/var/lib/kor-elf-shield/"
+
 ###############################################################################
 # РАЗДЕЛ:Log
 # ***

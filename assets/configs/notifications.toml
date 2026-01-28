@@ -22,6 +22,35 @@
 enabled = false
 
 ###
+# Включает повторные попытки отправить уведомление, если сразу не получилось.
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: true
+# ***
+# Enables repeated attempts to send a notification if the first attempt fails.
+# false = Disables.
+# true = Enables.
+#
+# Default: true
+###
+enable_retries = true
+
+###
+# Интервал времени в секундах между попытками.
+#
+# По умолчанию: 600
+# ***
+# The time interval in seconds between attempts.
+#
+# Default: 600
+###
+retry_interval = 600
+
+
+
+
+###
 # Название сервера в уведомлениях
 # По умолчанию: server
 # ***

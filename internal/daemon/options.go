@@ -8,6 +8,7 @@ import (
 type DaemonOptions struct {
 	PathPidFile    string
 	PathSocketFile string
+	DataDir        string
 	PathNftables   string
 	ConfigFirewall firewall.Config
 	ConfigAnalyzer config.Config

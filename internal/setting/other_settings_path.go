@@ -115,8 +115,10 @@ func (o *otherSettingsPath) ToNotificationsConfig() (notifications.Config, error
 	}
 
 	return notifications.Config{
-		Enabled:    setting.Enabled,
-		ServerName: setting.ServerName,
+		Enabled:       setting.Enabled,
+		EnableRetries: setting.EnableRetries,
+		RetryInterval: uint16(setting.RetryInterval),
+		ServerName:    setting.ServerName,
 		Email: notifications.Email{
 			Host:     setting.Email.Host,
 			Port:     uint(setting.Email.Port),
