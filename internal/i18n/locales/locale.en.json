@@ -20,6 +20,10 @@
   "cmd.daemon.notifications.queue.count.Usage": "Number of notifications in the pending queue",
   "cmd.daemon.notifications.queue.count.Description": "The number of notifications waiting to be sent after an error.",
   "cmd.daemon.notifications.queue.count.result": "Number in backlog queue: {{.Count}}",
+  "cmd.daemon.notifications.queue.clear.Usage": "Clear the notification queue",
+  "cmd.daemon.notifications.queue.clear.Description": "Clear the queue of notifications waiting to be sent after an error.",
+  "notifications_queue_clear_error": "Failed to clear notification queue",
+  "notifications_queue_clear_success": "The notification queue has been cleared.",
 
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",

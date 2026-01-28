@@ -26,6 +26,12 @@ func CmdNotifications() *cli.Command {
 						Description: i18n.Lang.T("cmd.daemon.notifications.queue.count.Description"),
 						Action:      cmdNotificationsQueueCount,
 					},
+					{
+						Name:        "clear",
+						Usage:       i18n.Lang.T("cmd.daemon.notifications.queue.clear.Usage"),
+						Description: i18n.Lang.T("cmd.daemon.notifications.queue.clear.Description"),
+						Action:      cmdNotificationsQueueClear,
+					},
 				},
 			},
 		},
@@ -52,6 +58,32 @@ func cmdNotificationsQueueCount(_ context.Context, _ *cli.Command) error {
 	fmt.Println(i18n.Lang.T("cmd.daemon.notifications.queue.count.result", map[string]interface{}{
 		"Count": result,
 	}))
+
+	return nil
+}
+
+func cmdNotificationsQueueClear(_ context.Context, _ *cli.Command) error {
+	if setting.Config.SocketFile == "" {
+		return errors.New(i18n.Lang.T("socket file is not specified"))
+	}
+	sock, err := socket.NewSocketClient(setting.Config.SocketFile)
+	if err != nil {
+		return errors.New(i18n.Lang.T("daemon is not running"))
+	}
+	defer func() {
+		_ = sock.Close()
+	}()
+
+	result, err := sock.Send("notifications_queue_clear")
+	if err != nil {
+		return err
+	}
+
+	if result != "ok" {
+		return errors.New(i18n.Lang.T("notifications_queue_clear_error"))
+	}
+
+	fmt.Println(i18n.Lang.T("notifications_queue_clear_success"))
 
 	return nil
 }

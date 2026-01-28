@@ -130,6 +130,12 @@ func (d *daemon) socketCommand(command string, socket socket.Connect) error {
 	case "notifications_queue_count":
 		count := d.notifications.DBQueueSize()
 		return socket.Write(strconv.Itoa(count))
+	case "notifications_queue_clear":
+		if err := d.notifications.DBQueueClear(); err != nil {
+			_ = socket.Write("notifications queue clear failed: " + err.Error())
+			return err
+		}
+		return socket.Write("ok")
 	default:
 		_ = socket.Write("unknown command")
 		return errors.New("unknown command")

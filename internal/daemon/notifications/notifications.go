@@ -23,6 +23,7 @@ type Notifications interface {
 	SendAsync(message Message)
 	// DBQueueSize - return size of notifications queue in db
 	DBQueueSize() int
+	DBQueueClear() error
 	Close() error
 }
 
@@ -117,6 +118,14 @@ func (n *notifications) DBQueueSize() int {
 		return 0
 	}
 	return count
+}
+
+func (n *notifications) DBQueueClear() error {
+	err := n.queueRepository.Clear()
+	if err != nil {
+		n.logger.Error(fmt.Sprintf("failed to clear notifications queue: %v", err))
+	}
+	return err
 }
 
 func (n *notifications) Close() error {

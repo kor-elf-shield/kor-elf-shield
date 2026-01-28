@@ -2,9 +2,11 @@ package repository
 
 import (
 	"encoding/json"
+	"errors"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/entity"
 	"go.etcd.io/bbolt"
+	bboltErrors "go.etcd.io/bbolt/errors"
 )
 
 type NotificationsQueueRepository interface {
@@ -14,6 +16,7 @@ type NotificationsQueueRepository interface {
 
 	// Count - return size of notifications queue in db
 	Count() (int, error)
+	Clear() error
 }
 
 type notificationsQueueRepository struct {
@@ -103,4 +106,16 @@ func (r *notificationsQueueRepository) Count() (int, error) {
 	})
 
 	return count, err
+}
+
+func (r *notificationsQueueRepository) Clear() error {
+	return r.db.Update(func(tx *bbolt.Tx) error {
+		err := tx.DeleteBucket([]byte(r.bucket))
+		if errors.Is(err, bboltErrors.ErrBucketNotFound) {
+			// If the bucket may not exist, ignore ErrBucketNotFound
+			return nil
+		}
+		_, err = tx.CreateBucketIfNotExists([]byte(r.bucket))
+		return err
+	})
 }

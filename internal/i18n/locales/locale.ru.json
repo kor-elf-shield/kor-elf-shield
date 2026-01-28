@@ -20,6 +20,10 @@
   "cmd.daemon.notifications.queue.count.Usage": "Количество уведомлений в отложенной очереди",
   "cmd.daemon.notifications.queue.count.Description": "Количество уведомлений, ожидающих отправки после ошибки.",
   "cmd.daemon.notifications.queue.count.result": "Количество в отложенной очереди: {{.Count}}",
+  "cmd.daemon.notifications.queue.clear.Usage": "Очистить очередь уведомлений",
+  "cmd.daemon.notifications.queue.clear.Description": "Очистить очередь уведомлений, ожидающих отправки после ошибки.",
+  "notifications_queue_clear_error": "Не удалось очистить очередь уведомлений",
+  "notifications_queue_clear_success": "Очередь уведомлений очищена",
 
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",

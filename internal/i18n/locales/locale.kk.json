@@ -20,6 +20,10 @@
   "cmd.daemon.notifications.queue.count.Usage": "Күтудегі кезектегі хабарландырулар саны",
   "cmd.daemon.notifications.queue.count.Description": "Қатеден кейін жіберуді күтіп тұрған хабарландырулар саны.",
   "cmd.daemon.notifications.queue.count.result": "Кезекте тұрған нөмір: {{.Count}}",
+  "cmd.daemon.notifications.queue.clear.Usage": "Хабарландыру кезегін тазалау",
+  "cmd.daemon.notifications.queue.clear.Description": "Қатеден кейін жіберуді күтіп тұрған хабарландырулар кезегін тазалаңыз.",
+  "notifications_queue_clear_error": "Хабарландыру кезегі тазаланбады",
+  "notifications_queue_clear_success": "Хабарландыру кезегі тазартылды",
 
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
