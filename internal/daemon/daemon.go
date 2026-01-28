@@ -3,6 +3,7 @@ package daemon
 import (
 	"context"
 	"errors"
+	"strconv"
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
@@ -126,6 +127,9 @@ func (d *daemon) socketCommand(command string, socket socket.Connect) error {
 			return err
 		}
 		return socket.Write("ok")
+	case "notifications_queue_count":
+		count := d.notifications.DBQueueSize()
+		return socket.Write(strconv.Itoa(count))
 	default:
 		_ = socket.Write("unknown command")
 		return errors.New("unknown command")

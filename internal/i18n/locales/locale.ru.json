@@ -15,6 +15,12 @@
   "cmd.daemon.reopen_logger.Usage": "Переоткрыть файл для логирования",
   "cmd.daemon.reopen_logger.Description": "Переоткроет файл, куда пишутся логи от демона",
 
+  "cmd.daemon.notifications.Usage": "Уведомления",
+  "cmd.daemon.notifications.queue.Usage": "Очередь уведомлений",
+  "cmd.daemon.notifications.queue.count.Usage": "Количество уведомлений в отложенной очереди",
+  "cmd.daemon.notifications.queue.count.Description": "Количество уведомлений, ожидающих отправки после ошибки.",
+  "cmd.daemon.notifications.queue.count.result": "Количество в отложенной очереди: {{.Count}}",
+
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
   "invalid log encoding": "Неверная настройка encoding. Сейчас указан: {{.Encoding}}. Допустимые значения: {{.Encodings}}",

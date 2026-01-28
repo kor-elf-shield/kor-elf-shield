@@ -15,6 +15,12 @@
   "cmd.daemon.reopen_logger.Usage": "Reopen the file for logging",
   "cmd.daemon.reopen_logger.Description": "Reopen the file where the daemon's logs are written",
 
+  "cmd.daemon.notifications.Usage": "Notifications",
+  "cmd.daemon.notifications.queue.Usage": "Notification queue",
+  "cmd.daemon.notifications.queue.count.Usage": "Number of notifications in the pending queue",
+  "cmd.daemon.notifications.queue.count.Description": "The number of notifications waiting to be sent after an error.",
+  "cmd.daemon.notifications.queue.count.result": "Number in backlog queue: {{.Count}}",
+
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
   "invalid log encoding": "Invalid encoding setting. Currently set to: {{.Encoding}}. Valid values: {{.Encodings}}",

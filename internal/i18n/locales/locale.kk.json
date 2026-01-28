@@ -15,6 +15,12 @@
   "cmd.daemon.reopen_logger.Usage": "Файлды тіркеу үшін қайта ашыңыз",
   "cmd.daemon.reopen_logger.Description": "Демонның журналдары жазылған файлды қайта ашыңыз.",
 
+  "cmd.daemon.notifications.Usage": "Хабарландырулар",
+  "cmd.daemon.notifications.queue.Usage": "Хабарландыру кезегі",
+  "cmd.daemon.notifications.queue.count.Usage": "Күтудегі кезектегі хабарландырулар саны",
+  "cmd.daemon.notifications.queue.count.Description": "Қатеден кейін жіберуді күтіп тұрған хабарландырулар саны.",
+  "cmd.daemon.notifications.queue.count.result": "Кезекте тұрған нөмір: {{.Count}}",
+
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
   "invalid log encoding": "Жарамсыз кодтау параметрі. Қазіргі уақытта орнатылған: {{.Encoding}}. Жарамды мәндер: {{.Encodings}}",

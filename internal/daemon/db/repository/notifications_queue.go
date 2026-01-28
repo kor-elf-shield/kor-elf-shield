@@ -11,6 +11,9 @@ type NotificationsQueueRepository interface {
 	Add(q entity.NotificationsQueue) error
 	Get(limit int) (map[string]entity.NotificationsQueue, error)
 	Delete(id string) error
+
+	// Count - return size of notifications queue in db
+	Count() (int, error)
 }
 
 type notificationsQueueRepository struct {
@@ -83,4 +86,21 @@ func (r *notificationsQueueRepository) Delete(id string) error {
 
 		return bucket.Delete([]byte(id))
 	})
+}
+
+func (r *notificationsQueueRepository) Count() (int, error) {
+	count := 0
+
+	err := r.db.View(func(tx *bbolt.Tx) error {
+		bucket := tx.Bucket([]byte(r.bucket))
+		if bucket == nil {
+			return nil
+		}
+
+		count = bucket.Stats().KeyN
+
+		return nil
+	})
+
+	return count, err
 }

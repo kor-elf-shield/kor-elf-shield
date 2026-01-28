@@ -21,6 +21,8 @@ type Message struct {
 type Notifications interface {
 	Run()
 	SendAsync(message Message)
+	// DBQueueSize - return size of notifications queue in db
+	DBQueueSize() int
 	Close() error
 }
 
@@ -106,6 +108,15 @@ func (n *notifications) SendAsync(message Message) {
 		n.logger.Error(fmt.Sprintf("failed to send email: queue is full"))
 		n.addNotificationsQueue(message)
 	}
+}
+
+func (n *notifications) DBQueueSize() int {
+	count, err := n.queueRepository.Count()
+	if err != nil {
+		n.logger.Error(fmt.Sprintf("failed to get notifications queue size: %v", err))
+		return 0
+	}
+	return count
 }
 
 func (n *notifications) Close() error {
