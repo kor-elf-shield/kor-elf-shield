@@ -3,6 +3,7 @@ package daemon
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -105,6 +106,10 @@ func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval 
 			return
 		case <-stopTestingCh:
 			d.logger.Info("Testing interval expired, stopping service")
+			err := d.notifications.DBQueueClear()
+			if err != nil {
+				d.logger.Error(fmt.Sprintf("failed to clear notifications queue: %v", err))
+			}
 			d.Stop()
 			return
 		case <-d.stopCh:
