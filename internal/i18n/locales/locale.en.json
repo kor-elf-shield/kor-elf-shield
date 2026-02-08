@@ -37,15 +37,14 @@
   "daemon is not running": "Daemon is not running",
   "daemon is not reopening logger": "The daemon did not reopen the log",
 
-  "alert.login.ssh.subject": "SSH login alert for user {{.User}} from {{.IP}}",
-  "alert.login.ssh.body": "Logged into the OS via ssh:\n   Time: {{.Time}}\n   IP: {{.IP}}\n   User: {{.User}}\n   Log: {{.Log}}",
+  "time": "Time: {{.Time}}",
+  "log": "Log: ",
+  "user": "User",
+  "access to user has been gained": "Access to user has been gained",
 
-  "alert.login.locale.subject": "Login message for user {{.User}} (TTY)",
-  "alert.login.locale.body": "Logged into the OS via TTY:\n   Time: {{.Time}}\n   User: {{.User}}\n   Log: {{.Log}}",
-
-  "alert.login.su.subject": "User {{.ByUser}} has accessed user {{.User}} via su",
-  "alert.login.su.body": "User {{.ByUser}} accessed user {{.User}} via su.\nTime: {{.Time}}\nLog: {{.Log}}",
-
-  "alert.login.sudo.subject": "User {{.ByUser}} has accessed user {{.User}} via sudo",
-  "alert.login.sudo.body": "User {{.ByUser}} accessed user {{.User}} via sudo.\nTime: {{.Time}}\nLog: {{.Log}}"
+  "alert.subject": "Alert detected ({{.Name}}) (group:{{.GroupName}})",
+  "alert.login.ssh.message": "Logged into the OS via ssh.",
+  "alert.login.local.message": "Logged into the OS via TTY.",
+  "alert.login.su.message": "Gained access to another user via su.",
+  "alert.login.sudo.message": "Gained access to another user via sudo."
 }

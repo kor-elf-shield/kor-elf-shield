@@ -1,6 +1,7 @@
 package analyzer
 
 import (
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 	"github.com/spf13/viper"
 )
@@ -34,6 +35,18 @@ func settingDefault() Setting {
 	return Setting{
 		Login: defaultLogin(),
 	}
+}
+
+func (s Setting) ToSources() ([]*config.Source, error) {
+	var sources []*config.Source
+
+	loginSources, err := s.Login.ToSources()
+	if err != nil {
+		return sources, err
+	}
+	sources = append(sources, loginSources...)
+
+	return sources, nil
 }
 
 func (s Setting) Validate() error {

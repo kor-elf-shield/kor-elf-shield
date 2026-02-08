@@ -37,15 +37,14 @@
   "daemon is not running": "Демон не запущен",
   "daemon is not reopening logger": "Демон не открыл журнал повторно",
 
-  "alert.login.ssh.subject": "SSH-сообщение о входе пользователя {{.User}} с IP-адреса {{.IP}}",
-  "alert.login.ssh.body": "Вошли в ОС через ssh:\n   Время: {{.Time}}\n   IP: {{.IP}}\n   Пользователь: {{.User}}\n   Лог: {{.Log}}",
+  "time": "Время: {{.Time}}",
+  "log": "Лог: ",
+  "user": "Пользователь",
+  "access to user has been gained": "Получен доступ к пользователю",
 
-  "alert.login.locale.subject": "Сообщение о входе пользователя {{.User}} (TTY)",
-  "alert.login.locale.body": "Вошли в ОС через TTY:\n   Время: {{.Time}}\n   Пользователь: {{.User}}\n   Лог: {{.Log}}",
-
-  "alert.login.su.subject": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через su",
-  "alert.login.su.body": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через su.\nВремя: {{.Time}}\nЛог: {{.Log}}",
-
-  "alert.login.sudo.subject": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через sudo",
-  "alert.login.sudo.body": "Пользователь {{.ByUser}} получил доступ к пользователю {{.User}} через sudo.\nВремя: {{.Time}}\nЛог: {{.Log}}"
+  "alert.subject": "Обнаружено оповещение ({{.Name}}) (группа:{{.GroupName}})",
+  "alert.login.ssh.message": "Вошли в ОС через ssh.",
+  "alert.login.local.message": "Вошли в ОС через TTY.",
+  "alert.login.su.message": "Получили доступ к другому пользователю через su.",
+  "alert.login.sudo.message": "Получили доступ к другому пользователю через sudo."
 }

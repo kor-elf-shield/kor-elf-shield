@@ -27,28 +27,27 @@ type analyzer struct {
 }
 
 func New(config config2.Config, logger log.Logger, notify notifications.Notifications) Analyzer {
-	var units []string
+	var matches []string
+	alertRuleIndex := analysisServices.NewAlertRuleIndex()
 
-	if config.Login.Enabled {
-		if config.Login.SSH.Enabled {
-			units = append(units, "_SYSTEMD_UNIT=ssh.service")
+	for _, source := range config.Sources {
+		switch source.Type {
+		case config2.SourceTypeJournal:
+			match := source.Journal.JournalctlMatch()
+			matches = append(matches, match)
+		default:
+			logger.Error(fmt.Sprintf("Unknown source type: %s", source.Type))
+			continue
 		}
 
-		if config.Login.Local.Enabled {
-			units = append(units, "SYSLOG_IDENTIFIER=login")
-		}
-
-		if config.Login.Su.Enabled {
-			units = append(units, "SYSLOG_IDENTIFIER=su")
-		}
-
-		if config.Login.Sudo.Enabled {
-			units = append(units, "SYSLOG_IDENTIFIER=sudo")
+		err := alertRuleIndex.Add(source)
+		if err != nil {
+			logger.Error(fmt.Sprintf("Failed to add alert rule: %s", err))
 		}
 	}
 
-	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, units, logger)
-	analysisService := analyzerLog.NewAnalysis(&config, logger, notify)
+	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, matches, logger)
+	analysisService := analyzerLog.NewAnalysis(alertRuleIndex, logger, notify)
 
 	return &analyzer{
 		config:   config,
@@ -77,28 +76,9 @@ func (a *analyzer) processLogs(ctx context.Context) {
 				// Channel closed
 				return
 			}
-			a.logger.Debug(fmt.Sprintf("Received log entry: %s", entry))
+			a.logger.Debug(fmt.Sprintf("Received log entry: %v", entry))
 
-			switch {
-			case entry.Unit == "ssh.service":
-				if err := a.analysis.SSH(&entry); err != nil {
-					a.logger.Error(fmt.Sprintf("Failed to analyze SSH logs: %s", err))
-				}
-			case entry.SyslogIdentifier == "login":
-				if err := a.analysis.Locale(&entry); err != nil {
-					a.logger.Error(fmt.Sprintf("Failed to analyze locale logs: %s", err))
-				}
-			case entry.SyslogIdentifier == "sudo":
-				if err := a.analysis.Sudo(&entry); err != nil {
-					a.logger.Error(fmt.Sprintf("Failed to analyze sudo logs: %s", err))
-				}
-			case entry.SyslogIdentifier == "su":
-				if err := a.analysis.Su(&entry); err != nil {
-					a.logger.Error(fmt.Sprintf("Failed to analyze su logs: %s", err))
-				}
-			default:
-				a.logger.Debug(fmt.Sprintf("Unknown unit or SyslogIdentifier: %s", entry.Unit))
-			}
+			a.analysis.Alert(&entry)
 		}
 	}
 }
