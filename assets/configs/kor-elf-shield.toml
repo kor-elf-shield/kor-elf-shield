@@ -22,13 +22,13 @@
 testing = true
 
 ###
-# Тестовый период, по истечении которого брандмауэр удалит правила и демон завершит работу.
+# Тестовый период, по истечении которого брандмауэр удалит правила, очистит другие данные и демон завершит работу.
 # Период указывается в минутах.
 # Мин: 1
 # Макс: 30000
 # По умолчанию: 5
 # ***
-# The test period after which the firewall will clear the rules and the daemon will shut down.
+# A test period after which the firewall will remove rules, clear other data, and the daemon will exit.
 # The period is specified in minutes.
 # Min: 1
 # Max: 30000
