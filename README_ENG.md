@@ -12,6 +12,7 @@
 * Linux 5.2+
 * nftables
 * Systemd
+* journalctl
 
 ***
 
