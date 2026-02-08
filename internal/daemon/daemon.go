@@ -3,6 +3,8 @@ package daemon
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strconv"
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
@@ -104,6 +106,10 @@ func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval 
 			return
 		case <-stopTestingCh:
 			d.logger.Info("Testing interval expired, stopping service")
+			err := d.notifications.DBQueueClear()
+			if err != nil {
+				d.logger.Error(fmt.Sprintf("failed to clear notifications queue: %v", err))
+			}
 			d.Stop()
 			return
 		case <-d.stopCh:
@@ -123,6 +129,15 @@ func (d *daemon) socketCommand(command string, socket socket.Connect) error {
 	case "reopen_logger":
 		if err := d.logger.ReOpen(); err != nil {
 			_ = socket.Write("logger reopen failed: " + err.Error())
+			return err
+		}
+		return socket.Write("ok")
+	case "notifications_queue_count":
+		count := d.notifications.DBQueueSize()
+		return socket.Write(strconv.Itoa(count))
+	case "notifications_queue_clear":
+		if err := d.notifications.DBQueueClear(); err != nil {
+			_ = socket.Write("notifications queue clear failed: " + err.Error())
 			return err
 		}
 		return socket.Write("ok")

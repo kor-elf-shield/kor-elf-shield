@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	analysisServices "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
@@ -20,9 +21,9 @@ type Systemd interface {
 }
 
 type systemd struct {
-	path   string
-	units  []string
-	logger log.Logger
+	path    string
+	matches []string
+	logger  log.Logger
 
 	cmd *exec.Cmd
 	mu  sync.Mutex
@@ -37,17 +38,17 @@ type journalRawEntry struct {
 	RealtimeTimestamp string `json:"__REALTIME_TIMESTAMP"`
 }
 
-func NewSystemd(path string, units []string, logger log.Logger) Systemd {
+func NewSystemd(path string, matches []string, logger log.Logger) Systemd {
 	return &systemd{
-		path:   path,
-		units:  units,
-		logger: logger,
+		path:    path,
+		matches: matches,
+		logger:  logger,
 	}
 }
 
 func (s *systemd) Run(ctx context.Context, logChan chan<- analysisServices.Entry) {
-	if len(s.units) == 0 {
-		s.logger.Debug("No units specified for journalctl")
+	if len(s.matches) == 0 {
+		s.logger.Debug("No matches specified for journalctl")
 		return
 	}
 
@@ -75,11 +76,11 @@ func (s *systemd) Run(ctx context.Context, logChan chan<- analysisServices.Entry
 
 func (s *systemd) watch(ctx context.Context, logChan chan<- analysisServices.Entry) error {
 	args := []string{"-f", "-n", "0", "-o", "json"}
-	for index, unit := range s.units {
+	for index, match := range s.matches {
 		if index > 0 {
 			args = append(args, "+")
 		}
-		args = append(args, unit)
+		args = append(args, match)
 	}
 	cmd := exec.CommandContext(ctx, s.path, args...)
 
@@ -119,6 +120,7 @@ func (s *systemd) watch(ctx context.Context, logChan chan<- analysisServices.Ent
 		}
 
 		logChan <- analysisServices.Entry{
+			Source:           config.SourceTypeJournal,
 			Message:          raw.Message,
 			Unit:             raw.Unit,
 			PID:              raw.PID,
@@ -131,7 +133,7 @@ func (s *systemd) watch(ctx context.Context, logChan chan<- analysisServices.Ent
 }
 
 func (s *systemd) Close() error {
-	if s.units == nil {
+	if s.matches == nil {
 		return nil
 	}
 

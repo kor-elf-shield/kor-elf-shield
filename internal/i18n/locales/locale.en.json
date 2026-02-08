@@ -15,6 +15,16 @@
   "cmd.daemon.reopen_logger.Usage": "Reopen the file for logging",
   "cmd.daemon.reopen_logger.Description": "Reopen the file where the daemon's logs are written",
 
+  "cmd.daemon.notifications.Usage": "Notifications",
+  "cmd.daemon.notifications.queue.Usage": "Notification queue",
+  "cmd.daemon.notifications.queue.count.Usage": "Number of notifications in the pending queue",
+  "cmd.daemon.notifications.queue.count.Description": "The number of notifications waiting to be sent after an error.",
+  "cmd.daemon.notifications.queue.count.result": "Number in backlog queue: {{.Count}}",
+  "cmd.daemon.notifications.queue.clear.Usage": "Clear the notification queue",
+  "cmd.daemon.notifications.queue.clear.Description": "Clear the queue of notifications waiting to be sent after an error.",
+  "notifications_queue_clear_error": "Failed to clear notification queue",
+  "notifications_queue_clear_success": "The notification queue has been cleared.",
+
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
   "invalid log encoding": "Invalid encoding setting. Currently set to: {{.Encoding}}. Valid values: {{.Encodings}}",
@@ -27,15 +37,14 @@
   "daemon is not running": "Daemon is not running",
   "daemon is not reopening logger": "The daemon did not reopen the log",
 
-  "alert.login.ssh.subject": "SSH login alert for user {{.User}} from {{.IP}}",
-  "alert.login.ssh.body": "Logged into the OS via ssh:\n   Time: {{.Time}}\n   IP: {{.IP}}\n   User: {{.User}}\n   Log: {{.Log}}",
+  "time": "Time: {{.Time}}",
+  "log": "Log: ",
+  "user": "User",
+  "access to user has been gained": "Access to user has been gained",
 
-  "alert.login.locale.subject": "Login message for user {{.User}} (TTY)",
-  "alert.login.locale.body": "Logged into the OS via TTY:\n   Time: {{.Time}}\n   User: {{.User}}\n   Log: {{.Log}}",
-
-  "alert.login.su.subject": "User {{.ByUser}} has accessed user {{.User}} via su",
-  "alert.login.su.body": "User {{.ByUser}} accessed user {{.User}} via su.\nTime: {{.Time}}\nLog: {{.Log}}",
-
-  "alert.login.sudo.subject": "User {{.ByUser}} has accessed user {{.User}} via sudo",
-  "alert.login.sudo.body": "User {{.ByUser}} accessed user {{.User}} via sudo.\nTime: {{.Time}}\nLog: {{.Log}}"
+  "alert.subject": "Alert detected ({{.Name}}) (group:{{.GroupName}})",
+  "alert.login.ssh.message": "Logged into the OS via ssh.",
+  "alert.login.local.message": "Logged into the OS via TTY.",
+  "alert.login.su.message": "Gained access to another user via su.",
+  "alert.login.sudo.message": "Gained access to another user via sudo."
 }

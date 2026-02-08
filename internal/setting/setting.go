@@ -16,6 +16,7 @@ type setting struct {
 	FallbackLanguage string `mapstructure:"fallback_language"`
 	PidFile          string `mapstructure:"pid_file"`
 	SocketFile       string `mapstructure:"socket_file"`
+	DataDir          string `mapstructure:"data_dir"`
 
 	Log               *log
 	BinaryLocations   *binaryLocations
@@ -30,6 +31,7 @@ func settingDefault() *setting {
 		FallbackLanguage: "ru",
 		PidFile:          "/var/run/kor-elf-shield/kor-elf-shield.pid",
 		SocketFile:       "/var/run/kor-elf-shield/kor-elf-shield.sock",
+		DataDir:          "/var/lib/kor-elf-shield/",
 
 		Log:               logDefault(),
 		BinaryLocations:   binaryLocationsDefault(),
@@ -56,6 +58,12 @@ func (s setting) ToDaemonOptions(dockerSupport bool) (daemon.DaemonOptions, erro
 		}))
 	}
 
+	if s.DataDir == "" {
+		return daemon.DaemonOptions{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+			"Parameter": "data_dir",
+		}))
+	}
+
 	firewallConfig, err := s.OtherSettingsPath.ToFirewallConfig(dockerSupport)
 	if err != nil {
 		return daemon.DaemonOptions{}, err
@@ -69,6 +77,7 @@ func (s setting) ToDaemonOptions(dockerSupport bool) (daemon.DaemonOptions, erro
 	return daemon.DaemonOptions{
 		PathPidFile:    s.PidFile,
 		PathSocketFile: s.SocketFile,
+		DataDir:        s.DataDir,
 		PathNftables:   s.BinaryLocations.Nftables,
 		ConfigFirewall: firewallConfig,
 		ConfigAnalyzer: analyzerConfig,

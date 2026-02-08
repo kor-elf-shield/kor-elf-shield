@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/entity"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 	"github.com/wneessen/go-mail"
 )
@@ -19,21 +21,26 @@ type Message struct {
 type Notifications interface {
 	Run()
 	SendAsync(message Message)
+	// DBQueueSize - return size of notifications queue in db
+	DBQueueSize() int
+	DBQueueClear() error
 	Close() error
 }
 
 type notifications struct {
-	config   Config
-	logger   log.Logger
-	msgQueue chan Message
-	wg       sync.WaitGroup
+	config          Config
+	queueRepository repository.NotificationsQueueRepository
+	logger          log.Logger
+	msgQueue        chan Message
+	wg              sync.WaitGroup
 }
 
-func New(config Config, logger log.Logger) Notifications {
+func New(config Config, queueRepository repository.NotificationsQueueRepository, logger log.Logger) Notifications {
 	return &notifications{
-		config:   config,
-		logger:   logger,
-		msgQueue: make(chan Message, 100),
+		config:          config,
+		queueRepository: queueRepository,
+		logger:          logger,
+		msgQueue:        make(chan Message, 100),
 	}
 }
 
@@ -45,12 +52,46 @@ func (n *notifications) Run() {
 	n.wg.Add(1)
 	go func() {
 		defer n.wg.Done()
-		for msg := range n.msgQueue {
-			err := n.sendEmail(msg)
-			if err != nil {
-				n.logger.Error(fmt.Sprintf("failed to send email: %v", err))
-			} else if n.config.Enabled {
-				n.logger.Debug(fmt.Sprintf("email sent: Subject %s, Body %s", msg.Subject, msg.Body))
+
+		ticker := time.NewTicker(time.Duration(n.config.RetryInterval) * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case msg, ok := <-n.msgQueue:
+				if !ok {
+					return
+				}
+				err := n.sendEmail(msg)
+				if err != nil {
+					n.logger.Error(fmt.Sprintf("failed to send email: %v", err))
+					n.addNotificationsQueue(msg)
+				} else if n.config.Enabled {
+					n.logger.Debug(fmt.Sprintf("email sent: Subject %s, Body %s", msg.Subject, msg.Body))
+				}
+			case <-ticker.C:
+				if n.config.Enabled == false || n.config.EnableRetries == false {
+					continue
+				}
+
+				items, err := n.queueRepository.Get(10)
+				if err != nil {
+					n.logger.Error(fmt.Sprintf("failed to get notifications from the queue: %v", err))
+					continue
+				}
+
+				for id, item := range items {
+					err = n.sendEmail(Message{Subject: item.Subject, Body: item.Body})
+					if err != nil {
+						n.logger.Error(fmt.Sprintf("failed to send queued email: %v", err))
+						break
+					}
+
+					err = n.queueRepository.Delete(id)
+					if err != nil {
+						n.logger.Error(fmt.Sprintf("failed to delete queued email from the queue: %v", err))
+					}
+				}
 			}
 		}
 	}()
@@ -66,7 +107,25 @@ func (n *notifications) SendAsync(message Message) {
 		}
 	default:
 		n.logger.Error(fmt.Sprintf("failed to send email: queue is full"))
+		n.addNotificationsQueue(message)
 	}
+}
+
+func (n *notifications) DBQueueSize() int {
+	count, err := n.queueRepository.Count()
+	if err != nil {
+		n.logger.Error(fmt.Sprintf("failed to get notifications queue size: %v", err))
+		return 0
+	}
+	return count
+}
+
+func (n *notifications) DBQueueClear() error {
+	err := n.queueRepository.Clear()
+	if err != nil {
+		n.logger.Error(fmt.Sprintf("failed to clear notifications queue: %v", err))
+	}
+	return err
 }
 
 func (n *notifications) Close() error {
@@ -102,6 +161,17 @@ func (n *notifications) sendEmail(message Message) error {
 	defer cancel()
 
 	return client.DialAndSendWithContext(ctx, m)
+}
+
+func (n *notifications) addNotificationsQueue(message Message) {
+	if n.config.Enabled == false || n.config.EnableRetries == false {
+		return
+	}
+
+	err := n.queueRepository.Add(entity.NotificationsQueue{Body: message.Body, Subject: message.Subject})
+	if err != nil {
+		n.logger.Error(fmt.Sprintf("failed to save email to the queue: %v", err))
+	}
 }
 
 func newClient(config Email) (*mail.Client, error) {

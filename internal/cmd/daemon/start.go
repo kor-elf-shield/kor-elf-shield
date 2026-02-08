@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
@@ -51,7 +53,19 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	notificationsService, err := newNotificationsService(logger)
+	repositories, err := db.New(config.DataDir)
+	if err != nil {
+		logger.Fatal(err.Error())
+
+		// Fatal should call os.Exit(1), but there's a chance that might not happen,
+		// so we return err just in case.return err
+		return err
+	}
+	defer func() {
+		_ = repositories.Close()
+	}()
+
+	notificationsService, err := newNotificationsService(repositories.NotificationsQueue(), logger)
 	if err != nil {
 		logger.Fatal(err.Error())
 
@@ -81,13 +95,13 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 	return nil
 }
 
-func newNotificationsService(logger log.Logger) (notifications.Notifications, error) {
+func newNotificationsService(queueRepository repository.NotificationsQueueRepository, logger log.Logger) (notifications.Notifications, error) {
 	config, err := setting.Config.OtherSettingsPath.ToNotificationsConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	return notifications.New(config, logger), nil
+	return notifications.New(config, queueRepository, logger), nil
 }
 
 func newDockerService(ctx context.Context, logger log.Logger) (dockerService docker_monitor.Docker, dockerSupport bool, err error) {

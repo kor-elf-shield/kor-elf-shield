@@ -8,9 +8,11 @@ import (
 )
 
 type Setting struct {
-	Enabled    bool   `mapstructure:"enabled"`
-	ServerName string `mapstructure:"server_name"`
-	Email      Email
+	Enabled       bool   `mapstructure:"enabled"`
+	EnableRetries bool   `mapstructure:"enable_retries"`
+	RetryInterval int16  `mapstructure:"retry_interval"`
+	ServerName    string `mapstructure:"server_name"`
+	Email         Email
 }
 
 func InitSetting(path string) (Setting, error) {
@@ -44,9 +46,11 @@ func InitSetting(path string) (Setting, error) {
 
 func settingDefault() Setting {
 	return Setting{
-		Enabled:    false,
-		ServerName: "server",
-		Email:      defaultEmail(),
+		Enabled:       false,
+		EnableRetries: true,
+		RetryInterval: 600,
+		ServerName:    "server",
+		Email:         defaultEmail(),
 	}
 }
 
@@ -61,6 +65,10 @@ func (s Setting) Validate() error {
 
 	if err := s.Email.Validate(); err != nil {
 		return err
+	}
+
+	if s.RetryInterval < 1 {
+		return errors.New("retry_interval must be greater than 0")
 	}
 
 	return nil

@@ -1,0 +1,135 @@
+package analysis
+
+import (
+	"fmt"
+	"time"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+)
+
+type Alert interface {
+	Analyze(entry *Entry)
+}
+
+type alert struct {
+	ruleIndex AlertRuleIndex
+	logger    log.Logger
+	notify    notifications.Notifications
+}
+
+type alertAnalyzeRuleReturn struct {
+	found  bool
+	fields []*regexField
+}
+
+type alertNotify struct {
+	rule     *config.AlertRule
+	messages []string
+	time     time.Time
+	fields   []*regexField
+}
+
+func NewAlert(ruleIndex AlertRuleIndex, logger log.Logger, notify notifications.Notifications) Alert {
+	return &alert{
+		ruleIndex: ruleIndex,
+		logger:    logger,
+		notify:    notify,
+	}
+}
+
+func (a *alert) Analyze(entry *Entry) {
+	rules, err := a.ruleIndex.Rules(entry)
+	if err != nil {
+		a.logger.Error(fmt.Sprintf("Failed to get alert rules: %s", err))
+	}
+	for _, rule := range rules {
+		result := a.analyzeRule(rule, entry.Message)
+		if !result.found {
+			continue
+		}
+		groupName := ""
+		messages := []string{}
+		if rule.Group != nil {
+			groupName = rule.Group.Name
+		} else {
+			messages = append(messages, entry.Message)
+		}
+		a.logger.Info(fmt.Sprintf("Alert detected (%s) (group:%s): %s", rule.Name, groupName, entry.Message))
+		a.sendNotify(&alertNotify{
+			rule:     rule,
+			messages: messages,
+			time:     entry.Time,
+			fields:   result.fields,
+		})
+	}
+}
+
+func (a *alert) analyzeRule(rule *config.AlertRule, message string) alertAnalyzeRuleReturn {
+	result := alertAnalyzeRuleReturn{
+		found:  false,
+		fields: []*regexField{},
+	}
+
+	for _, pattern := range rule.Patterns {
+		re, err := pattern.Regexp.Get()
+		if err != nil {
+			a.logger.Error(fmt.Sprintf("Failed to compile regexp: %s", err))
+			continue
+		}
+
+		idx := re.FindStringSubmatchIndex(message)
+
+		if idx != nil {
+			for _, value := range pattern.Values {
+				start, end, err := getValueStartEndByRegexIndex(int(value.Value), idx)
+				if err != nil {
+					a.logger.Error(fmt.Sprintf("Failed to get value start/end: %s", err))
+					break
+				}
+				result.fields = append(result.fields, &regexField{name: value.Name, value: message[start:end]})
+			}
+
+			if len(pattern.Values) != len(result.fields) {
+				continue
+			}
+
+			result.found = true
+			return result
+		}
+	}
+
+	return result
+}
+
+func (a *alert) sendNotify(notify *alertNotify) {
+	if !notify.rule.IsNotification {
+		return
+	}
+
+	groupName := ""
+	groupMessage := ""
+	if notify.rule.Group != nil {
+		groupName = notify.rule.Group.Name
+		groupMessage = notify.rule.Group.Message + "\n\n"
+	}
+
+	subject := i18n.Lang.T("alert.subject", map[string]any{
+		"Name":      notify.rule.Name,
+		"GroupName": groupName,
+	})
+	text := subject + "\n\n" + groupMessage + notify.rule.Message + "\n\n"
+	text += i18n.Lang.T("time", map[string]any{
+		"Time": notify.time,
+	}) + "\n"
+	for _, field := range notify.fields {
+		text += fmt.Sprintf("%s: %s\n", field.name, field.value)
+	}
+	text += "\n" + i18n.Lang.T("log") + "\n"
+	for _, message := range notify.messages {
+		text += message + "\n"
+	}
+	a.notify.SendAsync(notifications.Message{Subject: subject, Body: text})
+}

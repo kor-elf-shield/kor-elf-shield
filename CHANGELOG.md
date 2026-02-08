@@ -1,3 +1,25 @@
+## 0.6.0 (8.2.2026)
+***
+#### Русский
+* Добавлена возможность повторной отправки уведомления, если в прошлый раз произошла ошибка.
+* Добавлена команда `kor-elf-shield notifications queue count`, которая возвращает количество уведомлений в очереди в базе данных.
+* Добавлена команда `kor-elf-shield notifications queue clear`, которая удаляет все уведомления из очереди в базе данных.
+* В файл настроек kor-elf-shield.toml добавлены новые параметры:
+  * data_dir = Каталог для постоянных данных приложения (state): локальная база данных, кэш/индексы, файлы состояния и другие служебные файлы. Должен быть доступен на запись пользователю, от имени которого запущен демон. Если каталог не существует — будет создан. По умолчанию: "/var/lib/kor-elf-shield/"
+* В файл настроек notifications.toml добавлены новые параметры:
+  * enable_retries = Включает повторные попытки отправить уведомление, если сразу не получилось. По умолчанию: true
+  * retry_interval = Интервал времени в секундах между попытками. По умолчанию: 600
+***
+#### English
+* Added the ability to retry sending a notification if an error occurred the previous time.
+* Added the `kor-elf-shield notifications queue count` command, which returns the number of notifications in the queue in the database.
+* Added the `kor-elf-shield notifications queue clear` command, which removes all notifications from the queue in the database.
+* New parameters have been added to the kor-elf-shield.toml settings file:
+  * data_dir = Directory for persistent application data (state): local database, cache/indexes, state files, and other internal data. Must be writable by the daemon user. If the directory does not exist, it will be created. Default: "/var/lib/kor-elf-shield/" 
+* New parameters have been added to the notifications.toml settings file:
+  * enable_retries = Enables repeated attempts to send a notification if the first attempt fails. Default: true
+  * retry_interval = The time interval in seconds between attempts. Default: 600
+***
 ## 0.5.0 (17.1.2026)
 ***
 #### Русский

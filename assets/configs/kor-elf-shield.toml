@@ -22,13 +22,13 @@
 testing = true
 
 ###
-# Тестовый период, по истечении которого брандмауэр удалит правила и демон завершит работу.
+# Тестовый период, по истечении которого брандмауэр удалит правила, очистит другие данные и демон завершит работу.
 # Период указывается в минутах.
 # Мин: 1
 # Макс: 30000
 # По умолчанию: 5
 # ***
-# The test period after which the firewall will clear the rules and the daemon will shut down.
+# A test period after which the firewall will remove rules, clear other data, and the daemon will exit.
 # The period is specified in minutes.
 # Min: 1
 # Max: 30000
@@ -75,6 +75,18 @@ pid_file = "/var/run/kor-elf-shield/kor-elf-shield.pid"
 # Default: "/var/run/kor-elf-shield/kor-elf-shield.sock"
 ###
 socket_file = "/var/run/kor-elf-shield/kor-elf-shield.sock"
+
+###
+# Каталог для постоянных данных приложения (state): локальная база данных, кэш/индексы, файлы состояния
+# и другие служебные файлы. Должен быть доступен на запись пользователю, от имени которого запущен демон.
+# Если каталог не существует — будет создан.
+# По умолчанию: "/var/lib/kor-elf-shield/"
+# ***
+# Directory for persistent application data (state): local database, cache/indexes, state files, and other
+# internal data. Must be writable by the daemon user. If the directory does not exist, it will be created.
+# Default: "/var/lib/kor-elf-shield/"
+###
+data_dir = "/var/lib/kor-elf-shield/"
 
 ###############################################################################
 # РАЗДЕЛ:Log

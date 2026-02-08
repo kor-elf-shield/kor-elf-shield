@@ -115,8 +115,10 @@ func (o *otherSettingsPath) ToNotificationsConfig() (notifications.Config, error
 	}
 
 	return notifications.Config{
-		Enabled:    setting.Enabled,
-		ServerName: setting.ServerName,
+		Enabled:       setting.Enabled,
+		EnableRetries: setting.EnableRetries,
+		RetryInterval: uint16(setting.RetryInterval),
+		ServerName:    setting.ServerName,
 		Email: notifications.Email{
 			Host:     setting.Email.Host,
 			Port:     uint(setting.Email.Port),
@@ -150,30 +152,14 @@ func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (
 		Journalctl: binaryLocations.Journalctl,
 	}
 
-	login := config.Login{
-		Enabled: setting.Login.Enabled,
-		Notify:  setting.Login.Notify,
-		SSH: config.LoginSSH{
-			Enabled: setting.Login.SSHEnable,
-			Notify:  setting.Login.SSHNotify,
-		},
-		Local: config.LoginLocal{
-			Enabled: setting.Login.LocalEnable,
-			Notify:  setting.Login.LocalNotify,
-		},
-		Su: config.LoginSu{
-			Enabled: setting.Login.SuEnable,
-			Notify:  setting.Login.SuNotify,
-		},
-		Sudo: config.LoginSudo{
-			Enabled: setting.Login.SudoEnable,
-			Notify:  setting.Login.SudoNotify,
-		},
+	sources, err := setting.ToSources()
+	if err != nil {
+		return config.Config{}, err
 	}
 
 	return config.Config{
 		BinPath: binPath,
-		Login:   login,
+		Sources: sources,
 	}, nil
 }
 
