@@ -52,19 +52,35 @@ func (l Login) ToSources() ([]*config.Source, error) {
 	}
 
 	if l.SSHEnable {
-		sources = append(sources, config.NewLoginSSH(l.Notify && l.SSHNotify)...)
+		loginSources, err := config.NewLoginSSH(l.Notify && l.SSHNotify)
+		if err != nil {
+			return nil, err
+		}
+		sources = append(sources, loginSources...)
 	}
 
 	if l.LocalEnable {
-		sources = append(sources, config.NewLoginLocal(l.Notify && l.LocalNotify)...)
+		loginSources, err := config.NewLoginLocal(l.Notify && l.LocalNotify)
+		if err != nil {
+			return nil, err
+		}
+		sources = append(sources, loginSources...)
 	}
 
 	if l.SuEnable {
-		sources = append(sources, config.NewLoginSu(l.Notify && l.SuNotify)...)
+		loginSources, err := config.NewLoginSu(l.Notify && l.SuNotify)
+		if err != nil {
+			return nil, err
+		}
+		sources = append(sources, loginSources...)
 	}
 
 	if l.SudoEnable {
-		sources = append(sources, config.NewLoginSudo(l.Notify && l.SudoNotify)...)
+		loginSources, err := config.NewLoginSudo(l.Notify && l.SudoNotify)
+		if err != nil {
+			return nil, err
+		}
+		sources = append(sources, loginSources...)
 	}
 
 	return sources, nil

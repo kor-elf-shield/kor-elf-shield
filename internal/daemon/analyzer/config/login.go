@@ -1,16 +1,22 @@
 package config
 
-import "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+import (
+	"fmt"
 
-func NewLoginSSH(isNotify bool) []*Source {
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+)
+
+func NewLoginSSH(isNotify bool) ([]*Source, error) {
 	var sources []*Source
 
+	journal, err := NewSourceJournal(JournalFieldSystemdUnit, "ssh.service")
+	if err != nil {
+		return nil, fmt.Errorf("failed to create journal source for SSH login: %w", err)
+	}
+
 	source := &Source{
-		Type: SourceTypeJournal,
-		Journal: &SourceJournal{
-			Field: JournalFieldSystemdUnit,
-			Match: "ssh.service",
-		},
+		Type:    SourceTypeJournal,
+		Journal: journal,
 		AlertRule: &AlertRule{
 			Name:           "_login-ssh",
 			Message:        i18n.Lang.T("alert.login.ssh.message"),
@@ -36,19 +42,20 @@ func NewLoginSSH(isNotify bool) []*Source {
 
 	sources = append(sources, source)
 
-	return sources
+	return sources, nil
 }
 
-func NewLoginLocal(isNotify bool) []*Source {
+func NewLoginLocal(isNotify bool) ([]*Source, error) {
 	var sources []*Source
 
-	source := &Source{
-		Type: SourceTypeJournal,
-		Journal: &SourceJournal{
-			Field: JournalFieldSyslogIdentifier,
-			Match: "login",
-		},
+	journal, err := NewSourceJournal(JournalFieldSyslogIdentifier, "login")
+	if err != nil {
+		return nil, fmt.Errorf("failed to create journal source for local login: %w", err)
+	}
 
+	source := &Source{
+		Type:    SourceTypeJournal,
+		Journal: journal,
 		AlertRule: &AlertRule{
 			Name:           "_login-local",
 			Message:        i18n.Lang.T("alert.login.local.message"),
@@ -70,18 +77,20 @@ func NewLoginLocal(isNotify bool) []*Source {
 
 	sources = append(sources, source)
 
-	return sources
+	return sources, nil
 }
 
-func NewLoginSu(isNotify bool) []*Source {
+func NewLoginSu(isNotify bool) ([]*Source, error) {
 	var sources []*Source
 
+	journal, err := NewSourceJournal(JournalFieldSyslogIdentifier, "su")
+	if err != nil {
+		return nil, fmt.Errorf("failed to create journal source for su login: %w", err)
+	}
+
 	source := &Source{
-		Type: SourceTypeJournal,
-		Journal: &SourceJournal{
-			Field: JournalFieldSyslogIdentifier,
-			Match: "su",
-		},
+		Type:    SourceTypeJournal,
+		Journal: journal,
 		AlertRule: &AlertRule{
 			Name:           "_login-su",
 			Message:        i18n.Lang.T("alert.login.su.message"),
@@ -107,18 +116,20 @@ func NewLoginSu(isNotify bool) []*Source {
 
 	sources = append(sources, source)
 
-	return sources
+	return sources, nil
 }
 
-func NewLoginSudo(isNotify bool) []*Source {
+func NewLoginSudo(isNotify bool) ([]*Source, error) {
 	var sources []*Source
 
+	journal, err := NewSourceJournal(JournalFieldSyslogIdentifier, "sudo")
+	if err != nil {
+		return nil, fmt.Errorf("failed to create journal source for sudo login: %w", err)
+	}
+
 	source := &Source{
-		Type: SourceTypeJournal,
-		Journal: &SourceJournal{
-			Field: JournalFieldSyslogIdentifier,
-			Match: "sudo",
-		},
+		Type:    SourceTypeJournal,
+		Journal: journal,
 		AlertRule: &AlertRule{
 			Name:           "_login-sudo",
 			Message:        i18n.Lang.T("alert.login.sudo.message"),
@@ -144,5 +155,5 @@ func NewLoginSudo(isNotify bool) []*Source {
 
 	sources = append(sources, source)
 
-	return sources
+	return sources, nil
 }
