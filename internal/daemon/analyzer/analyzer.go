@@ -40,9 +40,11 @@ func New(config config2.Config, logger log.Logger, notify notifications.Notifica
 			continue
 		}
 
-		err := alertRuleIndex.Add(source)
-		if err != nil {
-			logger.Error(fmt.Sprintf("Failed to add alert rule: %s", err))
+		if source.AlertRule != nil {
+			err := alertRuleIndex.Add(source)
+			if err != nil {
+				logger.Error(fmt.Sprintf("Failed to add alert rule: %s", err))
+			}
 		}
 	}
 
