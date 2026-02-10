@@ -108,3 +108,75 @@ sudo_enable = false
 ###
 sudo_notify = true
 
+###############################################################################
+# РАЗДЕЛ:Настройки анализа логов для уведомления
+# ***
+# SECTION:Log analysis settings for notifications
+###############################################################################
+[logAlert]
+###
+# Включает группу отслеживания логов для оповещения.
+# Если отключено, отслеживание логов для оповещения работать не будет.
+# По умолчанию: true
+# ***
+# Enables the log monitoring group for alerts.
+# If disabled, log monitoring for alerts will not work.
+# Default: true
+###
+enabled = true
+
+###
+# Включает уведомления.
+# Если отключено, они будут отображаться в логах только на уровне = "info".
+# По умолчанию: true
+# ***
+# Enables notifications.
+# If disabled, they will only appear in the logs under level = "info".
+# Default: true
+###
+notify = true
+
+###
+# Указываем настройки логов, которые надо отслеживать для оповещения.
+# Примеры:
+# [[logAlert.rules]]
+# enabled = true # Включает или выключает отслеживания (обязательное поле)
+# notify = true # Включает или выключает уведомления (обязательное поле)
+# name = "my_name_rule" # Имя уведомления. Разрешены символы "a-z, A-Z, -, _". Первый символ обязательно буква (обязательное поле)
+# message = "Ваш любой текст для уведомления" # Текст уведомления (обязательное поле)
+# [logAlert.rules.source]
+# type = "journalctl" # journalctl или file (обязательное поле)
+# field = "systemd_unit" # systemd_unit или syslog_identifier (обязательное поле если type = "journalctl")
+# match = "ssh.service" # Значение (обязательное поле если type = "journalctl")
+# если field = "systemd_unit", то match должен заканичваться: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
+# [[logAlert.rules.patterns]]
+# regexp = '^Accepted (\S+) for (\S+) from (\S+) port \S+'
+# [[logAlert.rules.patterns.values]]
+# name = "Пользователь"
+# value = 2
+# [[logAlert.rules.patterns.values]]
+# name = "IP"
+# value = 3
+#
+# ***
+# Specify the log settings to monitor for notifications.
+# Examples:
+# [[logAlert.rules]]
+# enabled = true # Enables or disables tracking (required)
+# notify = true # Enables or disables notifications (required)
+# name = "my_name_rule" # Notification name. Allowed characters are "a-z, A-Z, -, _". The first character must be a letter (required field)
+# message = "Your any text for notification" # Notification text (required field)
+# [logAlert.rules.source]
+# type = "journalctl" # journalctl or file (required)
+# field = "systemd_unit" # systemd_unit or syslog_identifier (required if type = "journalctl")
+# match = "ssh.service" # Value (required if type = "journalctl")
+# If field = "systemd_unit", then match must end with: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
+# [[logAlert.rules.patterns]]
+# regexp = '^Accepted (\S+) for (\S+) from (\S+) port \S+'
+# [[logAlert.rules.patterns.values]]
+# name = "User"
+# value = 2
+# [[logAlert.rules.patterns.values]]
+# name = "IP"
+# value = 3
+###
