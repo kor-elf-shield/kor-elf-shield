@@ -7,7 +7,8 @@ import (
 )
 
 type Setting struct {
-	Login Login
+	Login    Login
+	LogAlert LogAlert
 }
 
 func InitSetting(path string) (Setting, error) {
@@ -33,7 +34,8 @@ func InitSetting(path string) (Setting, error) {
 
 func settingDefault() Setting {
 	return Setting{
-		Login: defaultLogin(),
+		Login:    defaultLogin(),
+		LogAlert: defaultLogAlert(),
 	}
 }
 
@@ -46,11 +48,20 @@ func (s Setting) ToSources() ([]*config.Source, error) {
 	}
 	sources = append(sources, loginSources...)
 
+	alertSources, err := s.LogAlert.ToSources()
+	if err != nil {
+		return sources, err
+	}
+	sources = append(sources, alertSources...)
+
 	return sources, nil
 }
 
 func (s Setting) Validate() error {
 	if err := s.Login.Validate(); err != nil {
+		return err
+	}
+	if err := s.LogAlert.Validate(); err != nil {
 		return err
 	}
 
