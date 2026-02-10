@@ -41,6 +41,7 @@
   "log": "Log: ",
   "user": "User",
   "access to user has been gained": "Access to user has been gained",
+  "unknown": "unknown",
 
   "alert.subject": "Alert detected ({{.Name}}) (group:{{.GroupName}})",
   "alert.login.ssh.message": "Logged into the OS via ssh.",

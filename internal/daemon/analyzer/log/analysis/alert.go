@@ -86,8 +86,8 @@ func (a *alert) analyzeRule(rule *config.AlertRule, message string) alertAnalyze
 			for _, value := range pattern.Values {
 				start, end, err := getValueStartEndByRegexIndex(int(value.Value), idx)
 				if err != nil {
-					a.logger.Error(fmt.Sprintf("Failed to get value start/end: %s", err))
-					break
+					result.fields = append(result.fields, &regexField{name: value.Name, value: i18n.Lang.T("unknown")})
+					continue
 				}
 				result.fields = append(result.fields, &regexField{name: value.Name, value: message[start:end]})
 			}

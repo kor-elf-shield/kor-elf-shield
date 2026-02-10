@@ -41,6 +41,7 @@
   "log": "Лог: ",
   "user": "Пользователь",
   "access to user has been gained": "Получен доступ к пользователю",
+  "unknown": "неизвестный",
 
   "alert.subject": "Обнаружено оповещение ({{.Name}}) (группа:{{.GroupName}})",
   "alert.login.ssh.message": "Вошли в ОС через ssh.",
