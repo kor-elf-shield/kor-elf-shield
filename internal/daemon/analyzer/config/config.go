@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 	"unicode"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
 var (
@@ -18,6 +20,7 @@ type SourceType string
 
 const (
 	SourceTypeJournal SourceType = "journalctl"
+	SourceTypeFile    SourceType = "file"
 )
 
 type JournalField string
@@ -30,6 +33,11 @@ const (
 type Config struct {
 	BinPath BinPath
 	Sources []*Source
+}
+
+type SourceJournal struct {
+	Field JournalField
+	Match string
 }
 
 func NewSourceJournal(field JournalField, match string) (*SourceJournal, error) {
@@ -70,9 +78,16 @@ func NewSourceJournal(field JournalField, match string) (*SourceJournal, error) 
 	return &SourceJournal{Field: field, Match: v}, nil
 }
 
-type SourceJournal struct {
-	Field JournalField
-	Match string
+type SourceFile struct {
+	Path string
+}
+
+func NewSourceFile(path string) (*SourceFile, error) {
+	if err := validate.PathFile(path, "logAlert.rules.source.path"); err != nil {
+		return nil, err
+	}
+
+	return &SourceFile{Path: path}, nil
 }
 
 func (s *SourceJournal) JournalctlMatch() string {
@@ -80,9 +95,10 @@ func (s *SourceJournal) JournalctlMatch() string {
 }
 
 type Source struct {
-	Type SourceType
+	Type    SourceType
+	Journal *SourceJournal
+	File    *SourceFile
 
-	Journal   *SourceJournal
 	AlertRule *AlertRule
 }
 
