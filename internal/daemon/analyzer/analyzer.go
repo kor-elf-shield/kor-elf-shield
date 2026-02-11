@@ -28,13 +28,17 @@ type analyzer struct {
 
 func New(config config2.Config, logger log.Logger, notify notifications.Notifications) Analyzer {
 	var matches []string
+	matchesUniq := map[string]struct{}{}
 	alertRuleIndex := analysisServices.NewAlertRuleIndex()
 
 	for _, source := range config.Sources {
 		switch source.Type {
 		case config2.SourceTypeJournal:
 			match := source.Journal.JournalctlMatch()
-			matches = append(matches, match)
+			if _, ok := matchesUniq[match]; !ok {
+				matchesUniq[match] = struct{}{}
+				matches = append(matches, match)
+			}
 		default:
 			logger.Error(fmt.Sprintf("Unknown source type: %s", source.Type))
 			continue
