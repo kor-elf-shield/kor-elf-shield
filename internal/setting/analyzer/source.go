@@ -12,6 +12,7 @@ type Source struct {
 	Type  string `mapstructure:"type"`
 	Field string `mapstructure:"field"`
 	Match string `mapstructure:"match"`
+	Path  string `mapstructure:"path"`
 }
 
 func (s *Source) ToSource() (*config.Source, error) {
@@ -30,6 +31,16 @@ func (s *Source) ToSource() (*config.Source, error) {
 		return &config.Source{
 			Type:    config.SourceTypeJournal,
 			Journal: journal,
+		}, nil
+	case "file":
+		file, err := config.NewSourceFile(s.Path)
+		if err != nil {
+			return nil, err
+		}
+
+		return &config.Source{
+			Type: config.SourceTypeFile,
+			File: file,
 		}, nil
 	}
 
