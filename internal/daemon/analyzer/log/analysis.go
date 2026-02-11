@@ -14,9 +14,9 @@ type analysis struct {
 	alertService analysisServices.Alert
 }
 
-func NewAnalysis(alertRuleIndex analysisServices.AlertRuleIndex, logger log.Logger, notify notifications.Notifications) Analysis {
+func NewAnalysis(rulesIndex *analysisServices.RulesIndex, logger log.Logger, notify notifications.Notifications) Analysis {
 	return &analysis{
-		alertService: analysisServices.NewAlert(alertRuleIndex, logger, notify),
+		alertService: analysisServices.NewAlert(rulesIndex, logger, notify),
 	}
 }
 

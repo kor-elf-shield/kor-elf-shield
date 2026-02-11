@@ -27,17 +27,27 @@ type analyzer struct {
 }
 
 func New(config config2.Config, logger log.Logger, notify notifications.Notifications) Analyzer {
-	var matches []string
-	matchesUniq := map[string]struct{}{}
-	alertRuleIndex := analysisServices.NewAlertRuleIndex()
+	var journalMatches []string
+	journalMatchesUniq := map[string]struct{}{}
+
+	var files []string
+	filesUniq := map[string]struct{}{}
+
+	rulesIndex := analysisServices.NewRulesIndex()
 
 	for _, source := range config.Sources {
 		switch source.Type {
 		case config2.SourceTypeJournal:
 			match := source.Journal.JournalctlMatch()
-			if _, ok := matchesUniq[match]; !ok {
-				matchesUniq[match] = struct{}{}
-				matches = append(matches, match)
+			if _, ok := journalMatchesUniq[match]; !ok {
+				journalMatchesUniq[match] = struct{}{}
+				journalMatches = append(journalMatches, match)
+			}
+		case config2.SourceTypeFile:
+			file := source.File.Path
+			if _, ok := filesUniq[file]; !ok {
+				filesUniq[file] = struct{}{}
+				files = append(files, file)
 			}
 		default:
 			logger.Error(fmt.Sprintf("Unknown source type: %s", source.Type))
@@ -45,15 +55,15 @@ func New(config config2.Config, logger log.Logger, notify notifications.Notifica
 		}
 
 		if source.AlertRule != nil {
-			err := alertRuleIndex.Add(source)
+			err := rulesIndex.Add(source)
 			if err != nil {
 				logger.Error(fmt.Sprintf("Failed to add alert rule: %s", err))
 			}
 		}
 	}
 
-	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, matches, logger)
-	analysisService := analyzerLog.NewAnalysis(alertRuleIndex, logger, notify)
+	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, journalMatches, logger)
+	analysisService := analyzerLog.NewAnalysis(rulesIndex, logger, notify)
 
 	return &analyzer{
 		config:   config,

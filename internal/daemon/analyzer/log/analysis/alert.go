@@ -15,9 +15,9 @@ type Alert interface {
 }
 
 type alert struct {
-	ruleIndex AlertRuleIndex
-	logger    log.Logger
-	notify    notifications.Notifications
+	rulesIndex *RulesIndex
+	logger     log.Logger
+	notify     notifications.Notifications
 }
 
 type alertAnalyzeRuleReturn struct {
@@ -32,16 +32,16 @@ type alertNotify struct {
 	fields   []*regexField
 }
 
-func NewAlert(ruleIndex AlertRuleIndex, logger log.Logger, notify notifications.Notifications) Alert {
+func NewAlert(rulesIndex *RulesIndex, logger log.Logger, notify notifications.Notifications) Alert {
 	return &alert{
-		ruleIndex: ruleIndex,
-		logger:    logger,
-		notify:    notify,
+		rulesIndex: rulesIndex,
+		logger:     logger,
+		notify:     notify,
 	}
 }
 
 func (a *alert) Analyze(entry *Entry) {
-	rules, err := a.ruleIndex.Rules(entry)
+	rules, err := a.rulesIndex.Alerts(entry)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("Failed to get alert rules: %s", err))
 	}
