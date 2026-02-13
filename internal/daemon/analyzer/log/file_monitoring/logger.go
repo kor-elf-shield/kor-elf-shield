@@ -31,7 +31,7 @@ func (l *logger) Fatal(v ...interface{}) {
 }
 
 func (l *logger) Fatalf(format string, v ...interface{}) {
-	l.logger.Error(fmt.Sprintf("File Monitoring: %v", v...))
+	l.logger.Error(fmt.Sprintf("File Monitoring: "+format, v...))
 }
 
 func (l *logger) Fatalln(v ...interface{}) {
