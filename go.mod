@@ -5,6 +5,7 @@ go 1.25
 require (
 	git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.1
 	github.com/nicksnyder/go-i18n/v2 v2.6.0
+	github.com/nxadm/tail v1.4.11
 	github.com/spf13/viper v1.21.0
 	github.com/urfave/cli/v3 v3.4.1
 	github.com/wneessen/go-mail v0.7.2
@@ -26,4 +27,5 @@ require (
 	go.uber.org/multierr v1.10.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 )
