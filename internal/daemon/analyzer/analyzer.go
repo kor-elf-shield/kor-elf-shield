@@ -21,6 +21,7 @@ type analyzer struct {
 	logger   log.Logger
 	notify   notifications.Notifications
 	systemd  analyzerLog.Systemd
+	files    analyzerLog.FileMonitoring
 	analysis analyzerLog.Analysis
 
 	logChan chan analysisServices.Entry
@@ -63,6 +64,7 @@ func New(config config2.Config, logger log.Logger, notify notifications.Notifica
 	}
 
 	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, journalMatches, logger)
+	filesService := analyzerLog.NewFileMonitoring(files, logger)
 	analysisService := analyzerLog.NewAnalysis(rulesIndex, logger, notify)
 
 	return &analyzer{
@@ -70,6 +72,7 @@ func New(config config2.Config, logger log.Logger, notify notifications.Notifica
 		logger:   logger,
 		notify:   notify,
 		systemd:  systemdService,
+		files:    filesService,
 		analysis: analysisService,
 
 		logChan: make(chan analysisServices.Entry, 1000),
@@ -77,8 +80,10 @@ func New(config config2.Config, logger log.Logger, notify notifications.Notifica
 }
 
 func (a *analyzer) Run(ctx context.Context) {
-	go a.systemd.Run(ctx, a.logChan)
 	go a.processLogs(ctx)
+	go a.systemd.Run(ctx, a.logChan)
+	go a.files.Run(ctx, a.logChan)
+
 	a.logger.Debug("Analyzer is start")
 }
 
@@ -101,7 +106,10 @@ func (a *analyzer) processLogs(ctx context.Context) {
 
 func (a *analyzer) Close() error {
 	if err := a.systemd.Close(); err != nil {
-		return err
+		a.logger.Error(err.Error())
+	}
+	if err := a.files.Close(); err != nil {
+		a.logger.Error(err.Error())
 	}
 	close(a.logChan)
 
