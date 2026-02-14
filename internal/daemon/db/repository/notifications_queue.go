@@ -27,7 +27,7 @@ type notificationsQueueRepository struct {
 func NewNotificationsQueueRepository(appDB *bbolt.DB) NotificationsQueueRepository {
 	return &notificationsQueueRepository{
 		db:     appDB,
-		bucket: notificationsQueue,
+		bucket: notificationsQueueBucket,
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	notificationsQueue = "notifications_queue"
+	notificationsQueueBucket = "notifications_queue"
 )
 
 func nextID(b *bbolt.Bucket) ([]byte, error) {
