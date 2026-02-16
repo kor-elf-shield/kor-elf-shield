@@ -1,12 +1,20 @@
 package analyzer
 
 import (
+	"fmt"
+	"regexp"
+
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+)
+
+var (
+	reName = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]{0,254}$`)
 )
 
 type LogAlert struct {
 	Enabled bool `mapstructure:"enabled"`
 	Notify  bool `mapstructure:"notify"`
+	Groups  []LogAlertGroup
 	Rules   []LogAlertRule
 }
 
@@ -14,6 +22,7 @@ func defaultLogAlert() LogAlert {
 	return LogAlert{
 		Enabled: true,
 		Notify:  true,
+		Groups:  []LogAlertGroup{},
 		Rules:   []LogAlertRule{},
 	}
 }
@@ -29,12 +38,25 @@ func (l *LogAlert) ToSources() ([]*config.Source, error) {
 		return sources, nil
 	}
 
+	groups, err := l.groups()
+	if err != nil {
+		return nil, fmt.Errorf("groups: %w", err)
+	}
+
 	for _, rule := range l.Rules {
 		if !rule.Enabled {
 			continue
 		}
 
-		source, err := rule.ToSource(l.Notify)
+		var group *config.AlertGroup
+		if rule.Group != "" {
+			if _, ok := groups[rule.Group]; !ok {
+				return nil, fmt.Errorf("group %q not found", rule.Group)
+			}
+			group = groups[rule.Group]
+		}
+
+		source, err := rule.ToSource(l.Notify, group)
 		if err != nil {
 			return nil, err
 		}
@@ -42,4 +64,17 @@ func (l *LogAlert) ToSources() ([]*config.Source, error) {
 	}
 
 	return sources, nil
+}
+
+func (l *LogAlert) groups() (map[string]*config.AlertGroup, error) {
+	groups := make(map[string]*config.AlertGroup)
+	for _, group := range l.Groups {
+		g, err := group.ToGroup()
+		if err != nil {
+			return nil, err
+		}
+		groups[g.Name] = g
+	}
+
+	return groups, nil
 }

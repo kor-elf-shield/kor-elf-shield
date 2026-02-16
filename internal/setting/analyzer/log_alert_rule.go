@@ -2,13 +2,8 @@ package analyzer
 
 import (
 	"fmt"
-	"regexp"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
-)
-
-var (
-	reName = regexp.MustCompile(`^[A-Za-z0-9-_]{0,255}$`)
 )
 
 type LogAlertRule struct {
@@ -16,11 +11,12 @@ type LogAlertRule struct {
 	Notify   bool   `mapstructure:"notify"`
 	Name     string `mapstructure:"name"`
 	Message  string `mapstructure:"message"`
+	Group    string `mapstructure:"group"`
 	Source   Source
 	Patterns []LogAlertPattern
 }
 
-func (l *LogAlertRule) ToSource(isNotify bool) (*config.Source, error) {
+func (l *LogAlertRule) ToSource(isNotify bool, group *config.AlertGroup) (*config.Source, error) {
 	if err := l.validate(); err != nil {
 		return nil, err
 	}
@@ -50,17 +46,20 @@ func (l *LogAlertRule) ToSource(isNotify bool) (*config.Source, error) {
 		IsNotification: isNotify && l.Notify,
 		Patterns:       patterns,
 	}
+	if group != nil {
+		source.AlertRule.Group = group
+	}
 
 	return source, nil
 }
 
 func (l *LogAlertRule) validate() error {
 	if l.Name == "" {
-		return fmt.Errorf("name is empty")
+		return fmt.Errorf("alert name is empty")
 	}
 
 	if !reName.MatchString(l.Name) {
-		return fmt.Errorf("invalid name")
+		return fmt.Errorf("alert invalid name: %s", l.Name)
 	}
 
 	return nil

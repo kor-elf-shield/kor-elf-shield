@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/alert_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
@@ -15,9 +16,10 @@ type Alert interface {
 }
 
 type alert struct {
-	rulesIndex *RulesIndex
-	logger     log.Logger
-	notify     notifications.Notifications
+	rulesIndex        *RulesIndex
+	alertGroupService alert_group.Group
+	logger            log.Logger
+	notify            notifications.Notifications
 }
 
 type alertAnalyzeRuleReturn struct {
@@ -32,11 +34,12 @@ type alertNotify struct {
 	fields   []*regexField
 }
 
-func NewAlert(rulesIndex *RulesIndex, logger log.Logger, notify notifications.Notifications) Alert {
+func NewAlert(rulesIndex *RulesIndex, alertGroupService alert_group.Group, logger log.Logger, notify notifications.Notifications) Alert {
 	return &alert{
-		rulesIndex: rulesIndex,
-		logger:     logger,
-		notify:     notify,
+		rulesIndex:        rulesIndex,
+		alertGroupService: alertGroupService,
+		logger:            logger,
+		notify:            notify,
 	}
 }
 
@@ -53,7 +56,19 @@ func (a *alert) Analyze(entry *Entry) {
 		groupName := ""
 		messages := []string{}
 		if rule.Group != nil {
+			alertGroup, err := a.alertGroupService.Analyze(rule.Group, entry.Time, entry.Message)
+			if err != nil {
+				a.logger.Error(fmt.Sprintf("Failed to analyze alert group: %s", err))
+				continue
+			}
+			if !alertGroup.Alerted {
+				continue
+			}
+
 			groupName = rule.Group.Name
+			for _, lastLog := range alertGroup.LastLogs {
+				messages = append(messages, lastLog)
+			}
 		} else {
 			messages = append(messages, entry.Message)
 		}

@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"time"
 	"unicode"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
@@ -137,16 +136,4 @@ func (lr *LazyRegexp) Get() (*regexp.Regexp, error) {
 type PatternValue struct {
 	Name  string
 	Value uint8
-}
-
-type RateLimit struct {
-	Count  uint32
-	Period time.Duration
-}
-
-type AlertGroup struct {
-	Name                 string
-	Message              string
-	RateLimits           []RateLimit
-	RateLimitResetPeriod time.Duration
 }

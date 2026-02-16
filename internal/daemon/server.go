@@ -29,7 +29,7 @@ func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notification
 
 	firewall, err := firewall2.New(opts.PathNftables, logger, opts.ConfigFirewall, docker)
 
-	analyzerService := analyzer.New(opts.ConfigAnalyzer, logger, notifications)
+	analyzerService := analyzer.New(opts.ConfigAnalyzer, opts.Repositories, logger, notifications)
 
 	return &daemon{
 		pidFile:       pidFile,

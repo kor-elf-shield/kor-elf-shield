@@ -7,6 +7,7 @@ import (
 	config2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	analyzerLog "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log"
 	analysisServices "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
@@ -27,7 +28,7 @@ type analyzer struct {
 	logChan chan analysisServices.Entry
 }
 
-func New(config config2.Config, logger log.Logger, notify notifications.Notifications) Analyzer {
+func New(config config2.Config, repositories db.Repositories, logger log.Logger, notify notifications.Notifications) Analyzer {
 	var journalMatches []string
 	journalMatchesUniq := map[string]struct{}{}
 
@@ -65,7 +66,7 @@ func New(config config2.Config, logger log.Logger, notify notifications.Notifica
 
 	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, journalMatches, logger)
 	filesService := analyzerLog.NewFileMonitoring(files, logger)
-	analysisService := analyzerLog.NewAnalysis(rulesIndex, logger, notify)
+	analysisService := analyzerLog.NewAnalysis(rulesIndex, repositories, logger, notify)
 
 	return &analyzer{
 		config:   config,
