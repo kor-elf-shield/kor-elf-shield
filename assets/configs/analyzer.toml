@@ -137,6 +137,46 @@ enabled = true
 notify = true
 
 ###
+# Указываем настройки группы.
+# Примеры:
+# [[logAlert.groups]]
+# name = "my_name_group" # Имя группы. Разрешены символы "a-z, A-Z, -, _". Первый символ обязательно буква (обязательное поле)
+# message = "Любой текст группы" # Текст уведомления (обязательное поле)
+# rate_limit_reset_period = 86400 # Указываем в секундах, через какое время сбрасывать данные в групе если не было событий. Если указать 0, то не будет сбрасывать.
+# [[logAlert.groups.rate_limits]]
+## Через сколько будет срабатывать оповещение. В данном случае в течение часа, если было 5 обнаружений, то сработает оповещение.
+# count = 5
+# period = 3600
+# [[logAlert.groups.rate_limits]]
+## После срабатывания оповещения, переходим на второй уровень, тепер если в течение часа было 3 обнаружений, то сработает оповещение.
+# count = 3
+# period = 3600
+# [[logAlert.groups.rate_limits]]
+## И таких уровней можно указыват сколько захотите.
+# count = 2
+# period = 600
+#
+# ***
+# Specify group settings.
+# Examples:
+# [[logAlert.groups]]
+# name = "my_name_group" # Group name. Allowed characters are "a-z, A-Z, -, _". The first character must be a letter (required)
+# message = "Any group text" # Notification text (required)
+# rate_limit_reset_period = 86400 # Specify, in seconds, how long to reset group data if there have been no events. Specifying 0 means no reset.
+# [[logAlert.groups.rate_limits]]
+## How long to wait before an alert is triggered. In this case, if there were 5 detections within an hour, the alert will be triggered. # count = 5
+# period = 3600
+# [[logAlert.groups.rate_limits]]
+## After the alert is triggered, we move to the second level. Now, if there are 3 detections within an hour, the alert will be triggered.
+# count = 3
+# period = 3600
+# [[logAlert.groups.rate_limits]]
+## You can specify as many of these levels as you like.
+# count = 2
+# period = 600
+###
+
+###
 # Указываем настройки логов, которые надо отслеживать для оповещения.
 # Примеры:
 # [[logAlert.rules]]
@@ -144,6 +184,7 @@ notify = true
 # notify = true # Включает или выключает уведомления (обязательное поле)
 # name = "my_name_rule" # Имя уведомления. Разрешены символы "a-z, A-Z, -, _". Первый символ обязательно буква (обязательное поле)
 # message = "Ваш любой текст для уведомления" # Текст уведомления (обязательное поле)
+# group = "my_name_group" # Можно указать имя группы (не обязательное поле)
 # [logAlert.rules.source]
 # type = "journalctl" # journalctl или file (обязательное поле)
 # field = "systemd_unit" # systemd_unit или syslog_identifier (обязательное поле если type = "journalctl")
@@ -166,6 +207,7 @@ notify = true
 # notify = true # Enables or disables notifications (required)
 # name = "my_name_rule" # Notification name. Allowed characters are "a-z, A-Z, -, _". The first character must be a letter (required field)
 # message = "Your any text for notification" # Notification text (required field)
+# group = "my_name_group" # You can specify the group name (optional field)
 # [logAlert.rules.source]
 # type = "journalctl" # journalctl or file (required)
 # field = "systemd_unit" # systemd_unit or syslog_identifier (required if type = "journalctl")
