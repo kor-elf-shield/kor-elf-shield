@@ -15,12 +15,14 @@ const (
 
 type Repositories interface {
 	NotificationsQueue() repository.NotificationsQueueRepository
+	AlertGroup() repository.AlertGroupRepository
 
 	Close() error
 }
 
 type repositories struct {
 	notificationsQueue repository.NotificationsQueueRepository
+	alertGroup         repository.AlertGroupRepository
 
 	db []*bbolt.DB
 }
@@ -42,6 +44,7 @@ func New(dataDir string) (Repositories, error) {
 
 	return &repositories{
 		notificationsQueue: repository.NewNotificationsQueueRepository(appDB),
+		alertGroup:         repository.NewAlertGroupRepository(appDB),
 
 		db: []*bbolt.DB{appDB},
 	}, nil
@@ -49,6 +52,10 @@ func New(dataDir string) (Repositories, error) {
 
 func (r *repositories) NotificationsQueue() repository.NotificationsQueueRepository {
 	return r.notificationsQueue
+}
+
+func (r *repositories) AlertGroup() repository.AlertGroupRepository {
+	return r.alertGroup
 }
 
 func (r *repositories) Close() error {
