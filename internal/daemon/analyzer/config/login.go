@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/regular_expression"
 )
 
 func NewLoginSSH(isNotify bool) ([]*Source, error) {
@@ -23,7 +24,7 @@ func NewLoginSSH(isNotify bool) ([]*Source, error) {
 			IsNotification: isNotify,
 			Patterns: []AlertRegexPattern{
 				{
-					Regexp: NewLazyRegexp(`^Accepted (\S+) for (\S+) from (\S+) port \S+`),
+					Regexp: regular_expression.NewLazyRegexp(`^Accepted (\S+) for (\S+) from (\S+) port \S+`),
 					Values: []PatternValue{
 						{
 							Name:  i18n.Lang.T("user"),
@@ -62,7 +63,7 @@ func NewLoginLocal(isNotify bool) ([]*Source, error) {
 			IsNotification: isNotify,
 			Patterns: []AlertRegexPattern{
 				{
-					Regexp: NewLazyRegexp(`^pam_unix\(login:session\): session opened for user (\S+)\(\S+\) by \S+`),
+					Regexp: regular_expression.NewLazyRegexp(`^pam_unix\(login:session\): session opened for user (\S+)\(\S+\) by \S+`),
 					Values: []PatternValue{
 						{
 							Name:  i18n.Lang.T("user"),
@@ -97,7 +98,7 @@ func NewLoginSu(isNotify bool) ([]*Source, error) {
 			IsNotification: isNotify,
 			Patterns: []AlertRegexPattern{
 				{
-					Regexp: NewLazyRegexp(`^pam_unix\(su:session\): session opened for user (\S+)\(\S+\) by (\S+)\(\S+\)`),
+					Regexp: regular_expression.NewLazyRegexp(`^pam_unix\(su:session\): session opened for user (\S+)\(\S+\) by (\S+)\(\S+\)`),
 					Values: []PatternValue{
 						{
 							Name:  i18n.Lang.T("user"),
@@ -136,7 +137,7 @@ func NewLoginSudo(isNotify bool) ([]*Source, error) {
 			IsNotification: isNotify,
 			Patterns: []AlertRegexPattern{
 				{
-					Regexp: NewLazyRegexp(`^pam_unix\(sudo:session\): session opened for user (\S+)\(\S+\) by (\S+)\(\S+\)`),
+					Regexp: regular_expression.NewLazyRegexp(`^pam_unix\(sudo:session\): session opened for user (\S+)\(\S+\) by (\S+)\(\S+\)`),
 					Values: []PatternValue{
 						{
 							Name:  i18n.Lang.T("user"),
