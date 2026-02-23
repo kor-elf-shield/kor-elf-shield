@@ -5,7 +5,7 @@ import config2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/an
 type RulesBucket interface {
 	Alerts() []*config2.AlertRule
 
-	addRule(rule *config2.AlertRule)
+	addAlertRule(rule *config2.AlertRule)
 }
 
 type rulesBucket struct {
@@ -16,7 +16,7 @@ func (rb *rulesBucket) Alerts() []*config2.AlertRule {
 	return rb.alerts
 }
 
-func (rb *rulesBucket) addRule(rule *config2.AlertRule) {
+func (rb *rulesBucket) addAlertRule(rule *config2.AlertRule) {
 	rb.alerts = append(rb.alerts, rule)
 }
 

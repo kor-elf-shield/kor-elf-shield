@@ -27,7 +27,7 @@ func (idx *RulesIndex) Add(source *config2.Source) error {
 	}
 
 	if source.AlertRule != nil {
-		idx.byKey[key].addRule(source.AlertRule)
+		idx.byKey[key].addAlertRule(source.AlertRule)
 	}
 	return nil
 }
