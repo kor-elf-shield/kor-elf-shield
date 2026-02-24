@@ -17,7 +17,7 @@ type AlertGroup struct {
 func (g *AlertGroup) RateLimit(level uint64) (rateLimit RateLimit, err error) {
 	lenRateLimits := len(g.RateLimits) - 1
 
-	if lenRateLimits == 0 {
+	if lenRateLimits < 0 {
 		return RateLimit{}, fmt.Errorf("rate limits is empty")
 	}
 
