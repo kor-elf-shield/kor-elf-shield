@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"sync"
 	"unicode"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/brute_force_protection"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/regular_expression"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
@@ -98,7 +99,8 @@ type Source struct {
 	Journal *SourceJournal
 	File    *SourceFile
 
-	AlertRule *AlertRule
+	AlertRule                *AlertRule
+	BruteForceProtectionRule *brute_force_protection.Rule
 }
 
 type AlertRule struct {
@@ -110,27 +112,8 @@ type AlertRule struct {
 }
 
 type AlertRegexPattern struct {
-	Regexp *LazyRegexp
+	Regexp *regular_expression.LazyRegexp
 	Values []PatternValue
-}
-
-type LazyRegexp struct {
-	pattern string
-
-	once sync.Once
-	re   *regexp.Regexp
-	err  error
-}
-
-func NewLazyRegexp(pattern string) *LazyRegexp {
-	return &LazyRegexp{pattern: pattern}
-}
-
-func (lr *LazyRegexp) Get() (*regexp.Regexp, error) {
-	lr.once.Do(func() {
-		lr.re, lr.err = regexp.Compile(lr.pattern)
-	})
-	return lr.re, lr.err
 }
 
 type PatternValue struct {

@@ -7,8 +7,9 @@ import (
 )
 
 type Setting struct {
-	Login    Login
-	LogAlert LogAlert
+	Login                Login
+	LogAlert             LogAlert
+	BruteForceProtection BruteForceProtection
 }
 
 func InitSetting(path string) (Setting, error) {
@@ -34,8 +35,9 @@ func InitSetting(path string) (Setting, error) {
 
 func settingDefault() Setting {
 	return Setting{
-		Login:    defaultLogin(),
-		LogAlert: defaultLogAlert(),
+		Login:                defaultLogin(),
+		LogAlert:             defaultLogAlert(),
+		BruteForceProtection: defaultBruteForceProtection(),
 	}
 }
 
@@ -54,6 +56,12 @@ func (s Setting) ToSources() ([]*config.Source, error) {
 	}
 	sources = append(sources, alertSources...)
 
+	bruteForceSources, err := s.BruteForceProtection.ToSources()
+	if err != nil {
+		return sources, err
+	}
+	sources = append(sources, bruteForceSources...)
+
 	return sources, nil
 }
 
@@ -62,6 +70,9 @@ func (s Setting) Validate() error {
 		return err
 	}
 	if err := s.LogAlert.Validate(); err != nil {
+		return err
+	}
+	if err := s.BruteForceProtection.Validate(); err != nil {
 		return err
 	}
 
