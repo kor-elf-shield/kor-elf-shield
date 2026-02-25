@@ -10,19 +10,24 @@ import (
 )
 
 const (
-	app = "app.db"
+	appDB      = "app.db"
+	securityDB = "security.db"
 )
 
 type Repositories interface {
 	NotificationsQueue() repository.NotificationsQueueRepository
 	AlertGroup() repository.AlertGroupRepository
+	BruteForceProtectionGroup() repository.BruteForceProtectionGroupRepository
+	Blocking() repository.BlockingRepository
 
 	Close() error
 }
 
 type repositories struct {
-	notificationsQueue repository.NotificationsQueueRepository
-	alertGroup         repository.AlertGroupRepository
+	notificationsQueue        repository.NotificationsQueueRepository
+	alertGroup                repository.AlertGroupRepository
+	bruteForceProtectionGroup repository.BruteForceProtectionGroupRepository
+	blocking                  repository.BlockingRepository
 
 	db []*bbolt.DB
 }
@@ -40,13 +45,20 @@ func New(dataDir string) (Repositories, error) {
 		return &repositories{}, err
 	}
 
-	appDB, err := bbolt.Open(dataDir+app, 0600, &bbolt.Options{Timeout: 3 * time.Second})
+	appDB, err := bbolt.Open(dataDir+appDB, 0600, &bbolt.Options{Timeout: 3 * time.Second})
+	if err != nil {
+		return &repositories{}, err
+	}
+
+	securityDB, err := bbolt.Open(dataDir+securityDB, 0600, &bbolt.Options{Timeout: 3 * time.Second})
 
 	return &repositories{
-		notificationsQueue: repository.NewNotificationsQueueRepository(appDB),
-		alertGroup:         repository.NewAlertGroupRepository(appDB),
+		notificationsQueue:        repository.NewNotificationsQueueRepository(appDB),
+		alertGroup:                repository.NewAlertGroupRepository(appDB),
+		bruteForceProtectionGroup: repository.NewBruteForceProtectionGroupRepository(securityDB),
+		blocking:                  repository.NewBlockingRepository(securityDB),
 
-		db: []*bbolt.DB{appDB},
+		db: []*bbolt.DB{appDB, securityDB},
 	}, nil
 }
 
@@ -56,6 +68,14 @@ func (r *repositories) NotificationsQueue() repository.NotificationsQueueReposit
 
 func (r *repositories) AlertGroup() repository.AlertGroupRepository {
 	return r.alertGroup
+}
+
+func (r *repositories) BruteForceProtectionGroup() repository.BruteForceProtectionGroupRepository {
+	return r.bruteForceProtectionGroup
+}
+
+func (r *repositories) Blocking() repository.BlockingRepository {
+	return r.blocking
 }
 
 func (r *repositories) Close() error {
