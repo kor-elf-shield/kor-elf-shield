@@ -1,4 +1,92 @@
 ###############################################################################
+# РАЗДЕЛ:Защита от перебора пароля
+# ***
+# SECTION:Protection against password brute-force attacks
+###############################################################################
+[bruteForceProtection]
+###
+# Включает группу отслеживания перебора пароля.
+# Если отключено, отслеживание перебора пароля работать не будет.
+# По умолчанию: true
+# ***
+# Enables the password attack monitoring group.
+# If disabled, password attack monitoring will not work.
+# Default: true
+###
+enabled = true
+
+###
+# Включает уведомления об блокировок.
+# Если отключено, они будут отображаться в логах только на уровне = "info".
+# По умолчанию: true
+# ***
+# Enables notifications about blocks.
+# If disabled, they will only appear in the logs under level = "info".
+# Default: true
+###
+notify = true
+
+###
+# Максимальное количество ошибок, после которого произойдёт блокировка.
+# По умолчанию: 5
+# ***
+# The maximum number of errors after which a blocking will occur.
+# Default: 5
+###
+rate_limit_count = 5
+
+###
+# Насколько времени в секундах блокировать IP адрес.
+# Если указать 0, то будет на всегда заблокирован.
+# По умолчанию: 3600
+# ***
+# How long in seconds to block an IP address.
+# If you specify 0, it will be blocked forever.
+# Default: 3600
+###
+blocking_time = 3600
+
+###
+# Установите временной интервал для отслеживания сбоев входа в систему в течение секунд.
+# По умолчанию: 3600
+# ***
+# Set the time interval to monitor login failures in seconds.
+# Default: 3600
+###
+rate_limit_period = 3600
+
+###
+# Указываем в секундах, через какое время сбрасывать данные IP в групе _default если не было событий.
+# Если указать 0, то не будет сбрасывать.
+# По умолчанию: 86400
+# ***
+# Specify the number of seconds after which IP data in the _default group will be reset if there have been no events.
+# If you specify 0, the reset will not occur.
+# Default: 86400
+###
+rate_limit_reset_period = 86400
+
+###
+# Включает защиту от перебора пароля от ssh.
+# По умолчанию: true
+# ***
+# Enables protection against brute-force attacks against ssh.
+# Default: true
+###
+ssh_enable = true
+
+###
+# Включает уведомления об блокировках, когда срабатывает защита от перебора пароля.
+# Если отключено, они будут отображаться в логах только на уровне = "info".
+# По умолчанию: true
+# ***
+# Enables block notifications when password brute-force protection is triggered.
+# If disabled, they will only appear in the logs under level = "info".
+# Default: true
+###
+ssh_notify = true
+
+###############################################################################
 # РАЗДЕЛ:Отслеживать авторизаций
 # ***
 # SECTION:Track authorizations
