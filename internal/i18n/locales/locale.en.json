@@ -47,5 +47,11 @@
   "alert.login.ssh.message": "Logged into the OS via ssh.",
   "alert.login.local.message": "Logged into the OS via TTY.",
   "alert.login.su.message": "Gained access to another user via su.",
-  "alert.login.sudo.message": "Gained access to another user via sudo."
+  "alert.login.sudo.message": "Gained access to another user via sudo.",
+
+  "alert.bruteForceProtection.subject": "A hacking attempt was detected and IP {{.IP}} was blocked. Alert ({{.Name}}) (Group:{{.GroupName}})",
+  "alert.bruteForceProtection.subject-error": "A hacking attempt was detected, but the IP {{.IP}} is not blocked. Alert ({{.Name}}) (group:{{.GroupName}})",
+  "alert.bruteForceProtection.error": "Error: {{.Error}}",
+  "alert.bruteForceProtection.ssh.message": "An attempt to brute-force SSH was detected.",
+  "alert.bruteForceProtection.group._default.message": "Default group."
 }

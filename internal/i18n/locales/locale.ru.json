@@ -47,5 +47,11 @@
   "alert.login.ssh.message": "Вошли в ОС через ssh.",
   "alert.login.local.message": "Вошли в ОС через TTY.",
   "alert.login.su.message": "Получили доступ к другому пользователю через su.",
-  "alert.login.sudo.message": "Получили доступ к другому пользователю через sudo."
+  "alert.login.sudo.message": "Получили доступ к другому пользователю через sudo.",
+
+  "alert.bruteForceProtection.subject": "Обнаружена попытка взлома, IP {{.IP}} заблокирован. Оповещение ({{.Name}}) (группа:{{.GroupName}})",
+  "alert.bruteForceProtection.subject-error": "Обнаружена попытка взлома, но IP {{.IP}} не заблокирован. Оповещение ({{.Name}}) (группа:{{.GroupName}})",
+  "alert.bruteForceProtection.error": "Ошибка: {{.Error}}",
+  "alert.bruteForceProtection.ssh.message": "Обнаружена попытка атаки на SSH методом перебора паролей.",
+  "alert.bruteForceProtection.group._default.message": "Группа по умолчанию."
 }

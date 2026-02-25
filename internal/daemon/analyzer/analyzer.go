@@ -28,7 +28,7 @@ type analyzer struct {
 	logChan chan analysisServices.Entry
 }
 
-func New(config config2.Config, repositories db.Repositories, logger log.Logger, notify notifications.Notifications) Analyzer {
+func New(config config2.Config, blockIPFunc analysisServices.BlockIPFunc, repositories db.Repositories, logger log.Logger, notify notifications.Notifications) Analyzer {
 	var journalMatches []string
 	journalMatchesUniq := map[string]struct{}{}
 
@@ -56,17 +56,15 @@ func New(config config2.Config, repositories db.Repositories, logger log.Logger,
 			continue
 		}
 
-		if source.AlertRule != nil {
-			err := rulesIndex.Add(source)
-			if err != nil {
-				logger.Error(fmt.Sprintf("Failed to add alert rule: %s", err))
-			}
+		err := rulesIndex.Add(source)
+		if err != nil {
+			logger.Error(fmt.Sprintf("Failed to add rule: %s", err))
 		}
 	}
 
 	systemdService := analyzerLog.NewSystemd(config.BinPath.Journalctl, journalMatches, logger)
 	filesService := analyzerLog.NewFileMonitoring(files, logger)
-	analysisService := analyzerLog.NewAnalysis(rulesIndex, repositories, logger, notify)
+	analysisService := analyzerLog.NewAnalysis(rulesIndex, blockIPFunc, repositories, logger, notify)
 
 	return &analyzer{
 		config:   config,
@@ -100,6 +98,7 @@ func (a *analyzer) processLogs(ctx context.Context) {
 			}
 			a.logger.Debug(fmt.Sprintf("Received log entry: %v", entry))
 
+			a.analysis.BruteForceProtection(&entry)
 			a.analysis.Alert(&entry)
 		}
 	}

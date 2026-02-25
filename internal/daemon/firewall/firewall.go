@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 
@@ -21,28 +22,34 @@ type API interface {
 	// ClearRules Clear all rules.
 	ClearRules()
 
+	// BlockIP Block IP address.
+	BlockIP(blockIP blocking.BlockIP) error
+
+	// DockerSupport Return true if docker support
 	DockerSupport() bool
 }
 
 type firewall struct {
-	nft    nftables.NFT
-	logger log.Logger
-	config *Config
-	chains chain.Chains
-	docker docker_monitor.Docker
+	nft             nftables.NFT
+	logger          log.Logger
+	config          *Config
+	blockingService blocking.API
+	chains          chain.Chains
+	docker          docker_monitor.Docker
 }
 
-func New(pathNFT string, logger log.Logger, config Config, docker docker_monitor.Docker) (API, error) {
+func New(pathNFT string, blockingService blocking.API, logger log.Logger, config Config, docker docker_monitor.Docker) (API, error) {
 	nft, err := nftables.NewWithPath(pathNFT)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create nft client: %w %s", err, pathNFT)
 	}
 
 	return &firewall{
-		nft:    nft,
-		logger: logger,
-		config: &config,
-		docker: docker,
+		nft:             nft,
+		logger:          logger,
+		config:          &config,
+		blockingService: blockingService,
+		docker:          docker,
 	}, nil
 }
 
@@ -131,6 +138,14 @@ func (f *firewall) SavesRules() {
 	}
 
 	f.logger.Info("Save nftables rules")
+}
+
+func (f *firewall) BlockIP(blockIP blocking.BlockIP) error {
+	if err := f.blockingService.BlockIP(blockIP); err != nil {
+		f.logger.Warn(fmt.Sprintf("Failed to block ip %s: %s", blockIP.IP.String(), err))
+		return err
+	}
+	return nil
 }
 
 func (f *firewall) DockerSupport() bool {

@@ -6,6 +6,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
@@ -27,9 +28,10 @@ func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notification
 		return nil, err
 	}
 
-	firewall, err := firewall2.New(opts.PathNftables, logger, opts.ConfigFirewall, docker)
+	blockingService := blocking.New(opts.Repositories.Blocking())
+	firewall, err := firewall2.New(opts.PathNftables, blockingService, logger, opts.ConfigFirewall, docker)
 
-	analyzerService := analyzer.New(opts.ConfigAnalyzer, opts.Repositories, logger, notifications)
+	analyzerService := analyzer.New(opts.ConfigAnalyzer, firewall.BlockIP, opts.Repositories, logger, notifications)
 
 	return &daemon{
 		pidFile:       pidFile,

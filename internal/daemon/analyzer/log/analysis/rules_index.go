@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	config2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/brute_force_protection"
 )
 
 type RulesIndex struct {
@@ -17,6 +18,10 @@ type indexKey struct {
 }
 
 func (idx *RulesIndex) Add(source *config2.Source) error {
+	if source.AlertRule == nil && source.BruteForceProtectionRule == nil {
+		return fmt.Errorf("no alert rule or brute force protection rule")
+	}
+
 	key, err := generateIndexKeyBySource(source)
 	if err != nil {
 		return err
@@ -29,6 +34,11 @@ func (idx *RulesIndex) Add(source *config2.Source) error {
 	if source.AlertRule != nil {
 		idx.byKey[key].addAlertRule(source.AlertRule)
 	}
+
+	if source.BruteForceProtectionRule != nil {
+		idx.byKey[key].addBruteForceProtectionRule(source.BruteForceProtectionRule)
+	}
+
 	return nil
 }
 
@@ -47,6 +57,26 @@ func (idx *RulesIndex) Alerts(entry *Entry) ([]*config2.AlertRule, error) {
 		}
 
 		rules = append(rules, b.Alerts()...)
+	}
+
+	return rules, nil
+}
+
+func (idx *RulesIndex) BruteForceProtections(entry *Entry) ([]*brute_force_protection.Rule, error) {
+	rules := make([]*brute_force_protection.Rule, 0)
+
+	keys, err := generateIndexKeysByEntry(entry)
+	if err != nil {
+		return rules, err
+	}
+
+	for _, key := range keys {
+		b, ok := idx.byKey[key]
+		if !ok {
+			continue
+		}
+
+		rules = append(rules, b.BruteForceProtectionRules()...)
 	}
 
 	return rules, nil
