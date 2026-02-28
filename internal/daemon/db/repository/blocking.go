@@ -52,9 +52,9 @@ func (r *blocking) Add(blockedIP entity.Blocking) error {
 
 func (r *blocking) List(callback func(entity.Blocking) error) error {
 	return r.db.View(func(tx *bbolt.Tx) error {
-		bucket, err := tx.CreateBucketIfNotExists([]byte(r.bucket))
-		if err != nil {
-			return err
+		bucket := tx.Bucket([]byte(r.bucket))
+		if bucket == nil {
+			return nil
 		}
 
 		return bucket.ForEach(func(_, v []byte) error {
