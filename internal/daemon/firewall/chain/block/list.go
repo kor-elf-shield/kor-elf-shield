@@ -10,6 +10,7 @@ import (
 type List interface {
 	Name() string
 	AddElement(element string) error
+	DeleteElement(element string) error
 }
 
 type list struct {
@@ -41,8 +42,17 @@ func (l *list) Name() string {
 
 func (l *list) AddElement(element string) error {
 	command := []string{
-		"add element inet",
-		l.table, l.name,
+		"add element",
+		l.family.String(), l.table, l.name,
+		fmt.Sprintf("{ %s }", element),
+	}
+	return l.nft.Command().Run(command...)
+}
+
+func (l *list) DeleteElement(element string) error {
+	command := []string{
+		"delete element",
+		l.family.String(), l.table, l.name,
 		fmt.Sprintf("{ %s }", element),
 	}
 	return l.nft.Command().Run(command...)
