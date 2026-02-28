@@ -61,7 +61,6 @@ func (b *blocking) NftReload(blockListIP block.ListIP) error {
 				return nil
 			}
 			banSeconds = uint32(e.ExpireAtUnix - nowUnix)
-			fmt.Printf("Now %s ExpireAtUnix %d banSeconds %d\n", time.Now().Format(time.RFC3339), e.ExpireAtUnix, banSeconds)
 		}
 
 		if err := b.blockListIP.AddIP(ip, banSeconds); err != nil {
