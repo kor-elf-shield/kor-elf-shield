@@ -27,9 +27,9 @@
 * Make friends with docker (partially).
 * Implement notification settings (for now only by e-mail).
 * Send notifications during ssh authorization.
+* Password brute-force protection.
 
 ### The plans include:
-* Password brute-force protection.
 * Notify if a new user appears in the system.
 * Notify if system files have changed.
 ***
