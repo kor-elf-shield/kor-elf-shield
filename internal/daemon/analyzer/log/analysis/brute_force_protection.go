@@ -18,7 +18,7 @@ type BruteForceProtection interface {
 	ClearDBData() error
 }
 
-type BlockIPFunc func(blockIP blocking.BlockIP) error
+type BlockIPFunc func(blockIP blocking.BlockIP) (bool, error)
 
 type bruteForceProtection struct {
 	rulesIndex   *RulesIndex
@@ -41,6 +41,7 @@ type bruteForceProtectionNotify struct {
 	time     time.Time
 	fields   []*regexField
 	blockSec uint32
+	err      error
 }
 
 func NewBruteForceProtection(rulesIndex *RulesIndex, groupService brute_force_protection_group.Group, blockIP BlockIPFunc, logger log.Logger, notify notifications.Notifications) BruteForceProtection {
@@ -85,7 +86,9 @@ func (p *bruteForceProtection) Analyze(entry *Entry) {
 			TimeSeconds: groupResult.BlockSec,
 			Reason:      rule.Message,
 		}
-		if err := p.blockIP(blockIP); err != nil {
+
+		isBanned, err := p.blockIP(blockIP)
+		if isBanned == false {
 			p.logger.Info(fmt.Sprintf("IP %s are not blocked (%s) (group:%s): %s. Err: %s", result.ip, rule.Name, rule.Group.Name, entry.Message, err.Error()))
 			p.sendNotifyError(&bruteForceProtectionNotify{
 				rule:     rule,
@@ -94,7 +97,8 @@ func (p *bruteForceProtection) Analyze(entry *Entry) {
 				time:     entry.Time,
 				fields:   result.fields,
 				blockSec: groupResult.BlockSec,
-			}, err)
+				err:      err,
+			})
 			continue
 		}
 
@@ -106,6 +110,7 @@ func (p *bruteForceProtection) Analyze(entry *Entry) {
 			time:     entry.Time,
 			fields:   result.fields,
 			blockSec: groupResult.BlockSec,
+			err:      err,
 		})
 	}
 }
@@ -180,7 +185,15 @@ func (p *bruteForceProtection) sendNotify(notify *bruteForceProtectionNotify) {
 		"IP":        notify.ip,
 	})
 	text := subject + "\n\n" + groupMessage + notify.rule.Message + "\n\n"
+	if notify.err != nil {
+		text += i18n.Lang.T("alert.bruteForceProtection.error", map[string]any{
+			"Error": notify.err.Error(),
+		}) + "\n"
+	}
 	text += "IP: " + notify.ip.String() + "\n"
+	text += i18n.Lang.T("blockSec", map[string]any{
+		"BlockSec": notify.blockSec,
+	}) + "\n"
 	text += i18n.Lang.T("time", map[string]any{
 		"Time": notify.time,
 	}) + "\n"
@@ -194,7 +207,7 @@ func (p *bruteForceProtection) sendNotify(notify *bruteForceProtectionNotify) {
 	p.notify.SendAsync(notifications.Message{Subject: subject, Body: text})
 }
 
-func (p *bruteForceProtection) sendNotifyError(notify *bruteForceProtectionNotify, err error) {
+func (p *bruteForceProtection) sendNotifyError(notify *bruteForceProtectionNotify) {
 	if !notify.rule.IsNotification {
 		return
 	}
@@ -208,13 +221,12 @@ func (p *bruteForceProtection) sendNotifyError(notify *bruteForceProtectionNotif
 		"IP":        notify.ip,
 	})
 	text := subject + "\n\n" + groupMessage + notify.rule.Message + "\n\n"
-	text += i18n.Lang.T("alert.bruteForceProtection.error", map[string]any{
-		"Error": err.Error(),
-	}) + "\n"
+	if notify.err != nil {
+		text += i18n.Lang.T("alert.bruteForceProtection.error", map[string]any{
+			"Error": notify.err.Error(),
+		}) + "\n"
+	}
 	text += "IP: " + notify.ip.String() + "\n"
-	text += i18n.Lang.T("blockSec", map[string]any{
-		"BlockSec": notify.blockSec,
-	}) + "\n"
 	text += i18n.Lang.T("time", map[string]any{
 		"Time": notify.time,
 	}) + "\n"
