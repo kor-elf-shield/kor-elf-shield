@@ -13,6 +13,9 @@ type ListIP interface {
 	// AddIP Add an IP address to the list.
 	AddIP(addr net.IP, banSeconds uint32) error
 
+	// DeleteIP Delete an IP address from the list.
+	DeleteIP(addr net.IP) error
+
 	// AddRuleToChain Add a rule to the parent chain.
 	AddRuleToChain(chainAddRuleFunc func(expr ...string) error, action string) error
 }
@@ -56,6 +59,17 @@ func (l *listIP) AddIP(addr net.IP, banSeconds uint32) error {
 	}
 
 	return l.listIPv6.AddElement(fmt.Sprintf("%s", element))
+}
+
+func (l *listIP) DeleteIP(addr net.IP) error {
+	if addr == nil {
+		return fmt.Errorf("IP address cannot be nil")
+	}
+	if addr.To4() != nil {
+		return l.listIPv4.DeleteElement(addr.String())
+	}
+
+	return l.listIPv6.DeleteElement(addr.String())
 }
 
 func (l *listIP) AddRuleToChain(chainAddRuleFunc func(expr ...string) error, action string) error {
