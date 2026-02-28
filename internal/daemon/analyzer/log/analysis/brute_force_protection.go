@@ -40,6 +40,7 @@ type bruteForceProtectionNotify struct {
 	ip       net.IP
 	time     time.Time
 	fields   []*regexField
+	blockSec uint32
 }
 
 func NewBruteForceProtection(rulesIndex *RulesIndex, groupService brute_force_protection_group.Group, blockIP BlockIPFunc, logger log.Logger, notify notifications.Notifications) BruteForceProtection {
@@ -92,6 +93,7 @@ func (p *bruteForceProtection) Analyze(entry *Entry) {
 				messages: groupResult.LastLogs,
 				time:     entry.Time,
 				fields:   result.fields,
+				blockSec: groupResult.BlockSec,
 			}, err)
 			continue
 		}
@@ -103,6 +105,7 @@ func (p *bruteForceProtection) Analyze(entry *Entry) {
 			messages: groupResult.LastLogs,
 			time:     entry.Time,
 			fields:   result.fields,
+			blockSec: groupResult.BlockSec,
 		})
 	}
 }
@@ -209,6 +212,9 @@ func (p *bruteForceProtection) sendNotifyError(notify *bruteForceProtectionNotif
 		"Error": err.Error(),
 	}) + "\n"
 	text += "IP: " + notify.ip.String() + "\n"
+	text += i18n.Lang.T("blockSec", map[string]any{
+		"BlockSec": notify.blockSec,
+	}) + "\n"
 	text += i18n.Lang.T("time", map[string]any{
 		"Time": notify.time,
 	}) + "\n"
