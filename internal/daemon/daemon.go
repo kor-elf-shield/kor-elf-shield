@@ -106,8 +106,7 @@ func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval 
 			return
 		case <-stopTestingCh:
 			d.logger.Info("Testing interval expired, stopping service")
-			err := d.notifications.DBQueueClear()
-			if err != nil {
+			if err := d.notifications.DBQueueClear(); err != nil {
 				d.logger.Error(fmt.Sprintf("failed to clear notifications queue: %v", err))
 			}
 			d.Stop()
