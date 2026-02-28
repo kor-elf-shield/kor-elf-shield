@@ -23,7 +23,7 @@ type API interface {
 	ClearRules()
 
 	// BlockIP Block IP address.
-	BlockIP(blockIP blocking.BlockIP) error
+	BlockIP(blockIP blocking.BlockIP) (bool, error)
 
 	// ClearDBData Clear all data from DB
 	ClearDBData() error
@@ -151,12 +151,13 @@ func (f *firewall) SavesRules() {
 	f.logger.Info("Save nftables rules")
 }
 
-func (f *firewall) BlockIP(blockIP blocking.BlockIP) error {
-	if err := f.blockingService.BlockIP(blockIP); err != nil {
+func (f *firewall) BlockIP(blockIP blocking.BlockIP) (bool, error) {
+	isBanned, err := f.blockingService.BlockIP(blockIP)
+
+	if err != nil {
 		f.logger.Warn(fmt.Sprintf("Failed to block ip %s: %s", blockIP.IP.String(), err))
-		return err
 	}
-	return nil
+	return isBanned, err
 }
 
 func (f *firewall) DockerSupport() bool {
