@@ -25,6 +25,12 @@
   "notifications_queue_clear_error": "Не удалось очистить очередь уведомлений",
   "notifications_queue_clear_success": "Очередь уведомлений очищена",
 
+  "cmd.daemon.ban.Usage": "Бан",
+  "cmd.daemon.ban.clear.Usage": "Разбанить все забаненные IP адреса",
+  "cmd.daemon.ban.clear.Description": "Разбанить все забаненные IP адреса.",
+  "ban_clear_error": "Не смогли разбанить все IP адреса",
+  "ban_clear_success": "Запрос успешно выполнен",
+
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
   "invalid log encoding": "Неверная настройка encoding. Сейчас указан: {{.Encoding}}. Допустимые значения: {{.Encodings}}",

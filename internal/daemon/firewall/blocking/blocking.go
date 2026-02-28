@@ -3,6 +3,7 @@ package blocking
 import (
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 type API interface {
 	NftReload(blockListIP block.ListIP) error
 	BlockIP(blockIP BlockIP) (bool, error)
+	UnblockAllIPs() error
 	ClearDBData() error
 }
 
@@ -108,6 +110,29 @@ func (b *blocking) BlockIP(blockIP BlockIP) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (b *blocking) UnblockAllIPs() error {
+	err := b.blockingRepository.List(func(e entity.Blocking) error {
+		ip := net.ParseIP(e.IP)
+		if ip == nil {
+			return fmt.Errorf("failed to parse IP address: %s", e.IP)
+		}
+		if err := b.blockListIP.DeleteIP(ip); err != nil {
+			if strings.Contains(err.Error(), "element does not exist") {
+				return nil
+			}
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		_ = b.blockingRepository.Clear()
+		return err
+	}
+
+	return b.blockingRepository.Clear()
 }
 
 func (b *blocking) ClearDBData() error {

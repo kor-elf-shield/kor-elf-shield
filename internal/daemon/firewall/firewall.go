@@ -25,6 +25,9 @@ type API interface {
 	// BlockIP Block IP address.
 	BlockIP(blockIP blocking.BlockIP) (bool, error)
 
+	// UnblockAllIPs Unblock all IP addresses.
+	UnblockAllIPs() error
+
 	// ClearDBData Clear all data from DB
 	ClearDBData() error
 
@@ -117,6 +120,10 @@ func (f *firewall) ClearRules() {
 	}
 
 	f.logger.Debug("Clear nftables rules done")
+}
+
+func (f *firewall) UnblockAllIPs() error {
+	return f.blockingService.UnblockAllIPs()
 }
 
 func (f *firewall) ClearDBData() error {
