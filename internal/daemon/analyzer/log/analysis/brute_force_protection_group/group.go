@@ -14,6 +14,7 @@ import (
 
 type Group interface {
 	Analyze(group *brute_force_protection.Group, eventTime time.Time, ip net.IP, message string) (AnalysisResult, error)
+	ClearDBData() error
 }
 
 type group struct {
@@ -77,6 +78,10 @@ func (g *group) Analyze(group *brute_force_protection.Group, eventTime time.Time
 	}
 
 	return analysisResult, nil
+}
+
+func (g *group) ClearDBData() error {
+	return g.groupRepository.Clear()
 }
 
 func (g *group) analysisResult(rateLimit brute_force_protection.RateLimit, eventTime time.Time, message string, entityGroup *entity.BruteForceProtectionGroup) (AnalysisResult, *entity.BruteForceProtectionGroup) {
