@@ -28,7 +28,7 @@ func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notification
 		return nil, err
 	}
 
-	blockingService := blocking.New(opts.Repositories.Blocking())
+	blockingService := blocking.New(opts.Repositories.Blocking(), logger)
 	firewall, err := firewall2.New(opts.PathNftables, blockingService, logger, opts.ConfigFirewall, docker)
 
 	analyzerService := analyzer.New(opts.ConfigAnalyzer, firewall.BlockIP, opts.Repositories, logger, notifications)
