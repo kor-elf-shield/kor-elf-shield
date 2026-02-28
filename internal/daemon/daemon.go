@@ -109,6 +109,9 @@ func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval 
 			if err := d.notifications.DBQueueClear(); err != nil {
 				d.logger.Error(fmt.Sprintf("failed to clear notifications queue: %v", err))
 			}
+			if err := d.analyzer.ClearDBData(); err != nil {
+				d.logger.Error(fmt.Sprintf("failed to clear analyzer data: %v", err))
+			}
 			d.Stop()
 			return
 		case <-d.stopCh:
