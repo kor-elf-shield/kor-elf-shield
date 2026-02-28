@@ -13,6 +13,7 @@ import (
 
 type Group interface {
 	Analyze(alertGroup *config.AlertGroup, eventTime time.Time, message string) (AnalysisResult, error)
+	ClearDBData() error
 }
 
 type group struct {
@@ -75,6 +76,10 @@ func (g *group) Analyze(alertGroup *config.AlertGroup, eventTime time.Time, mess
 	}
 
 	return analysisResult, nil
+}
+
+func (g *group) ClearDBData() error {
+	return g.alertGroupRepository.Clear()
 }
 
 func (g *group) analysisResult(rateLimit config.RateLimit, eventTime time.Time, message string, entityAlertGroup *entity.AlertGroup) (AnalysisResult, *entity.AlertGroup) {
