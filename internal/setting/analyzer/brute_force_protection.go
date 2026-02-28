@@ -2,6 +2,7 @@ package analyzer
 
 import (
 	"errors"
+	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/brute_force_protection"
@@ -9,14 +10,18 @@ import (
 )
 
 type BruteForceProtection struct {
-	Enabled              bool `mapstructure:"enabled"`
-	Notify               bool `mapstructure:"notify"`
-	RateLimitCount       int  `mapstructure:"rate_limit_count"`
-	RateLimitPeriod      int  `mapstructure:"rate_limit_period"`
-	RateLimitResetPeriod int  `mapstructure:"rate_limit_reset_period"`
-	BlockingTime         int  `mapstructure:"blocking_time"`
-	SSHEnable            bool `mapstructure:"ssh_enable"`
-	SSHNotify            bool `mapstructure:"ssh_notify"`
+	Enabled              bool   `mapstructure:"enabled"`
+	Notify               bool   `mapstructure:"notify"`
+	RateLimitCount       int    `mapstructure:"rate_limit_count"`
+	RateLimitPeriod      int    `mapstructure:"rate_limit_period"`
+	RateLimitResetPeriod int    `mapstructure:"rate_limit_reset_period"`
+	BlockingTime         int    `mapstructure:"blocking_time"`
+	SSHEnable            bool   `mapstructure:"ssh_enable"`
+	SSHNotify            bool   `mapstructure:"ssh_notify"`
+	SSHGroup             string `mapstructure:"ssh_group"`
+
+	Groups []BruteForceProtectionGroup
+	Rules  []BruteForceProtectionRule
 }
 
 func defaultBruteForceProtection() BruteForceProtection {
@@ -29,6 +34,10 @@ func defaultBruteForceProtection() BruteForceProtection {
 		BlockingTime:         3600,
 		SSHEnable:            true,
 		SSHNotify:            true,
+		SSHGroup:             "",
+
+		Groups: []BruteForceProtectionGroup{},
+		Rules:  []BruteForceProtectionRule{},
 	}
 }
 
@@ -64,11 +73,40 @@ func (p *BruteForceProtection) ToSources() ([]*config.Source, error) {
 	}
 
 	if p.SSHEnable {
-		sshSources, err := config.NewBruteForceProtectionSSH(p.Notify && p.SSHNotify, groups["_default"])
+		sshGroup := "_default"
+		if p.SSHGroup != "" {
+			if _, ok := groups[p.SSHGroup]; !ok {
+				return nil, errors.New("ssh group not found")
+			}
+			sshGroup = p.SSHGroup
+		}
+		sshSources, err := config.NewBruteForceProtectionSSH(p.Notify && p.SSHNotify, groups[sshGroup])
 		if err != nil {
 			return nil, err
 		}
 		sources = append(sources, sshSources...)
+	}
+
+	for _, rule := range p.Rules {
+		if !rule.Enabled {
+			continue
+		}
+
+		var group *brute_force_protection.Group
+		groupName := "_default"
+		if rule.Group != "" {
+			groupName = rule.Group
+		}
+		if _, ok := groups[groupName]; !ok {
+			return nil, fmt.Errorf("group %q not found", rule.Group)
+		}
+		group = groups[groupName]
+
+		source, err := rule.ToSource(p.Notify, group)
+		if err != nil {
+			return nil, err
+		}
+		sources = append(sources, source)
 	}
 
 	return sources, nil
@@ -88,6 +126,14 @@ func (p *BruteForceProtection) groups() (map[string]*brute_force_protection.Grou
 			},
 		},
 		RateLimitResetPeriod: uint32(p.RateLimitResetPeriod),
+	}
+
+	for _, group := range p.Groups {
+		g, err := group.ToGroup()
+		if err != nil {
+			return nil, err
+		}
+		groups[g.Name] = g
 	}
 
 	return groups, nil

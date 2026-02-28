@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/brute_force_protection"
 )
 
 type PatternValue struct {
@@ -17,6 +18,19 @@ func (v *PatternValue) ToPatternValue() (config.PatternValue, error) {
 	}
 
 	value := config.PatternValue{
+		Name:  v.Name,
+		Value: uint8(v.Value),
+	}
+
+	return value, nil
+}
+
+func (v *PatternValue) ToPatternValueForBruteForceProtection() (brute_force_protection.PatternValue, error) {
+	if err := v.validate(); err != nil {
+		return brute_force_protection.PatternValue{}, err
+	}
+
+	value := brute_force_protection.PatternValue{
 		Name:  v.Name,
 		Value: uint8(v.Value),
 	}
