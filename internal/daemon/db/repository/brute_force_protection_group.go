@@ -89,10 +89,10 @@ func keyGroupIP(groupID string, ip net.IP) ([]byte, error) {
 	}
 
 	var ipAddr net.IP
-	if ip.To16() != nil {
-		ipAddr = ip.To16()
-	} else {
+	if ip.To4() != nil {
 		ipAddr = ip.To4()
+	} else {
+		ipAddr = ip.To16()
 	}
 
 	k := make([]byte, 0, len(groupID)+1+len(ipAddr))
