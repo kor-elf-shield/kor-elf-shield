@@ -8,12 +8,15 @@ import (
 )
 
 type Entry struct {
-	Source           config.SourceType
-	Message          string
-	Unit             string
-	PID              string
-	SyslogIdentifier string
-	Time             time.Time
+	Source  config.SourceType
+	Message string
+	Time    time.Time
+
+	Unit             string // for systemd source
+	PID              string // for systemd source
+	SyslogIdentifier string // for systemd source
+
+	File string // for file source
 }
 
 type regexField struct {

@@ -25,6 +25,12 @@
   "notifications_queue_clear_error": "Хабарландыру кезегі тазаланбады",
   "notifications_queue_clear_success": "Хабарландыру кезегі тазартылды",
 
+  "cmd.daemon.ban.Usage": "Тыйым салу",
+  "cmd.daemon.ban.clear.Usage": "Барлық тыйым салынған IP мекенжайларын алып тастау",
+  "cmd.daemon.ban.clear.Description": "Барлық тыйым салынған IP мекенжайларын алып тастау.",
+  "ban_clear_error": "Барлық IP мекенжайларын бұғаттаудан шығару мүмкін емес",
+  "ban_clear_success": "Сұраныс сәтті орындалды",
+
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
   "invalid log encoding": "Жарамсыз кодтау параметрі. Қазіргі уақытта орнатылған: {{.Encoding}}. Жарамды мәндер: {{.Encodings}}",
@@ -41,10 +47,18 @@
   "log": "Лог: ",
   "user": "Пайдаланушы",
   "access to user has been gained": "Пайдаланушыға кіру мүмкіндігі алынды",
+  "unknown": "белгісіз",
+  "blockSec": "{{.BlockSec}} секундқа блокталды",
 
   "alert.subject": "Ескерту анықталды ({{.Name}}) (топ:{{.GroupName}})",
   "alert.login.ssh.message": "ОС-қа ssh арқылы кірді.",
   "alert.login.local.message": "ОЖ-ға TTY арқылы кірдіңіз.",
   "alert.login.su.message": "su арқылы басқа пайдаланушыға кіру мүмкіндігі алынды.",
-  "alert.login.sudo.message": "sudo арқылы басқа пайдаланушыға кіру мүмкіндігі алынды."
+  "alert.login.sudo.message": "sudo арқылы басқа пайдаланушыға кіру мүмкіндігі алынды.",
+
+  "alert.bruteForceProtection.subject": "Хакерлік әрекет анықталды және IP мекенжайы {{.IP}} бұғатталды. Ескерту ({{.Name}}) (Топ:{{.GroupName}})",
+  "alert.bruteForceProtection.subject-error": "Хакерлік әрекет анықталды, бірақ IP мекенжайы {{.IP}} бұғатталмаған. Ескерту ({{.Name}}) (Топ:{{.GroupName}})",
+  "alert.bruteForceProtection.error": "Қате: {{.Error}}",
+  "alert.bruteForceProtection.ssh.message": "SSH-ті күштеп қолдану әрекеті анықталды.",
+  "alert.bruteForceProtection.group._default.message": "Әдепкі топ."
 }

@@ -1,4 +1,197 @@
 ###############################################################################
+# РАЗДЕЛ:Защита от перебора пароля
+# ***
+# SECTION:Protection against password brute-force attacks
+###############################################################################
+[bruteForceProtection]
+###
+# Включает группу отслеживания перебора пароля.
+# Если отключено, отслеживание перебора пароля работать не будет.
+# По умолчанию: true
+# ***
+# Enables the password attack monitoring group.
+# If disabled, password attack monitoring will not work.
+# Default: true
+###
+enabled = true
+
+###
+# Включает уведомления об блокировок.
+# Если отключено, они будут отображаться в логах только на уровне = "info".
+# По умолчанию: true
+# ***
+# Enables notifications about blocks.
+# If disabled, they will only appear in the logs under level = "info".
+# Default: true
+###
+notify = true
+
+###
+# Максимальное количество ошибок, после которого произойдёт блокировка.
+# По умолчанию: 5
+# ***
+# The maximum number of errors after which a blocking will occur.
+# Default: 5
+###
+rate_limit_count = 5
+
+###
+# Насколько времени в секундах блокировать IP адрес.
+# Если указать 0, то будет на всегда заблокирован.
+# По умолчанию: 3600
+# ***
+# How long in seconds to block an IP address.
+# If you specify 0, it will be blocked forever.
+# Default: 3600
+###
+blocking_time = 3600
+
+###
+# Установите временной интервал для отслеживания сбоев входа в систему в течение секунд.
+# По умолчанию: 3600
+# ***
+# Set the time interval to monitor login failures in seconds.
+# Default: 3600
+###
+rate_limit_period = 3600
+
+###
+# Указываем в секундах, через какое время сбрасывать данные IP в групе _default если не было событий.
+# Если указать 0, то не будет сбрасывать.
+# По умолчанию: 86400
+# ***
+# Specify the number of seconds after which IP data in the _default group will be reset if there have been no events.
+# If you specify 0, the reset will not occur.
+# Default: 86400
+###
+rate_limit_reset_period = 86400
+
+###
+# Включает защиту от перебора пароля от ssh.
+# По умолчанию: true
+# ***
+# Enables protection against brute-force attacks against ssh.
+# Default: true
+###
+ssh_enable = true
+
+###
+# Включает уведомления об блокировках, когда срабатывает защита от перебора пароля.
+# Если отключено, они будут отображаться в логах только на уровне = "info".
+# По умолчанию: true
+# ***
+# Enables block notifications when password brute-force protection is triggered.
+# If disabled, they will only appear in the logs under level = "info".
+# Default: true
+###
+ssh_notify = true
+
+###
+# Можно указать свою группу, чтобы по связать с другими правилами.
+# По умолчанию: ""
+# ***
+# You can specify your own group to link it to other rules.
+# Default: ""
+###
+ssh_group = ""
+
+###
+# Указываем настройки группы.
+# Примеры:
+# [[bruteForceProtection.groups]]
+# name = "my_name_group" # Имя группы. Разрешены символы "a-z, A-Z, -, _". Первый символ обязательно буква (обязательное поле)
+# message = "Любой текст группы" # Текст уведомления (обязательное поле)
+# rate_limit_reset_period = 86400 # Указываем в секундах, через какое время сбрасывать данные в групе если не было событий. Если указать 0, то не будет сбрасывать.
+# [[bruteForceProtection.groups.rate_limits]]
+## Через сколько будет срабатывать блокировка. В данном случае в течение часа, если было 5 обнаружений, то сработает блокировка.
+## И заблокирует на 10 минут.
+# count = 5
+# period = 3600
+# blocking_time = 600
+# [[bruteForceProtection.groups.rate_limits]]
+## После срабатывания блокировки, переходим на второй уровень, тепер если в течение часа было 3 обнаружений, то сработает блокировка.
+## И теперь заблокирует на час.
+# count = 3
+# period = 3600
+# blocking_time = 3600
+# [[bruteForceProtection.groups.rate_limits]]
+## И таких уровней можно указыват сколько захотите.
+# count = 2
+# period = 600
+# blocking_time = 3600
+#
+# ***
+# Specify group settings.
+# Examples:
+# [[bruteForceProtection.groups]]
+# name = "my_name_group" # Group name. Allowed characters are "a-z, A-Z, -, _". The first character must be a letter (required)
+# message = "Any group text" # Notification text (required)
+# rate_limit_reset_period = 86400 # Specify, in seconds, how long to reset group data if there have been no events. Specifying 0 means no reset.
+# [[bruteForceProtection.groups.rate_limits]]
+## How long will it take for the block to be triggered? In this case, if there were 5 detections within an hour, the block will be triggered.
+## And it will block for 10 minutes.
+# count = 5
+# period = 3600
+# blocking_time = 600
+# [[bruteForceProtection.groups.rate_limits]]
+## After the blocking is triggered, we move to the second level. Now, if there are three detections within an hour, the blocking will be triggered.
+## And now it will block for an hour.
+# count = 3
+# period = 3600
+# blocking_time = 3600
+# [[bruteForceProtection.groups.rate_limits]]
+## You can specify as many of these levels as you like.
+# count = 2
+# period = 600
+# blocking_time = 3600
+###
+
+###
+# Указываем настройки логов, которые надо отслеживать для защиты от перебора пароля.
+# Примеры:
+# [[bruteForceProtection.rules]]
+# enabled = true # Включает или выключает отслеживания (обязательное поле)
+# notify = true # Включает или выключает уведомления (обязательное поле)
+# name = "my_name_rule" # Имя уведомления. Разрешены символы "a-z, A-Z, -, _". Первый символ обязательно буква (обязательное поле)
+# message = "Ваш любой текст для уведомления" # Текст уведомления (обязательное поле)
+# group = "my_name_group" # Можно указать имя группы (не обязательное поле)
+# [bruteForceProtection.rules.source]
+# type = "journalctl" # journalctl или file (обязательное поле)
+# field = "systemd_unit" # systemd_unit или syslog_identifier (обязательное поле если type = "journalctl")
+# match = "ssh.service" # Значение (обязательное поле если type = "journalctl")
+# если field = "systemd_unit", то match должен заканичваться: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
+# [[bruteForceProtection.rules.patterns]]
+# regexp = '^Failed password for (\S+) from (\S+) port \S+'
+# ip = 2 # Указываем номер value, который укажет IP (обязательное поле)
+# [[bruteForceProtection.rules.patterns.values]]
+# name = "Пользователь"
+# value = 1
+#
+# ***
+# Specify the log settings that need to be monitored to protect against password brute-force attacks.
+# Examples:
+# [[bruteForceProtection.rules]]
+# enabled = true # Enables or disables tracking (required)
+# notify = true # Enables or disables notifications (required)
+# name = "my_name_rule" # Notification name. Allowed characters are "a-z, A-Z, -, _". The first character must be a letter (required field)
+# message = "Your any text for notification" # Notification text (required field)
+# group = "my_name_group" # You can specify the group name (optional field)
+# [bruteForceProtection.rules.source]
+# type = "journalctl" # journalctl or file (required)
+# field = "systemd_unit" # systemd_unit or syslog_identifier (required if type = "journalctl")
+# match = "ssh.service" # Value (required if type = "journalctl")
+# If field = "systemd_unit", then match must end with: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
+# [[bruteForceProtection.rules.patterns]]
+# regexp = '^Accepted (\S+) for (\S+) from (\S+) port \S+'
+# [[bruteForceProtection.rules.patterns]]
+# regexp = '^Failed password for (\S+) from (\S+) port \S+'
+# ip = 2 # We indicate the value number that will indicate the IP (required field)
+# [[bruteForceProtection.rules.patterns.values]]
+# name = "User"
+# value = 1
+###
+
+###############################################################################
 # РАЗДЕЛ:Отслеживать авторизаций
 # ***
 # SECTION:Track authorizations
@@ -108,3 +301,118 @@ sudo_enable = false
 ###
 sudo_notify = true
 
+###############################################################################
+# РАЗДЕЛ:Настройки анализа логов для уведомления
+# ***
+# SECTION:Log analysis settings for notifications
+###############################################################################
+[logAlert]
+###
+# Включает группу отслеживания логов для оповещения.
+# Если отключено, отслеживание логов для оповещения работать не будет.
+# По умолчанию: true
+# ***
+# Enables the log monitoring group for alerts.
+# If disabled, log monitoring for alerts will not work.
+# Default: true
+###
+enabled = true
+
+###
+# Включает уведомления.
+# Если отключено, они будут отображаться в логах только на уровне = "info".
+# По умолчанию: true
+# ***
+# Enables notifications.
+# If disabled, they will only appear in the logs under level = "info".
+# Default: true
+###
+notify = true
+
+###
+# Указываем настройки группы.
+# Примеры:
+# [[logAlert.groups]]
+# name = "my_name_group" # Имя группы. Разрешены символы "a-z, A-Z, -, _". Первый символ обязательно буква (обязательное поле)
+# message = "Любой текст группы" # Текст уведомления (обязательное поле)
+# rate_limit_reset_period = 86400 # Указываем в секундах, через какое время сбрасывать данные в групе если не было событий. Если указать 0, то не будет сбрасывать.
+# [[logAlert.groups.rate_limits]]
+## Через сколько будет срабатывать оповещение. В данном случае в течение часа, если было 5 обнаружений, то сработает оповещение.
+# count = 5
+# period = 3600
+# [[logAlert.groups.rate_limits]]
+## После срабатывания оповещения, переходим на второй уровень, тепер если в течение часа было 3 обнаружений, то сработает оповещение.
+# count = 3
+# period = 3600
+# [[logAlert.groups.rate_limits]]
+## И таких уровней можно указыват сколько захотите.
+# count = 2
+# period = 600
+#
+# ***
+# Specify group settings.
+# Examples:
+# [[logAlert.groups]]
+# name = "my_name_group" # Group name. Allowed characters are "a-z, A-Z, -, _". The first character must be a letter (required)
+# message = "Any group text" # Notification text (required)
+# rate_limit_reset_period = 86400 # Specify, in seconds, how long to reset group data if there have been no events. Specifying 0 means no reset.
+# [[logAlert.groups.rate_limits]]
+## How long to wait before an alert is triggered. In this case, if there were 5 detections within an hour, the alert will be triggered. # count = 5
+# count = 5
+# period = 3600
+# [[logAlert.groups.rate_limits]]
+## After the alert is triggered, we move to the second level. Now, if there are 3 detections within an hour, the alert will be triggered.
+# count = 3
+# period = 3600
+# [[logAlert.groups.rate_limits]]
+## You can specify as many of these levels as you like.
+# count = 2
+# period = 600
+###
+
+###
+# Указываем настройки логов, которые надо отслеживать для оповещения.
+# Примеры:
+# [[logAlert.rules]]
+# enabled = true # Включает или выключает отслеживания (обязательное поле)
+# notify = true # Включает или выключает уведомления (обязательное поле)
+# name = "my_name_rule" # Имя уведомления. Разрешены символы "a-z, A-Z, -, _". Первый символ обязательно буква (обязательное поле)
+# message = "Ваш любой текст для уведомления" # Текст уведомления (обязательное поле)
+# group = "my_name_group" # Можно указать имя группы (не обязательное поле)
+# [logAlert.rules.source]
+# type = "journalctl" # journalctl или file (обязательное поле)
+# field = "systemd_unit" # systemd_unit или syslog_identifier (обязательное поле если type = "journalctl")
+# match = "ssh.service" # Значение (обязательное поле если type = "journalctl")
+# если field = "systemd_unit", то match должен заканичваться: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
+# [[logAlert.rules.patterns]]
+# regexp = '^Accepted (\S+) for (\S+) from (\S+) port \S+'
+# [[logAlert.rules.patterns.values]]
+# name = "Пользователь"
+# value = 2
+# [[logAlert.rules.patterns.values]]
+# name = "IP"
+# value = 3
+#
+# ***
+# Specify the log settings to monitor for notifications.
+# Examples:
+# [[logAlert.rules]]
+# enabled = true # Enables or disables tracking (required)
+# notify = true # Enables or disables notifications (required)
+# name = "my_name_rule" # Notification name. Allowed characters are "a-z, A-Z, -, _". The first character must be a letter (required field)
+# message = "Your any text for notification" # Notification text (required field)
+# group = "my_name_group" # You can specify the group name (optional field)
+# [logAlert.rules.source]
+# type = "journalctl" # journalctl or file (required)
+# field = "systemd_unit" # systemd_unit or syslog_identifier (required if type = "journalctl")
+# match = "ssh.service" # Value (required if type = "journalctl")
+# If field = "systemd_unit", then match must end with: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
+# [[logAlert.rules.patterns]]
+# regexp = '^Accepted (\S+) for (\S+) from (\S+) port \S+'
+# [[logAlert.rules.patterns.values]]
+# name = "User"
+# value = 2
+# [[logAlert.rules.patterns.values]]
+# name = "IP"
+# value = 3
+###

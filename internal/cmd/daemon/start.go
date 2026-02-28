@@ -64,6 +64,7 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 	defer func() {
 		_ = repositories.Close()
 	}()
+	config.Repositories = repositories
 
 	notificationsService, err := newNotificationsService(repositories.NotificationsQueue(), logger)
 	if err != nil {

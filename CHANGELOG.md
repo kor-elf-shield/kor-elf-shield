@@ -1,3 +1,17 @@
+## 0.7.0 (8.2.2026)
+***
+#### Русский
+* Добавлена возможность настройки отслеживания событий в журналах.
+* Добавлены настройки для защиты от перебора паролей.
+* В файл настроек analyzer.toml добавлены новые параметры. Смотрите полный список по ссылке https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/commit/187c447301b9c0bfa41ec2b2c9435ab0ce44bed6/assets/configs/analyzer.toml
+* Добавлена команда `kor-elf-shield ban clear`, которая разблокирует все IP адреса. Которые были забанены.
+***
+#### English
+* Added the ability to customize event tracking in logs.
+* Added settings to protect against password guessing.
+* New parameters have been added to the analyzer.toml settings file. See the full list at https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/commit/187c447301b9c0bfa41ec2b2c9435ab0ce44bed6/assets/configs/analyzer.toml
+* Added the `kor-elf-shield ban clear` command, which unbans all banned IP addresses.
+***
 ## 0.6.0 (8.2.2026)
 ***
 #### Русский

@@ -24,7 +24,21 @@ func (f *firewall) reloadInput() error {
 		return err
 	}
 
+	if err := f.chains.NewBeforeLocalInput(); err != nil {
+		return err
+	}
+	if err := f.chains.BeforeLocalInput().AddRuleIn(chain.AddRule); err != nil {
+		return err
+	}
+
 	if err := f.reloadInputAddIPs(); err != nil {
+		return err
+	}
+
+	if err := f.chains.NewAfterLocalInput(); err != nil {
+		return err
+	}
+	if err := f.chains.AfterLocalInput().AddRuleIn(chain.AddRule); err != nil {
 		return err
 	}
 

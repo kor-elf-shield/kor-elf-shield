@@ -6,6 +6,7 @@ import (
 	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client"
 	nftChain "git.kor-elf.net/kor-elf-shield/go-nftables-client/chain"
 	nftFamily "git.kor-elf.net/kor-elf-shield/go-nftables-client/family"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain/block"
 )
 
 type Chains interface {
@@ -21,8 +22,14 @@ type Chains interface {
 	NewForward(chain string, defaultAllow bool, priority int) error
 	Forward() Forward
 
+	NewBeforeLocalInput() error
+	BeforeLocalInput() BeforeLocalInput
+
 	NewLocalInput() error
 	LocalInput() LocalInput
+
+	NewAfterLocalInput() error
+	AfterLocalInput() AfterLocalInput
 
 	NewLocalOutput() error
 	LocalOutput() LocalOutput
@@ -34,6 +41,7 @@ type Chains interface {
 
 	NewNoneChain(chain string) (Chain, error)
 	NewChain(chain string, baseChain nftChain.ChainOptions) (Chain, error)
+	NewBlockListIP(name string) (block.ListIP, error)
 }
 
 type chains struct {
@@ -42,7 +50,10 @@ type chains struct {
 	forward      Forward
 	packetFilter PacketFilter
 
-	localInput   LocalInput
+	beforeLocalInput BeforeLocalInput
+	localInput       LocalInput
+	afterLocalInput  AfterLocalInput
+
 	localOutput  LocalOutput
 	localForward LocalForward
 
@@ -125,6 +136,19 @@ func (c *chains) Forward() Forward {
 	return c.forward
 }
 
+func (c *chains) NewBeforeLocalInput() error {
+	newChain, err := newBeforeLocalInput(c.nft, c.family, c.table)
+	if err != nil {
+		return err
+	}
+	c.beforeLocalInput = newChain
+	return nil
+}
+
+func (c *chains) BeforeLocalInput() BeforeLocalInput {
+	return c.beforeLocalInput
+}
+
 func (c *chains) NewLocalInput() error {
 	localInput, err := newLocalInput(c.nft, c.family, c.table)
 	if err != nil {
@@ -136,6 +160,19 @@ func (c *chains) NewLocalInput() error {
 
 func (c *chains) LocalInput() LocalInput {
 	return c.localInput
+}
+
+func (c *chains) NewAfterLocalInput() error {
+	newChain, err := newAfterLocalInput(c.nft, c.family, c.table)
+	if err != nil {
+		return err
+	}
+	c.afterLocalInput = newChain
+	return nil
+}
+
+func (c *chains) AfterLocalInput() AfterLocalInput {
+	return c.afterLocalInput
 }
 
 func (c *chains) NewLocalOutput() error {
@@ -183,6 +220,15 @@ func (c *chains) NewChain(chainName string, baseChain nftChain.ChainOptions) (Ch
 		table:  c.table,
 		chain:  chainName,
 	}, nil
+}
+
+func (c *chains) NewBlockListIP(name string) (block.ListIP, error) {
+	blockList, err := block.NewListIP(c.nft, c.family, c.table, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return blockList, nil
 }
 
 func clearRules(nft nft.NFT, family nftFamily.Type, table string) error {

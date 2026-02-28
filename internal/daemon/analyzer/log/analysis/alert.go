@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/alert_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
@@ -12,12 +13,14 @@ import (
 
 type Alert interface {
 	Analyze(entry *Entry)
+	ClearDBData() error
 }
 
 type alert struct {
-	ruleIndex AlertRuleIndex
-	logger    log.Logger
-	notify    notifications.Notifications
+	rulesIndex        *RulesIndex
+	alertGroupService alert_group.Group
+	logger            log.Logger
+	notify            notifications.Notifications
 }
 
 type alertAnalyzeRuleReturn struct {
@@ -32,16 +35,17 @@ type alertNotify struct {
 	fields   []*regexField
 }
 
-func NewAlert(ruleIndex AlertRuleIndex, logger log.Logger, notify notifications.Notifications) Alert {
+func NewAlert(rulesIndex *RulesIndex, alertGroupService alert_group.Group, logger log.Logger, notify notifications.Notifications) Alert {
 	return &alert{
-		ruleIndex: ruleIndex,
-		logger:    logger,
-		notify:    notify,
+		rulesIndex:        rulesIndex,
+		alertGroupService: alertGroupService,
+		logger:            logger,
+		notify:            notify,
 	}
 }
 
 func (a *alert) Analyze(entry *Entry) {
-	rules, err := a.ruleIndex.Rules(entry)
+	rules, err := a.rulesIndex.Alerts(entry)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("Failed to get alert rules: %s", err))
 	}
@@ -53,7 +57,19 @@ func (a *alert) Analyze(entry *Entry) {
 		groupName := ""
 		messages := []string{}
 		if rule.Group != nil {
+			alertGroup, err := a.alertGroupService.Analyze(rule.Group, entry.Time, entry.Message)
+			if err != nil {
+				a.logger.Error(fmt.Sprintf("Failed to analyze alert group: %s", err))
+				continue
+			}
+			if !alertGroup.Alerted {
+				continue
+			}
+
 			groupName = rule.Group.Name
+			for _, lastLog := range alertGroup.LastLogs {
+				messages = append(messages, lastLog)
+			}
 		} else {
 			messages = append(messages, entry.Message)
 		}
@@ -65,6 +81,10 @@ func (a *alert) Analyze(entry *Entry) {
 			fields:   result.fields,
 		})
 	}
+}
+
+func (a *alert) ClearDBData() error {
+	return a.alertGroupService.ClearDBData()
 }
 
 func (a *alert) analyzeRule(rule *config.AlertRule, message string) alertAnalyzeRuleReturn {
@@ -86,8 +106,8 @@ func (a *alert) analyzeRule(rule *config.AlertRule, message string) alertAnalyze
 			for _, value := range pattern.Values {
 				start, end, err := getValueStartEndByRegexIndex(int(value.Value), idx)
 				if err != nil {
-					a.logger.Error(fmt.Sprintf("Failed to get value start/end: %s", err))
-					break
+					result.fields = append(result.fields, &regexField{name: value.Name, value: i18n.Lang.T("unknown")})
+					continue
 				}
 				result.fields = append(result.fields, &regexField{name: value.Name, value: message[start:end]})
 			}

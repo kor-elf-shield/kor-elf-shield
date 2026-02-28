@@ -106,10 +106,19 @@ func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval 
 			return
 		case <-stopTestingCh:
 			d.logger.Info("Testing interval expired, stopping service")
-			err := d.notifications.DBQueueClear()
-			if err != nil {
+
+			if err := d.notifications.DBQueueClear(); err != nil {
 				d.logger.Error(fmt.Sprintf("failed to clear notifications queue: %v", err))
 			}
+
+			if err := d.analyzer.ClearDBData(); err != nil {
+				d.logger.Error(fmt.Sprintf("failed to clear analyzer data: %v", err))
+			}
+
+			if err := d.firewall.ClearDBData(); err != nil {
+				d.logger.Error(fmt.Sprintf("failed to clear firewall data: %v", err))
+			}
+
 			d.Stop()
 			return
 		case <-d.stopCh:
@@ -138,6 +147,12 @@ func (d *daemon) socketCommand(command string, socket socket.Connect) error {
 	case "notifications_queue_clear":
 		if err := d.notifications.DBQueueClear(); err != nil {
 			_ = socket.Write("notifications queue clear failed: " + err.Error())
+			return err
+		}
+		return socket.Write("ok")
+	case "ban_clear":
+		if err := d.firewall.UnblockAllIPs(); err != nil {
+			_ = socket.Write("ban clear failed: " + err.Error())
 			return err
 		}
 		return socket.Write("ok")

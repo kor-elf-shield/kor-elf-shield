@@ -119,13 +119,19 @@ func (s *systemd) watch(ctx context.Context, logChan chan<- analysisServices.Ent
 			entryTime = time.Now()
 		}
 
-		logChan <- analysisServices.Entry{
+		entry := analysisServices.Entry{
 			Source:           config.SourceTypeJournal,
 			Message:          raw.Message,
 			Unit:             raw.Unit,
 			PID:              raw.PID,
 			SyslogIdentifier: raw.SyslogIdentifier,
 			Time:             entryTime,
+		}
+
+		select {
+		case <-ctx.Done():
+			break
+		case logChan <- entry:
 		}
 	}
 

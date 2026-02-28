@@ -25,6 +25,12 @@
   "notifications_queue_clear_error": "Failed to clear notification queue",
   "notifications_queue_clear_success": "The notification queue has been cleared.",
 
+  "cmd.daemon.ban.Usage": "Ban",
+  "cmd.daemon.ban.clear.Usage": "Unban all banned IP addresses",
+  "cmd.daemon.ban.clear.Description": "Unban all banned IP addresses.",
+  "ban_clear_error": "Unable to unban all IP addresses",
+  "ban_clear_success": "The request was successfully completed",
+
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
   "invalid log encoding": "Invalid encoding setting. Currently set to: {{.Encoding}}. Valid values: {{.Encodings}}",
@@ -41,10 +47,18 @@
   "log": "Log: ",
   "user": "User",
   "access to user has been gained": "Access to user has been gained",
+  "unknown": "unknown",
+  "blockSec": "Blocked for {{.BlockSec}} seconds",
 
   "alert.subject": "Alert detected ({{.Name}}) (group:{{.GroupName}})",
   "alert.login.ssh.message": "Logged into the OS via ssh.",
   "alert.login.local.message": "Logged into the OS via TTY.",
   "alert.login.su.message": "Gained access to another user via su.",
-  "alert.login.sudo.message": "Gained access to another user via sudo."
+  "alert.login.sudo.message": "Gained access to another user via sudo.",
+
+  "alert.bruteForceProtection.subject": "A hacking attempt was detected and IP {{.IP}} was blocked. Alert ({{.Name}}) (Group:{{.GroupName}})",
+  "alert.bruteForceProtection.subject-error": "A hacking attempt was detected, but the IP {{.IP}} is not blocked. Alert ({{.Name}}) (group:{{.GroupName}})",
+  "alert.bruteForceProtection.error": "Error: {{.Error}}",
+  "alert.bruteForceProtection.ssh.message": "An attempt to brute-force SSH was detected.",
+  "alert.bruteForceProtection.group._default.message": "Default group."
 }

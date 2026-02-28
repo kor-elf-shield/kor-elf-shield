@@ -1,0 +1,66 @@
+package analyzer
+
+import (
+	"fmt"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+)
+
+type LogAlertRule struct {
+	Enabled  bool   `mapstructure:"enabled"`
+	Notify   bool   `mapstructure:"notify"`
+	Name     string `mapstructure:"name"`
+	Message  string `mapstructure:"message"`
+	Group    string `mapstructure:"group"`
+	Source   Source
+	Patterns []LogAlertPattern
+}
+
+func (l *LogAlertRule) ToSource(isNotify bool, group *config.AlertGroup) (*config.Source, error) {
+	if err := l.validate(); err != nil {
+		return nil, err
+	}
+
+	source, err := l.Source.ToSource()
+	if err != nil {
+		return nil, err
+	}
+
+	var patterns []config.AlertRegexPattern
+
+	for _, pattern := range l.Patterns {
+		p, err := pattern.ToPattern()
+		if err != nil {
+			return nil, err
+		}
+		patterns = append(patterns, p)
+	}
+
+	if len(patterns) == 0 {
+		return nil, fmt.Errorf("patterns is empty")
+	}
+
+	source.AlertRule = &config.AlertRule{
+		Name:           l.Name,
+		Message:        l.Message,
+		IsNotification: isNotify && l.Notify,
+		Patterns:       patterns,
+	}
+	if group != nil {
+		source.AlertRule.Group = group
+	}
+
+	return source, nil
+}
+
+func (l *LogAlertRule) validate() error {
+	if l.Name == "" {
+		return fmt.Errorf("alert name is empty")
+	}
+
+	if !reName.MatchString(l.Name) {
+		return fmt.Errorf("alert invalid name: %s", l.Name)
+	}
+
+	return nil
+}
