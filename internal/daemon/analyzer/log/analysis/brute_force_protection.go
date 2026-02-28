@@ -15,6 +15,7 @@ import (
 
 type BruteForceProtection interface {
 	Analyze(entry *Entry)
+	ClearDBData() error
 }
 
 type BlockIPFunc func(blockIP blocking.BlockIP) error
@@ -104,6 +105,10 @@ func (p *bruteForceProtection) Analyze(entry *Entry) {
 			fields:   result.fields,
 		})
 	}
+}
+
+func (p *bruteForceProtection) ClearDBData() error {
+	return p.groupService.ClearDBData()
 }
 
 func (p *bruteForceProtection) analyzeRule(rule *brute_force_protection.Rule, message string) bruteForceProtectionAnalyzeRuleReturn {

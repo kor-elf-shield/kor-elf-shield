@@ -13,6 +13,7 @@ import (
 
 type Alert interface {
 	Analyze(entry *Entry)
+	ClearDBData() error
 }
 
 type alert struct {
@@ -80,6 +81,10 @@ func (a *alert) Analyze(entry *Entry) {
 			fields:   result.fields,
 		})
 	}
+}
+
+func (a *alert) ClearDBData() error {
+	return a.alertGroupService.ClearDBData()
 }
 
 func (a *alert) analyzeRule(rule *config.AlertRule, message string) alertAnalyzeRuleReturn {

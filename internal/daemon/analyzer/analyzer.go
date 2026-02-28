@@ -14,6 +14,7 @@ import (
 
 type Analyzer interface {
 	Run(ctx context.Context)
+	ClearDBData() error
 	Close() error
 }
 
@@ -84,6 +85,21 @@ func (a *analyzer) Run(ctx context.Context) {
 	go a.files.Run(ctx, a.logChan)
 
 	a.logger.Debug("Analyzer is start")
+}
+
+func (a *analyzer) ClearDBData() error {
+	a.logger.Debug("Clear data")
+
+	clearDBErrors, err := a.analysis.ClearDBData()
+	if err != nil {
+		for _, err := range clearDBErrors {
+			a.logger.Error(err.Error())
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (a *analyzer) processLogs(ctx context.Context) {

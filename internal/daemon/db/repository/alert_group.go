@@ -2,14 +2,17 @@ package repository
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/entity"
 	"go.etcd.io/bbolt"
+	bboltErrors "go.etcd.io/bbolt/errors"
 )
 
 type AlertGroupRepository interface {
 	Update(name string, f func(*entity.AlertGroup) (*entity.AlertGroup, error)) error
+	Clear() error
 }
 
 type alertGroupRepository struct {
@@ -53,5 +56,17 @@ func (r *alertGroupRepository) Update(name string, f func(*entity.AlertGroup) (*
 			return err
 		}
 		return b.Put(key, data)
+	})
+}
+
+func (r *alertGroupRepository) Clear() error {
+	return r.db.Update(func(tx *bbolt.Tx) error {
+		err := tx.DeleteBucket([]byte(r.bucket))
+		if errors.Is(err, bboltErrors.ErrBucketNotFound) {
+			// If the bucket may not exist, ignore ErrBucketNotFound
+			return nil
+		}
+		_, err = tx.CreateBucketIfNotExists([]byte(r.bucket))
+		return err
 	})
 }

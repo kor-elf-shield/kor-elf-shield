@@ -1,6 +1,8 @@
 package log
 
 import (
+	"fmt"
+
 	analysisServices "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/alert_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
@@ -12,6 +14,7 @@ import (
 type Analysis interface {
 	Alert(entry *analysisServices.Entry)
 	BruteForceProtection(entry *analysisServices.Entry)
+	ClearDBData() ([]error, error)
 }
 
 type analysis struct {
@@ -35,4 +38,20 @@ func (a *analysis) Alert(entry *analysisServices.Entry) {
 
 func (a *analysis) BruteForceProtection(entry *analysisServices.Entry) {
 	a.bruteForceProtectionService.Analyze(entry)
+}
+
+func (a *analysis) ClearDBData() ([]error, error) {
+	var errClearDB []error
+	if err := a.alertService.ClearDBData(); err != nil {
+		errClearDB = append(errClearDB, err)
+	}
+	if err := a.bruteForceProtectionService.ClearDBData(); err != nil {
+		errClearDB = append(errClearDB, err)
+	}
+
+	if len(errClearDB) > 0 {
+		return nil, fmt.Errorf("failed to clear database data: %v", errClearDB)
+	}
+
+	return errClearDB, nil
 }
