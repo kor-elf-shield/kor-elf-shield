@@ -2,16 +2,19 @@ package repository
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/entity"
 	"go.etcd.io/bbolt"
+	bboltErrors "go.etcd.io/bbolt/errors"
 )
 
 type BlockingRepository interface {
 	Add(blockedIP entity.Blocking) error
 	List(callback func(entity.Blocking) error) error
 	DeleteExpired(limit int) (int, error)
+	Clear() error
 }
 
 type blocking struct {
@@ -115,4 +118,16 @@ func (r *blocking) DeleteExpired(limit int) (int, error) {
 	})
 
 	return deleted, err
+}
+
+func (r *blocking) Clear() error {
+	return r.db.Update(func(tx *bbolt.Tx) error {
+		err := tx.DeleteBucket([]byte(r.bucket))
+		if errors.Is(err, bboltErrors.ErrBucketNotFound) {
+			// If the bucket may not exist, ignore ErrBucketNotFound
+			return nil
+		}
+		_, err = tx.CreateBucketIfNotExists([]byte(r.bucket))
+		return err
+	})
 }
