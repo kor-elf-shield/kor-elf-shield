@@ -25,6 +25,9 @@ type API interface {
 	// BlockIP Block IP address.
 	BlockIP(blockIP blocking.BlockIP) error
 
+	// ClearDBData Clear all data from DB
+	ClearDBData() error
+
 	// DockerSupport Return true if docker support
 	DockerSupport() bool
 }
@@ -89,6 +92,10 @@ func (f *firewall) Reload() error {
 		}
 	}
 
+	if err := f.reloadBlockList(); err != nil {
+		return err
+	}
+
 	f.logger.Debug("Reload nftables rules done")
 	return nil
 }
@@ -110,6 +117,10 @@ func (f *firewall) ClearRules() {
 	}
 
 	f.logger.Debug("Clear nftables rules done")
+}
+
+func (f *firewall) ClearDBData() error {
+	return f.blockingService.ClearDBData()
 }
 
 func (f *firewall) SavesRules() {
