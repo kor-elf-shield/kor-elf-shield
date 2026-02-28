@@ -2,84 +2,13 @@
 ***
 #### Русский
 * Добавлена возможность настройки отслеживания событий в журналах.
-* В файл настроек analyzer.toml добавлены новые параметры:
-```
-enabled = true
-notify = true
-
-[[logAlert.groups]]
-name = "my_name_group"
-message = "Любой текст группы"
-rate_limit_reset_period = 86400
-[[logAlert.groups.rate_limits]]
-count = 5
-period = 3600
-[[logAlert.groups.rate_limits]]
-count = 3
-period = 3600
-[[logAlert.groups.rate_limits]]
-count = 2
-period = 600
-
-[[logAlert.rules]]
-enabled = true
-notify = true
-name = "my_name_rule"
-message = "Ваш любой текст для уведомления"
-group = "my_name_group"
-[logAlert.rules.source]
-type = "journalctl"
-field = "systemd_unit"
-match = "ssh.service"
-[[logAlert.rules.patterns]]
-regexp = '^Accepted (\S+) for (\S+) from (\S+) port \S+'
-[[logAlert.rules.patterns.values]]
-name = "Пользователь"
-value = 2
-[[logAlert.rules.patterns.values]]
-name = "IP"
-value = 3
-```
+* Добавлены настройки для защиты от перебора паролей.
+* В файл настроек analyzer.toml добавлены новые параметры. Смотрите полный список по ссылке https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/commit/187c447301b9c0bfa41ec2b2c9435ab0ce44bed6/assets/configs/analyzer.toml
 ***
 #### English
 * Added the ability to customize event tracking in logs.
-* New parameters have been added to the analyzer.toml settings file:
-```
-enabled = true
-notify = true
-
-[[logAlert.groups]]
-name = "my_name_group"
-message = "Any group text"
-rate_limit_reset_period = 86400
-[[logAlert.groups.rate_limits]]
-period = 3600
-[[logAlert.groups.rate_limits]]
-count = 3
-period = 3600
-[[logAlert.groups.rate_limits]]
-count = 2
-period = 600
-
-[[logAlert.rules]]
-enabled = true
-notify = true
-name = "my_name_rule"
-message = "Your any text for notification"
-group = "my_name_group"
-[logAlert.rules.source]
-type = "journalctl"
-field = "systemd_unit"
-match = "ssh.service"
-[[logAlert.rules.patterns]]
-regexp = '^Accepted (\S+) for (\S+) from (\S+) port \S+'
-[[logAlert.rules.patterns.values]]
-name = "User"
-value = 2
-[[logAlert.rules.patterns.values]]
-name = "IP"
-value = 3
-```
+* Added settings to protect against password guessing.
+* New parameters have been added to the analyzer.toml settings file. See the full list at https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/commit/187c447301b9c0bfa41ec2b2c9435ab0ce44bed6/assets/configs/analyzer.toml
 ***
 ## 0.6.0 (8.2.2026)
 ***
