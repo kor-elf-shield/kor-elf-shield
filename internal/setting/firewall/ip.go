@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	port2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
@@ -99,7 +100,7 @@ func loopIP(baseConfigIP firewall.ConfigIP, directions []string, protocols []str
 		if len(ports) == 0 {
 			// If no port is specified, we only allow the IP address to be accepted.
 			addIP.OnlyIP = true
-			if addDirection == firewall.DirectionIn {
+			if addDirection == types.DirectionIn {
 				in = append(in, addIP)
 			} else {
 				out = append(out, addIP)
@@ -108,13 +109,12 @@ func loopIP(baseConfigIP firewall.ConfigIP, directions []string, protocols []str
 		}
 
 		if len(protocols) == 0 {
-			addIP.Protocol = firewall.ProtocolTCP
-			addIn, addOut, err := loopIPPort(addIP, ports, addDirection)
+			addIn, addOut, err := loopIPPort(addIP, ports, addDirection, types.ProtocolTCP)
 			if err != nil {
 				error = err
 				return
 			}
-			if addDirection == firewall.DirectionIn {
+			if addDirection == types.DirectionIn {
 				in = append(in, addIn...)
 			} else {
 				out = append(out, addOut...)
@@ -127,7 +127,7 @@ func loopIP(baseConfigIP firewall.ConfigIP, directions []string, protocols []str
 			error = err
 			return
 		}
-		if addDirection == firewall.DirectionIn {
+		if addDirection == types.DirectionIn {
 			in = append(in, addIn...)
 		} else {
 			out = append(out, addOut...)
@@ -136,7 +136,7 @@ func loopIP(baseConfigIP firewall.ConfigIP, directions []string, protocols []str
 	return
 }
 
-func loopIPProtocol(baseConfigIP firewall.ConfigIP, protocols []string, ports []int, direction firewall.Direction) (in []firewall.ConfigIP, out []firewall.ConfigIP, error error) {
+func loopIPProtocol(baseConfigIP firewall.ConfigIP, protocols []string, ports []int, direction types.Direction) (in []firewall.ConfigIP, out []firewall.ConfigIP, error error) {
 	for _, protocol := range protocols {
 		addProtocol, err := port2.ToProtocol(protocol)
 		if err != nil {
@@ -144,10 +144,9 @@ func loopIPProtocol(baseConfigIP firewall.ConfigIP, protocols []string, ports []
 			return
 		}
 		addIP := baseConfigIP
-		addIP.Protocol = addProtocol
 
 		if len(ports) == 0 {
-			if direction == firewall.DirectionIn {
+			if direction == types.DirectionIn {
 				in = append(in, addIP)
 			} else {
 				out = append(out, addIP)
@@ -155,12 +154,12 @@ func loopIPProtocol(baseConfigIP firewall.ConfigIP, protocols []string, ports []
 			continue
 		}
 
-		addIn, addOut, err := loopIPPort(addIP, ports, direction)
+		addIn, addOut, err := loopIPPort(addIP, ports, direction, addProtocol)
 		if err != nil {
 			error = err
 			return
 		}
-		if direction == firewall.DirectionIn {
+		if direction == types.DirectionIn {
 			in = append(in, addIn...)
 		} else {
 			out = append(out, addOut...)
@@ -170,15 +169,22 @@ func loopIPProtocol(baseConfigIP firewall.ConfigIP, protocols []string, ports []
 	return
 }
 
-func loopIPPort(baseConfigIP firewall.ConfigIP, ports []int, direction firewall.Direction) (in []firewall.ConfigIP, out []firewall.ConfigIP, error error) {
+func loopIPPort(baseConfigIP firewall.ConfigIP, ports []int, direction types.Direction, protocol types.Protocol) (in []firewall.ConfigIP, out []firewall.ConfigIP, error error) {
 	for _, port := range ports {
 		if err := validate.Port(port, "port"); err != nil {
 			error = err
 			return
 		}
+
+		l4Port, err := types.NewL4Port(uint16(port), protocol)
+		if err != nil {
+			error = err
+			return
+		}
+
 		addIP := baseConfigIP
-		addIP.Port = uint16(port)
-		if direction == firewall.DirectionIn {
+		addIP.Port = l4Port
+		if direction == types.DirectionIn {
 			in = append(in, addIP)
 		} else {
 			out = append(out, addIP)

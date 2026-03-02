@@ -3,7 +3,6 @@ package firewall
 import (
 	"fmt"
 	"net"
-	"strconv"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg"
 )
@@ -176,8 +175,8 @@ func (f *firewall) reloadOutputICMPAfter() error {
 func (f *firewall) reloadOutputPorts() error {
 	chain := f.chains.Output()
 	for _, port := range f.config.OutPorts {
-		protocol := port.Protocol.String()
-		number := strconv.Itoa(int(port.Number))
+		protocol := port.Port.ProtocolString()
+		number := port.Port.NumberString()
 		baseRule := "oifname != \"lo\" meta l4proto " + protocol + " ct state new " + protocol + " dport " + number
 
 		if port.LimitRate != "" {
@@ -231,7 +230,7 @@ func outputAddIP(addRuleFunc func(expr ...string) error, config ConfigIP, ipMatc
 
 	rule := ipMatch + " daddr " + config.IP + " oifname != \"lo\""
 	if !config.OnlyIP {
-		rule += " " + config.Protocol.String() + " dport " + strconv.Itoa(int(config.Port))
+		rule += " " + config.Port.ProtocolString() + " dport " + config.Port.NumberString()
 	}
 	if config.LimitRate != "" {
 		rule += " limit rate " + config.LimitRate
