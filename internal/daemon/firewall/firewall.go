@@ -25,6 +25,9 @@ type API interface {
 	// BlockIP Block IP address.
 	BlockIP(blockIP blocking.BlockIP) (bool, error)
 
+	// BlockIPWithPorts Block IP address with ports.
+	BlockIPWithPorts(blockIP blocking.BlockIPWithPorts) (bool, error)
+
 	// UnblockAllIPs Unblock all IP addresses.
 	UnblockAllIPs() error
 
@@ -160,6 +163,15 @@ func (f *firewall) SavesRules() {
 
 func (f *firewall) BlockIP(blockIP blocking.BlockIP) (bool, error) {
 	isBanned, err := f.blockingService.BlockIP(blockIP)
+
+	if err != nil {
+		f.logger.Warn(fmt.Sprintf("Failed to block ip %s: %s", blockIP.IP.String(), err))
+	}
+	return isBanned, err
+}
+
+func (f *firewall) BlockIPWithPorts(blockIP blocking.BlockIPWithPorts) (bool, error) {
+	isBanned, err := f.blockingService.BlockIPWithPorts(blockIP)
 
 	if err != nil {
 		f.logger.Warn(fmt.Sprintf("Failed to block ip %s: %s", blockIP.IP.String(), err))

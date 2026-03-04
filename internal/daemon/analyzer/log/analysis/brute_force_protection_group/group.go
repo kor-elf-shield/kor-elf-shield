@@ -23,9 +23,10 @@ type group struct {
 }
 
 type AnalysisResult struct {
-	Block    bool
-	BlockSec uint32
-	LastLogs []string
+	Block       bool
+	BlockSec    uint32
+	BlockConfig brute_force_protection.Block
+	LastLogs    []string
 }
 
 func NewGroup(groupRepository repository.BruteForceProtectionGroupRepository, logger log.Logger) Group {
@@ -99,6 +100,7 @@ func (g *group) analysisResult(rateLimit brute_force_protection.RateLimit, event
 		analysisResult.LastLogs = entityGroup.LastLogs
 		analysisResult.Block = true
 		analysisResult.BlockSec = rateLimit.BlockingTimeSeconds
+		analysisResult.BlockConfig = rateLimit.BlockConfig
 
 		entityGroup.CurrentLevelTriggerCount++
 		entityGroup.TriggerCount = 0

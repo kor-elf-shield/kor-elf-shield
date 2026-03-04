@@ -10,6 +10,8 @@ type BruteForceProtectionGroup struct {
 	Name                 string                               `mapstructure:"name"`
 	Message              string                               `mapstructure:"message"`
 	RateLimitResetPeriod int                                  `mapstructure:"rate_limit_reset_period"`
+	BlockType            string                               `mapstructure:"block_type"`
+	Ports                []string                             `mapstructure:"ports"`
 	RateLimits           []BruteForceProtectionGroupRateLimit `mapstructure:"rate_limits"`
 }
 
@@ -20,8 +22,17 @@ func (g *BruteForceProtectionGroup) ToGroup() (*brute_force_protection.Group, er
 
 	var rateLimits []brute_force_protection.RateLimit
 
+	blockType := g.BlockType
+	if blockType == "" {
+		blockType = "ip"
+	}
+	blockConfig, err := toBlockConfigBySettings(blockType, g.Ports)
+	if err := err; err != nil {
+		return nil, err
+	}
+
 	for _, rateLimit := range g.RateLimits {
-		rLimit, err := rateLimit.ToRateLimit()
+		rLimit, err := rateLimit.ToRateLimit(blockConfig)
 		if err != nil {
 			return nil, err
 		}

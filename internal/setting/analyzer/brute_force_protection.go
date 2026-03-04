@@ -3,10 +3,15 @@ package analyzer
 import (
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/brute_force_protection"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
 type BruteForceProtection struct {
@@ -123,6 +128,7 @@ func (p *BruteForceProtection) groups() (map[string]*brute_force_protection.Grou
 				Count:               uint32(p.RateLimitCount),
 				Period:              uint32(p.RateLimitPeriod),
 				BlockingTimeSeconds: uint32(p.BlockingTime),
+				BlockConfig:         brute_force_protection.NewBlockOnceIPConfig(),
 			},
 		},
 		RateLimitResetPeriod: uint32(p.RateLimitResetPeriod),
@@ -137,4 +143,57 @@ func (p *BruteForceProtection) groups() (map[string]*brute_force_protection.Grou
 	}
 
 	return groups, nil
+}
+
+func toBlockConfigBySettings(blockType string, ports []string) (brute_force_protection.Block, error) {
+	if blockType == "" {
+		return nil, errors.New("block type is empty")
+	}
+
+	switch blockType {
+	case "ip":
+		return brute_force_protection.NewBlockOnceIPConfig(), nil
+	case "ip_port":
+		if len(ports) == 0 {
+			return nil, errors.New("ports is empty")
+		}
+
+		var blockPorts []types.L4Port
+		for _, port := range ports {
+			l4Port, err := toL4Port(port)
+			if err != nil {
+				return nil, err
+			}
+			blockPorts = append(blockPorts, l4Port)
+		}
+
+		return brute_force_protection.NewBlockIPAndPortsConfig(blockPorts), nil
+	}
+
+	return nil, errors.New("unknown block type")
+}
+
+func toL4Port(portString string) (types.L4Port, error) {
+	if portString == "" {
+		return nil, errors.New("port is empty")
+	}
+
+	data := strings.Split(portString, "/")
+	protocol := types.ProtocolTCP
+	port, err := strconv.Atoi(data[0])
+	if err != nil {
+		return nil, err
+	}
+	if err := validate.Port(port, "port"); err != nil {
+		return nil, err
+	}
+
+	if len(data) == 2 {
+		protocol, err = ip.ToProtocol(data[1])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return types.NewL4Port(uint16(port), protocol)
 }

@@ -49,6 +49,7 @@
   "access to user has been gained": "Пайдаланушыға кіру мүмкіндігі алынды",
   "unknown": "белгісіз",
   "blockSec": "{{.BlockSec}} секундқа блокталды",
+  "ports": "Порттар: {{.Ports}}",
 
   "alert.subject": "Ескерту анықталды ({{.Name}}) (топ:{{.GroupName}})",
   "alert.login.ssh.message": "ОС-қа ssh арқылы кірді.",

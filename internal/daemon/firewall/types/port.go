@@ -9,6 +9,7 @@ type L4Port interface {
 	Number() uint16
 	NumberString() string
 	ProtocolString() string
+	ToString() string
 }
 
 type l4Port struct {
@@ -35,4 +36,8 @@ func (p *l4Port) NumberString() string {
 
 func (p *l4Port) ProtocolString() string {
 	return p.protocol
+}
+
+func (p *l4Port) ToString() string {
+	return p.NumberString() + "/" + p.ProtocolString()
 }

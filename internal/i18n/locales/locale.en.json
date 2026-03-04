@@ -49,6 +49,7 @@
   "access to user has been gained": "Access to user has been gained",
   "unknown": "unknown",
   "blockSec": "Blocked for {{.BlockSec}} seconds",
+  "ports": "Ports: {{.Ports}}",
 
   "alert.subject": "Alert detected ({{.Name}}) (group:{{.GroupName}})",
   "alert.login.ssh.message": "Logged into the OS via ssh.",
