@@ -20,7 +20,7 @@
 * The `kor-elf-shield block add` command has been added. This command can be used to block an IP address. See `kor-elf-shield block add --help` for details.
 * The `kor-elf-shield block delete` command has been added. This command can be used to delete a blocked IP address. See `kor-elf-shield block delete --help` for details.
 ***
-## 0.7.0 (8.2.2026)
+## 0.7.0 (28.2.2026)
 ***
 #### Русский
 * Добавлена возможность настройки отслеживания событий в журналах.
