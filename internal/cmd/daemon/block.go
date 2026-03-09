@@ -20,13 +20,13 @@ func CmdBlock() *cli.Command {
 				Name:        "clear",
 				Usage:       i18n.Lang.T("cmd.daemon.block.clear.Usage"),
 				Description: i18n.Lang.T("cmd.daemon.block.clear.Description"),
-				Action:      CmdBlockClear,
+				Action:      cmdBlockClear,
 			},
 		},
 	}
 }
 
-func CmdBlockClear(_ context.Context, _ *cli.Command) error {
+func cmdBlockClear(_ context.Context, _ *cli.Command) error {
 	if setting.Config.SocketFile == "" {
 		return errors.New(i18n.Lang.T("socket file is not specified"))
 	}
