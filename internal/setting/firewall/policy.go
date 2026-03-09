@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 )
 
 type policy struct {
@@ -61,15 +62,15 @@ func (p policy) ToConfigPolicy() (firewall.ConfigPolicy, error) {
 	}, nil
 }
 
-func (p policy) dropToPolicyDrop(drop string, parametrName string) (firewall.PolicyDrop, error) {
+func (p policy) dropToPolicyDrop(drop string, parametrName string) (types.PolicyDrop, error) {
 	if drop == "" {
 		return 0, fmt.Errorf("%s is empty", parametrName)
 	}
 	switch drop {
 	case "drop":
-		return firewall.Drop, nil
+		return types.Drop, nil
 	case "reject":
-		return firewall.Reject, nil
+		return types.Reject, nil
 	default:
 		return 0, fmt.Errorf("invalid %s . Must be drop or reject", parametrName)
 	}

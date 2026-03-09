@@ -7,20 +7,35 @@ import (
 )
 
 type BruteForceProtectionGroupRateLimit struct {
-	Count        int `mapstructure:"count"`
-	Period       int `mapstructure:"period"`
-	BlockingTime int `mapstructure:"blocking_time"`
+	Count        int      `mapstructure:"count"`
+	Period       int      `mapstructure:"period"`
+	BlockingTime int      `mapstructure:"blocking_time"`
+	BlockType    string   `mapstructure:"block_type"`
+	Ports        []string `mapstructure:"ports"`
 }
 
-func (l *BruteForceProtectionGroupRateLimit) ToRateLimit() (brute_force_protection.RateLimit, error) {
+func (l *BruteForceProtectionGroupRateLimit) ToRateLimit(blockConfig brute_force_protection.Block) (brute_force_protection.RateLimit, error) {
 	if err := l.validate(); err != nil {
 		return brute_force_protection.RateLimit{}, err
+	}
+
+	var rateLimitBlockConfig brute_force_protection.Block
+
+	if l.BlockType != "" {
+		var err error
+		rateLimitBlockConfig, err = toBlockConfigBySettings(l.BlockType, l.Ports)
+		if err != nil {
+			return brute_force_protection.RateLimit{}, err
+		}
+	} else {
+		rateLimitBlockConfig = blockConfig
 	}
 
 	return brute_force_protection.RateLimit{
 		Count:               uint32(l.Count),
 		Period:              uint32(l.Period),
 		BlockingTimeSeconds: uint32(l.BlockingTime),
+		BlockConfig:         rateLimitBlockConfig,
 	}, nil
 }
 

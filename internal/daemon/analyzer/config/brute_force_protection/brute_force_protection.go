@@ -20,6 +20,7 @@ type RateLimit struct {
 	Count               uint32
 	Period              uint32
 	BlockingTimeSeconds uint32
+	BlockConfig         Block
 }
 
 type PatternValue struct {

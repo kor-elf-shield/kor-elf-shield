@@ -25,11 +25,22 @@
   "notifications_queue_clear_error": "Не удалось очистить очередь уведомлений",
   "notifications_queue_clear_success": "Очередь уведомлений очищена",
 
-  "cmd.daemon.ban.Usage": "Бан",
-  "cmd.daemon.ban.clear.Usage": "Разбанить все забаненные IP адреса",
-  "cmd.daemon.ban.clear.Description": "Разбанить все забаненные IP адреса.",
-  "ban_clear_error": "Не смогли разбанить все IP адреса",
-  "ban_clear_success": "Запрос успешно выполнен",
+  "cmd.daemon.block.Usage": "Блокировка",
+  "cmd.daemon.block.clear.Usage": "Разблокировать все забаненные IP адреса",
+  "cmd.daemon.block.clear.Description": "блокировка все забаненные IP адреса.",
+  "block_clear_error": "Не смогли разблокировать все IP адреса",
+  "block_clear_success": "Запрос успешно выполнен",
+
+  "cmd.daemon.block.add.Usage": "Добавить IP адрес в список заблокированных",
+  "cmd.daemon.block.add.Description": "Добавить IP адрес в список заблокированных. \nПримеры: \nkor-elf-shield block add 192.168.1.1 \nkor-elf-shield block add 192.168.1.1 --seconds=600 \nkor-elf-shield block add 192.168.1.1 --port 80/tcp",
+  "cmd.daemon.block.add.FlagUsage.port": "Порт, который будет заблокирован. Если не указать, то заблокируются все порты. \nПримеры: \n--port=80/tcp \n--port=1000/udp",
+  "cmd.daemon.block.add.FlagUsage.seconds": "Время блокировки в секундах. Если не указать, то блокировка будет вечной.",
+  "cmd.daemon.block.add.FlagUsage.reason": "Причина блокировки.",
+  "block_add_ip_success": "IP адрес успешно добавлен в список заблокированных.",
+
+  "cmd.daemon.block.delete.Usage": "Удалить IP адрес из списка заблокированных",
+  "cmd.daemon.block.delete.Description": "Удалить IP адрес из списка заблокированных. \nПример: \nkor-elf-shield block delete 192.168.1.1",
+  "block_delete_ip_success": "IP адрес успешно удален из списка заблокированных.",
 
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
@@ -49,6 +60,7 @@
   "access to user has been gained": "Получен доступ к пользователю",
   "unknown": "неизвестный",
   "blockSec": "Блокировка на {{.BlockSec}} секунд",
+  "ports": "Порты: {{.Ports}}",
 
   "alert.subject": "Обнаружено оповещение ({{.Name}}) (группа:{{.GroupName}})",
   "alert.login.ssh.message": "Вошли в ОС через ssh.",
@@ -60,5 +72,7 @@
   "alert.bruteForceProtection.subject-error": "Обнаружена попытка взлома, но IP {{.IP}} не заблокирован. Оповещение ({{.Name}}) (группа:{{.GroupName}})",
   "alert.bruteForceProtection.error": "Ошибка: {{.Error}}",
   "alert.bruteForceProtection.ssh.message": "Обнаружена попытка атаки на SSH методом перебора паролей.",
-  "alert.bruteForceProtection.group._default.message": "Группа по умолчанию."
+  "alert.bruteForceProtection.group._default.message": "Группа по умолчанию.",
+
+  "cmd.error": "Ошибка команды: {{.Error}}"
 }

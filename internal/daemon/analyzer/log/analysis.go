@@ -22,13 +22,13 @@ type analysis struct {
 	bruteForceProtectionService analysisServices.BruteForceProtection
 }
 
-func NewAnalysis(rulesIndex *analysisServices.RulesIndex, blockIPFunc analysisServices.BlockIPFunc, repositories db.Repositories, logger log.Logger, notify notifications.Notifications) Analysis {
+func NewAnalysis(rulesIndex *analysisServices.RulesIndex, blockService brute_force_protection_group.BlockService, repositories db.Repositories, logger log.Logger, notify notifications.Notifications) Analysis {
 	alertGroupService := alert_group.NewGroup(repositories.AlertGroup(), logger)
 	bruteForceProtectionGroupService := brute_force_protection_group.NewGroup(repositories.BruteForceProtectionGroup(), logger)
 
 	return &analysis{
 		alertService:                analysisServices.NewAlert(rulesIndex, alertGroupService, logger, notify),
-		bruteForceProtectionService: analysisServices.NewBruteForceProtection(rulesIndex, bruteForceProtectionGroupService, blockIPFunc, logger, notify),
+		bruteForceProtectionService: analysisServices.NewBruteForceProtection(rulesIndex, bruteForceProtectionGroupService, blockService, logger, notify),
 	}
 }
 

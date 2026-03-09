@@ -25,11 +25,22 @@
   "notifications_queue_clear_error": "Failed to clear notification queue",
   "notifications_queue_clear_success": "The notification queue has been cleared.",
 
-  "cmd.daemon.ban.Usage": "Ban",
-  "cmd.daemon.ban.clear.Usage": "Unban all banned IP addresses",
-  "cmd.daemon.ban.clear.Description": "Unban all banned IP addresses.",
-  "ban_clear_error": "Unable to unban all IP addresses",
-  "ban_clear_success": "The request was successfully completed",
+  "cmd.daemon.block.Usage": "Blocking",
+  "cmd.daemon.block.clear.Usage": "Unblock all banned IP addresses",
+  "cmd.daemon.block.clear.Description": "Unblock all banned IP addresses.",
+  "block_clear_error": "Unable to unblock all IP addresses",
+  "block_clear_success": "The request was successfully completed",
+
+  "cmd.daemon.block.add.Usage": "Add IP address to block list",
+  "cmd.daemon.block.add.Description": "Add an IP address to the block list. \nExamples: \nkor-elf-shield block add 192.168.1.1 \nkor-elf-shield block add 192.168.1.1 --seconds=600 \nkor-elf-shield block add 192.168.1.1 --port 80/tcp",
+  "cmd.daemon.block.add.FlagUsage.port": "The port to be blocked. If not specified, all ports will be blocked. \nExamples: \n--port=80/tcp \n--port=1000/udp",
+  "cmd.daemon.block.add.FlagUsage.seconds": "The blocking time in seconds. If not specified, the blocking will be permanent.",
+  "cmd.daemon.block.add.FlagUsage.reason": "Reason for blocking.",
+  "block_add_ip_success": "The IP address has been successfully added to the block list.",
+
+  "cmd.daemon.block.delete.Usage": "Remove IP address from block list",
+  "cmd.daemon.block.delete.Description": "Remove an IP address from the block list. \nExample: \nkor-elf-shield block delete 192.168.1.1",
+  "block_delete_ip_success": "The IP address has been successfully removed from the block list.",
 
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
@@ -49,6 +60,7 @@
   "access to user has been gained": "Access to user has been gained",
   "unknown": "unknown",
   "blockSec": "Blocked for {{.BlockSec}} seconds",
+  "ports": "Ports: {{.Ports}}",
 
   "alert.subject": "Alert detected ({{.Name}}) (group:{{.GroupName}})",
   "alert.login.ssh.message": "Logged into the OS via ssh.",
@@ -60,5 +72,7 @@
   "alert.bruteForceProtection.subject-error": "A hacking attempt was detected, but the IP {{.IP}} is not blocked. Alert ({{.Name}}) (group:{{.GroupName}})",
   "alert.bruteForceProtection.error": "Error: {{.Error}}",
   "alert.bruteForceProtection.ssh.message": "An attempt to brute-force SSH was detected.",
-  "alert.bruteForceProtection.group._default.message": "Default group."
+  "alert.bruteForceProtection.group._default.message": "Default group.",
+
+  "cmd.error": "Command error: {{.Error}}"
 }

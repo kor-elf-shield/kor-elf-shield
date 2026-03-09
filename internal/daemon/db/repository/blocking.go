@@ -3,6 +3,7 @@ package repository
 import (
 	"encoding/json"
 	"errors"
+	"net"
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/entity"
@@ -13,6 +14,7 @@ import (
 type BlockingRepository interface {
 	Add(blockedIP entity.Blocking) error
 	List(callback func(entity.Blocking) error) error
+	DeleteByIP(ip net.IP, callback func(entity.Blocking) error) error
 	DeleteExpired(limit int) (int, error)
 	Clear() error
 }
@@ -70,6 +72,44 @@ func (r *blocking) List(callback func(entity.Blocking) error) error {
 
 			return nil
 		})
+	})
+}
+
+func (r *blocking) DeleteByIP(ip net.IP, callback func(entity.Blocking) error) error {
+	return r.db.Update(func(tx *bbolt.Tx) error {
+		bucket, err := tx.CreateBucketIfNotExists([]byte(r.bucket))
+		if err != nil {
+			return err
+		}
+
+		c := bucket.Cursor()
+
+		for k, v := c.First(); k != nil; {
+			blockedIP := entity.Blocking{}
+			err := json.Unmarshal(v, &blockedIP)
+			if err != nil {
+				return err
+			}
+
+			parsedBlockedIP := net.ParseIP(blockedIP.IP)
+			if parsedBlockedIP == nil || !parsedBlockedIP.Equal(ip) {
+				k, v = c.Next()
+				continue
+			}
+
+			if err := callback(blockedIP); err != nil {
+				return err
+			}
+
+			nextK, nextV := c.Next()
+			if err := bucket.Delete(k); err != nil {
+				return err
+			}
+			k = nextK
+			v = nextV
+		}
+
+		return nil
 	})
 }
 

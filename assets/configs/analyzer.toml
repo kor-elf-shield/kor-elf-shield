@@ -87,7 +87,7 @@ ssh_enable = true
 ssh_notify = true
 
 ###
-# Можно указать свою группу, чтобы по связать с другими правилами.
+# Можно указать свою группу, чтобы связать с другими правилами.
 # По умолчанию: ""
 # ***
 # You can specify your own group to link it to other rules.
@@ -102,12 +102,17 @@ ssh_group = ""
 # name = "my_name_group" # Имя группы. Разрешены символы "a-z, A-Z, -, _". Первый символ обязательно буква (обязательное поле)
 # message = "Любой текст группы" # Текст уведомления (обязательное поле)
 # rate_limit_reset_period = 86400 # Указываем в секундах, через какое время сбрасывать данные в групе если не было событий. Если указать 0, то не будет сбрасывать.
+## block_type = "ip_port" # Указываем тип блокировки: ip, ip_port. Если ничего не укажите, будет указан тип ip.
+## ports = ["22/tcp", "22/udp"] # Если тип блокировки стоит ip_port, то нужно указать порты, которые будут заблокированы после обнаружения попытки перебора пароля.
 # [[bruteForceProtection.groups.rate_limits]]
 ## Через сколько будет срабатывать блокировка. В данном случае в течение часа, если было 5 обнаружений, то сработает блокировка.
 ## И заблокирует на 10 минут.
 # count = 5
 # period = 3600
 # blocking_time = 600
+## Внутри bruteForceProtection.groups.rate_limits можно переопределить настройки block_type и ports.
+## block_type = "ip_port" # Указываем тип блокировки: ip, ip_port. Если ничего не укажите, будет указан тип ip.
+## ports = ["22/tcp", "22/udp", "80/tcp", "443/tcp"] # Если тип блокировки стоит ip_port, то нужно указать порты, которые будут заблокированы после обнаружения попытки перебора пароля.
 # [[bruteForceProtection.groups.rate_limits]]
 ## После срабатывания блокировки, переходим на второй уровень, тепер если в течение часа было 3 обнаружений, то сработает блокировка.
 ## И теперь заблокирует на час.
@@ -127,12 +132,17 @@ ssh_group = ""
 # name = "my_name_group" # Group name. Allowed characters are "a-z, A-Z, -, _". The first character must be a letter (required)
 # message = "Any group text" # Notification text (required)
 # rate_limit_reset_period = 86400 # Specify, in seconds, how long to reset group data if there have been no events. Specifying 0 means no reset.
+## block_type = "ip_port" # Specify the blocking type: IP, IP_port. If you don't specify anything, the IP type will be used.
+## ports = ["22/tcp", "22/udp"] # If the blocking type is ip_port, then you need to specify the ports that will be blocked after detecting a password brute-force attempt.
 # [[bruteForceProtection.groups.rate_limits]]
 ## How long will it take for the block to be triggered? In this case, if there were 5 detections within an hour, the block will be triggered.
 ## And it will block for 10 minutes.
 # count = 5
 # period = 3600
 # blocking_time = 600
+## Inside bruteForceProtection.groups.rate_limits you can override the block_type and ports settings.
+## block_type = "ip_port" # Specify the blocking type: IP, IP_port. If you don't specify anything, the IP type will be used.
+## ports = ["22/tcp", "22/udp", "80/tcp", "443/tcp"] # If the blocking type is ip_port, then you need to specify the ports that will be blocked after detecting a password brute-force attempt.
 # [[bruteForceProtection.groups.rate_limits]]
 ## After the blocking is triggered, we move to the second level. Now, if there are three detections within an hour, the blocking will be triggered.
 ## And now it will block for an hour.

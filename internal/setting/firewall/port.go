@@ -4,7 +4,8 @@ import (
 	"errors"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
-	port2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
@@ -25,7 +26,7 @@ func (p *Port) ToPorts() (InPorts []firewall.ConfigPort, OutPorts []firewall.Con
 		error = err
 		return
 	}
-	action, err := port2.ToAction(p.Action)
+	action, err := ip.ToAction(p.Action)
 	if err != nil {
 		error = err
 		return
@@ -37,25 +38,30 @@ func (p *Port) ToPorts() (InPorts []firewall.ConfigPort, OutPorts []firewall.Con
 			return
 		}
 		for _, direction := range p.Directions {
-			addDirection, err := port2.ToDirection(direction)
+			addDirection, err := ip.ToDirection(direction)
 			if err != nil {
 				error = err
 				return
 			}
 			for _, protocol := range p.Protocols {
-				addProtocol, err := port2.ToProtocol(protocol)
+				addProtocol, err := ip.ToProtocol(protocol)
+				if err != nil {
+					error = err
+					return
+				}
+
+				l4Port, err := types.NewL4Port(uint16(port), addProtocol)
 				if err != nil {
 					error = err
 					return
 				}
 
 				addPort := firewall.ConfigPort{
-					Number:    uint16(port),
-					Protocol:  addProtocol,
+					Port:      l4Port,
 					Action:    action,
 					LimitRate: p.LimitRate,
 				}
-				if addDirection == firewall.DirectionIn {
+				if addDirection == types.DirectionIn {
 					InPorts = append(InPorts, addPort)
 				} else {
 					OutPorts = append(OutPorts, addPort)

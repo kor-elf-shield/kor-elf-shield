@@ -10,20 +10,24 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/entity"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain/block"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
 type API interface {
-	NftReload(blockListIP block.ListIP) error
-	BlockIP(blockIP BlockIP) (bool, error)
+	NftReload(blockListIP block.ListIP, blockListIPWithPort block.ListIPWithPort) error
+	BlockIP(block BlockIP) (bool, error)
+	BlockIPWithPorts(block BlockIPWithPorts) (bool, error)
 	UnblockAllIPs() error
+	UnblockIP(ip net.IP) error
 	ClearDBData() error
 }
 
 type blocking struct {
-	blockingRepository repository.BlockingRepository
-	blockListIP        block.ListIP
-	logger             log.Logger
+	blockingRepository  repository.BlockingRepository
+	blockListIP         block.ListIP
+	blockListIPWithPort block.ListIPWithPort
+	logger              log.Logger
 
 	mu sync.Mutex
 }
@@ -34,6 +38,13 @@ type BlockIP struct {
 	Reason      string
 }
 
+type BlockIPWithPorts struct {
+	IP          net.IP
+	TimeSeconds uint32
+	Reason      string
+	Ports       []types.L4Port
+}
+
 func New(blockingRepository repository.BlockingRepository, logger log.Logger) API {
 	return &blocking{
 		blockingRepository: blockingRepository,
@@ -42,9 +53,10 @@ func New(blockingRepository repository.BlockingRepository, logger log.Logger) AP
 	}
 }
 
-func (b *blocking) NftReload(blockListIP block.ListIP) error {
+func (b *blocking) NftReload(blockListIP block.ListIP, blockListIPWithPort block.ListIPWithPort) error {
 	b.mu.Lock()
 	b.blockListIP = blockListIP
+	b.blockListIPWithPort = blockListIPWithPort
 	b.mu.Unlock()
 
 	isExpiredEntries := false
@@ -56,16 +68,29 @@ func (b *blocking) NftReload(blockListIP block.ListIP) error {
 			return nil
 		}
 
-		banSeconds := uint32(0)
+		blockSeconds := uint32(0)
 		if e.ExpireAtUnix > 0 {
 			if e.ExpireAtUnix < nowUnix {
 				isExpiredEntries = true
 				return nil
 			}
-			banSeconds = uint32(e.ExpireAtUnix - nowUnix)
+			blockSeconds = uint32(e.ExpireAtUnix - nowUnix)
 		}
 
-		if err := b.blockListIP.AddIP(ip, banSeconds); err != nil {
+		if e.IsPorts() {
+			l4Ports, err := e.ToL4Ports()
+			if err != nil {
+				b.logger.Error(fmt.Sprintf("Failed to parse ports: %s", err))
+				return nil
+			}
+			if err := b.blockListIPWithPort.AddIP(ip, l4Ports, blockSeconds); err != nil {
+				b.logger.Error(fmt.Sprintf("Failed to add IP %s to block list: %s", ip.String(), err))
+			}
+
+			return nil
+		}
+
+		if err := b.blockListIP.AddIP(ip, blockSeconds); err != nil {
 			b.logger.Error(fmt.Sprintf("Failed to add IP %s to block list: %s", ip.String(), err))
 			return nil
 		}
@@ -86,30 +111,92 @@ func (b *blocking) NftReload(blockListIP block.ListIP) error {
 	return err
 }
 
-func (b *blocking) BlockIP(blockIP BlockIP) (bool, error) {
-	if blockIP.IP.IsLoopback() {
-		return false, fmt.Errorf("loopback IP address %s cannot be blocked", blockIP.IP.String())
+func (b *blocking) BlockIP(block BlockIP) (bool, error) {
+	if block.IP.IsLoopback() {
+		return false, fmt.Errorf("loopback IP address %s cannot be blocked", block.IP.String())
 	}
 
-	if err := b.blockListIP.AddIP(blockIP.IP, blockIP.TimeSeconds); err != nil {
+	if err := b.blockListIP.AddIP(block.IP, block.TimeSeconds); err != nil {
 		return false, err
 	}
 
 	expireAtUnix := int64(0)
-	if blockIP.TimeSeconds > 0 {
-		expire := time.Now().Add(time.Duration(int64(blockIP.TimeSeconds)) * time.Second)
+	if block.TimeSeconds > 0 {
+		expire := time.Now().Add(time.Duration(int64(block.TimeSeconds)) * time.Second)
 		expireAtUnix = expire.Unix()
 	}
 	data := entity.Blocking{
-		IP:           blockIP.IP.String(),
+		IP:           block.IP.String(),
 		ExpireAtUnix: expireAtUnix,
-		Reason:       blockIP.Reason,
+		Reason:       block.Reason,
 	}
 	if err := b.blockingRepository.Add(data); err != nil {
-		return true, fmt.Errorf("the IP is blocked, but not recorded in the database. Failed to add IP %s to database: %w", blockIP.IP.String(), err)
+		return true, fmt.Errorf("the IP is blocked, but not recorded in the database. Failed to add IP %s to database: %w", block.IP.String(), err)
 	}
 
 	return true, nil
+}
+
+func (b *blocking) BlockIPWithPorts(block BlockIPWithPorts) (bool, error) {
+	if block.IP.IsLoopback() {
+		return false, fmt.Errorf("loopback IP address %s cannot be blocked", block.IP.String())
+	}
+
+	if err := b.blockListIPWithPort.AddIP(block.IP, block.Ports, block.TimeSeconds); err != nil {
+		return false, err
+	}
+
+	var l4Ports []entity.BlockingPort
+	for _, port := range block.Ports {
+		l4Ports = append(l4Ports, entity.BlockingPort{
+			Number:   port.Number(),
+			Protocol: port.ProtocolString(),
+		})
+	}
+
+	expireAtUnix := int64(0)
+	if block.TimeSeconds > 0 {
+		expire := time.Now().Add(time.Duration(int64(block.TimeSeconds)) * time.Second)
+		expireAtUnix = expire.Unix()
+	}
+	data := entity.Blocking{
+		IP:           block.IP.String(),
+		ExpireAtUnix: expireAtUnix,
+		Reason:       block.Reason,
+		Ports:        l4Ports,
+	}
+	if err := b.blockingRepository.Add(data); err != nil {
+		return true, fmt.Errorf("the IP is blocked, but not recorded in the database. Failed to add IP %s to database: %w", block.IP.String(), err)
+	}
+
+	return true, nil
+}
+
+func (b *blocking) UnblockIP(ip net.IP) error {
+	err := b.blockingRepository.DeleteByIP(ip, func(e entity.Blocking) error {
+		if e.IsPorts() {
+			l4Ports, err := e.ToL4Ports()
+			if err != nil {
+				return err
+			}
+			return b.removeIPWithPorts(ip, l4Ports)
+		}
+
+		if err := b.blockListIP.DeleteIP(ip); err != nil {
+			if strings.Contains(err.Error(), "element does not exist") {
+				return nil
+			}
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (b *blocking) UnblockAllIPs() error {
@@ -118,6 +205,23 @@ func (b *blocking) UnblockAllIPs() error {
 		if ip == nil {
 			return fmt.Errorf("failed to parse IP address: %s", e.IP)
 		}
+
+		if e.IsPorts() {
+			l4Ports, err := e.ToL4Ports()
+			if err != nil {
+				return err
+			}
+			for _, port := range l4Ports {
+				if err := b.blockListIPWithPort.DeleteIP(ip, port); err != nil {
+					if strings.Contains(err.Error(), "element does not exist") ||
+						strings.Contains(err.Error(), "Error: Could not process rule: No such file or directory") {
+						continue
+					}
+					return err
+				}
+			}
+		}
+
 		if err := b.blockListIP.DeleteIP(ip); err != nil {
 			if strings.Contains(err.Error(), "element does not exist") {
 				return nil
@@ -137,4 +241,17 @@ func (b *blocking) UnblockAllIPs() error {
 
 func (b *blocking) ClearDBData() error {
 	return b.blockingRepository.Clear()
+}
+
+func (b *blocking) removeIPWithPorts(ip net.IP, l4Ports []types.L4Port) error {
+	for _, port := range l4Ports {
+		if err := b.blockListIPWithPort.DeleteIP(ip, port); err != nil {
+			if strings.Contains(err.Error(), "element does not exist") ||
+				strings.Contains(err.Error(), "Error: Could not process rule: No such file or directory") {
+				continue
+			}
+			return err
+		}
+	}
+	return nil
 }

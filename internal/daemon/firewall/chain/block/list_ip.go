@@ -55,10 +55,10 @@ func (l *listIP) AddIP(addr net.IP, banSeconds uint32) error {
 	element := strings.Join(el, " ")
 
 	if addr.To4() != nil {
-		return l.listIPv4.AddElement(fmt.Sprintf("%s", element))
+		return l.listIPv4.AddElement(element)
 	}
 
-	return l.listIPv6.AddElement(fmt.Sprintf("%s", element))
+	return l.listIPv6.AddElement(element)
 }
 
 func (l *listIP) DeleteIP(addr net.IP) error {

@@ -1,5 +1,7 @@
 package firewall
 
+import "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
+
 func (f *firewall) reloadForward() error {
 	f.logger.Debug("Reloading forward chain")
 	err := f.chains.NewForward(f.config.MetadataNaming.ChainForwardName, f.config.Policy.DefaultAllowForward, f.config.Policy.ForwardPriority)
@@ -38,7 +40,7 @@ func (f *firewall) reloadForwardAddIPs() error {
 	}
 
 	for _, ipConfig := range f.config.IP4.InIPs {
-		if ipConfig.Action != ActionDrop && ipConfig.Action != ActionReject {
+		if ipConfig.Action != types.ActionDrop && ipConfig.Action != types.ActionReject {
 			continue
 		}
 		if err := forwardAddIP(chain.AddRule, ipConfig, "ip"); err != nil {
@@ -51,7 +53,7 @@ func (f *firewall) reloadForwardAddIPs() error {
 	}
 
 	for _, ipConfig := range f.config.IP6.InIPs {
-		if ipConfig.Action != ActionDrop && ipConfig.Action != ActionReject {
+		if ipConfig.Action != types.ActionDrop && ipConfig.Action != types.ActionReject {
 			continue
 		}
 		if err := forwardAddIP(chain.AddRule, ipConfig, "ip6"); err != nil {

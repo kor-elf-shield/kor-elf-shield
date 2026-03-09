@@ -25,11 +25,22 @@
   "notifications_queue_clear_error": "Хабарландыру кезегі тазаланбады",
   "notifications_queue_clear_success": "Хабарландыру кезегі тазартылды",
 
-  "cmd.daemon.ban.Usage": "Тыйым салу",
-  "cmd.daemon.ban.clear.Usage": "Барлық тыйым салынған IP мекенжайларын алып тастау",
-  "cmd.daemon.ban.clear.Description": "Барлық тыйым салынған IP мекенжайларын алып тастау.",
-  "ban_clear_error": "Барлық IP мекенжайларын бұғаттаудан шығару мүмкін емес",
-  "ban_clear_success": "Сұраныс сәтті орындалды",
+  "cmd.daemon.block.Usage": "Бұғаттау",
+  "cmd.daemon.block.clear.Usage": "Барлық тыйым салынған IP мекенжайларын бұғаттан шығарыңыз",
+  "cmd.daemon.block.clear.Description": "Барлық тыйым салынған IP мекенжайларын бұғаттан шығарыңыз.",
+  "block_clear_error": "Барлық IP мекенжайларын бұғаттан шығару мүмкін емес",
+  "block_clear_success": "Сұраныс сәтті орындалды",
+
+  "cmd.daemon.block.add.Usage": "Блоктау тізіміне IP мекенжайын қосу",
+  "cmd.daemon.block.add.Description": "Блоктау тізіміне IP мекенжайын қосыңыз. \nМысалдар: \nkor-elf-shield block add 192.168.1.1 \nkor-elf-shield block add 192.168.1.1 --seconds=600 \nkor-elf-shield block add 192.168.1.1 --port 80/tcp",
+  "cmd.daemon.block.add.FlagUsage.port": "Блокталатын порт. Егер көрсетілмесе, барлық порттар бұғатталады. \nМысалдар: \n--port=80/tcp \n--port=1000/udp",
+  "cmd.daemon.block.add.FlagUsage.seconds": "Блоктау уақыты секундпен. Егер көрсетілмесе, блоктау тұрақты болады.",
+  "cmd.daemon.block.add.FlagUsage.reason": "Блоктау себебі.",
+  "block_add_ip_success": "IP мекенжайы блоктау тізіміне сәтті қосылды.",
+
+  "cmd.daemon.block.delete.Usage": "IP мекенжайын блоктау тізімінен алып тастаңыз",
+  "cmd.daemon.block.delete.Description": "IP мекенжайын блоктау тізімінен алып тастаңыз. \nМысал: \nkor-elf-shield block delete 192.168.1.1",
+  "block_delete_ip_success": "IP мекенжайы блоктау тізімінен сәтті жойылды.",
 
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
@@ -49,6 +60,7 @@
   "access to user has been gained": "Пайдаланушыға кіру мүмкіндігі алынды",
   "unknown": "белгісіз",
   "blockSec": "{{.BlockSec}} секундқа блокталды",
+  "ports": "Порттар: {{.Ports}}",
 
   "alert.subject": "Ескерту анықталды ({{.Name}}) (топ:{{.GroupName}})",
   "alert.login.ssh.message": "ОС-қа ssh арқылы кірді.",
@@ -60,5 +72,7 @@
   "alert.bruteForceProtection.subject-error": "Хакерлік әрекет анықталды, бірақ IP мекенжайы {{.IP}} бұғатталмаған. Ескерту ({{.Name}}) (Топ:{{.GroupName}})",
   "alert.bruteForceProtection.error": "Қате: {{.Error}}",
   "alert.bruteForceProtection.ssh.message": "SSH-ті күштеп қолдану әрекеті анықталды.",
-  "alert.bruteForceProtection.group._default.message": "Әдепкі топ."
+  "alert.bruteForceProtection.group._default.message": "Әдепкі топ.",
+
+  "cmd.error": "Команда қатесі: {{.Error}}"
 }

@@ -4,40 +4,40 @@ import (
 	"errors"
 	"strings"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 )
 
-func ToDirection(direction string) (firewall.Direction, error) {
+func ToDirection(direction string) (types.Direction, error) {
 	switch strings.ToLower(direction) {
 	case "in":
-		return firewall.DirectionIn, nil
+		return types.DirectionIn, nil
 	case "out":
-		return firewall.DirectionOut, nil
+		return types.DirectionOut, nil
 	default:
-		return firewall.DirectionIn, errors.New("invalid direction. Must be in or out")
+		return types.DirectionIn, errors.New("invalid direction. Must be in or out")
 	}
 }
 
-func ToProtocol(protocol string) (firewall.Protocol, error) {
+func ToProtocol(protocol string) (types.Protocol, error) {
 	switch strings.ToLower(protocol) {
 	case "tcp":
-		return firewall.ProtocolTCP, nil
+		return types.ProtocolTCP, nil
 	case "udp":
-		return firewall.ProtocolUDP, nil
+		return types.ProtocolUDP, nil
 	default:
-		return firewall.ProtocolTCP, errors.New("invalid protocol. Must be tcp or udp")
+		return types.ProtocolTCP, errors.New("invalid protocol. Must be tcp or udp")
 	}
 }
 
-func ToAction(action string) (firewall.Action, error) {
+func ToAction(action string) (types.Action, error) {
 	switch strings.ToLower(action) {
 	case "accept":
-		return firewall.ActionAccept, nil
+		return types.ActionAccept, nil
 	case "drop":
-		return firewall.ActionDrop, nil
+		return types.ActionDrop, nil
 	case "reject":
-		return firewall.ActionReject, nil
+		return types.ActionReject, nil
 	default:
-		return firewall.ActionAccept, errors.New("invalid action. Must be accept, drop or reject")
+		return types.ActionAccept, errors.New("invalid action. Must be accept, drop or reject")
 	}
 }

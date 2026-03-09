@@ -1,9 +1,15 @@
 package socket
 
-import "net"
+import (
+	"encoding/json"
+	"net"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
+)
 
 type Client interface {
 	Send(command string) (result string, err error)
+	SendCommand(command string, args map[string]string) (result string, err error)
 	Read() (string, error)
 	Close() error
 }
@@ -21,7 +27,35 @@ func NewSocketClient(path string) (Client, error) {
 }
 
 func (s *client) Send(command string) (result string, err error) {
-	_, err = s.conn.Write([]byte(command))
+	msg := socket.Message{
+		Command: command,
+	}
+
+	data, err := json.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = s.conn.Write(data)
+	if err != nil {
+		return "", err
+	}
+
+	return s.Read()
+}
+
+func (s *client) SendCommand(command string, args map[string]string) (string, error) {
+	msg := socket.Message{
+		Command: command,
+		Args:    args,
+	}
+
+	data, err := json.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = s.conn.Write(data)
 	if err != nil {
 		return "", err
 	}

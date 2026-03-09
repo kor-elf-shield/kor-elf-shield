@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
@@ -31,7 +32,8 @@ func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notification
 	blockingService := blocking.New(opts.Repositories.Blocking(), logger)
 	firewall, err := firewall2.New(opts.PathNftables, blockingService, logger, opts.ConfigFirewall, docker)
 
-	analyzerService := analyzer.New(opts.ConfigAnalyzer, firewall.BlockIP, opts.Repositories, logger, notifications)
+	blockService := brute_force_protection_group.NewBlockService(firewall.BlockIP, firewall.BlockIPWithPorts)
+	analyzerService := analyzer.New(opts.ConfigAnalyzer, blockService, opts.Repositories, logger, notifications)
 
 	return &daemon{
 		pidFile:       pidFile,

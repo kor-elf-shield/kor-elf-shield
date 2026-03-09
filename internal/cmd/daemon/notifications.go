@@ -6,8 +6,6 @@ import (
 	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/socket"
 	"github.com/urfave/cli/v3"
 )
 
@@ -39,10 +37,7 @@ func CmdNotifications() *cli.Command {
 }
 
 func cmdNotificationsQueueCount(_ context.Context, _ *cli.Command) error {
-	if setting.Config.SocketFile == "" {
-		return errors.New(i18n.Lang.T("socket file is not specified"))
-	}
-	sock, err := socket.NewSocketClient(setting.Config.SocketFile)
+	sock, err := newSocket()
 	if err != nil {
 		return errors.New(i18n.Lang.T("daemon is not running"))
 	}
@@ -63,10 +58,7 @@ func cmdNotificationsQueueCount(_ context.Context, _ *cli.Command) error {
 }
 
 func cmdNotificationsQueueClear(_ context.Context, _ *cli.Command) error {
-	if setting.Config.SocketFile == "" {
-		return errors.New(i18n.Lang.T("socket file is not specified"))
-	}
-	sock, err := socket.NewSocketClient(setting.Config.SocketFile)
+	sock, err := newSocket()
 	if err != nil {
 		return errors.New(i18n.Lang.T("daemon is not running"))
 	}

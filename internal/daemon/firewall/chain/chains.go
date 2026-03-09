@@ -42,6 +42,7 @@ type Chains interface {
 	NewNoneChain(chain string) (Chain, error)
 	NewChain(chain string, baseChain nftChain.ChainOptions) (Chain, error)
 	NewBlockListIP(name string) (block.ListIP, error)
+	NewBlockListIPWithPort(name string) (block.ListIPWithPort, error)
 }
 
 type chains struct {
@@ -224,6 +225,15 @@ func (c *chains) NewChain(chainName string, baseChain nftChain.ChainOptions) (Ch
 
 func (c *chains) NewBlockListIP(name string) (block.ListIP, error) {
 	blockList, err := block.NewListIP(c.nft, c.family, c.table, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return blockList, nil
+}
+
+func (c *chains) NewBlockListIPWithPort(name string) (block.ListIPWithPort, error) {
+	blockList, err := block.NewListIPWithPort(c.nft, c.family, c.table, name)
 	if err != nil {
 		return nil, err
 	}

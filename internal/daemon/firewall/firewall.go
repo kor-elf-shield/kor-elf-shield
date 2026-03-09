@@ -2,6 +2,7 @@ package firewall
 
 import (
 	"fmt"
+	"net"
 	"os"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
@@ -25,8 +26,14 @@ type API interface {
 	// BlockIP Block IP address.
 	BlockIP(blockIP blocking.BlockIP) (bool, error)
 
+	// BlockIPWithPorts Block IP address with ports.
+	BlockIPWithPorts(blockIP blocking.BlockIPWithPorts) (bool, error)
+
 	// UnblockAllIPs Unblock all IP addresses.
 	UnblockAllIPs() error
+
+	// UnblockIP Unblock IP address.
+	UnblockIP(ip net.IP) error
 
 	// ClearDBData Clear all data from DB
 	ClearDBData() error
@@ -126,6 +133,10 @@ func (f *firewall) UnblockAllIPs() error {
 	return f.blockingService.UnblockAllIPs()
 }
 
+func (f *firewall) UnblockIP(ip net.IP) error {
+	return f.blockingService.UnblockIP(ip)
+}
+
 func (f *firewall) ClearDBData() error {
 	return f.blockingService.ClearDBData()
 }
@@ -160,6 +171,15 @@ func (f *firewall) SavesRules() {
 
 func (f *firewall) BlockIP(blockIP blocking.BlockIP) (bool, error) {
 	isBanned, err := f.blockingService.BlockIP(blockIP)
+
+	if err != nil {
+		f.logger.Warn(fmt.Sprintf("Failed to block ip %s: %s", blockIP.IP.String(), err))
+	}
+	return isBanned, err
+}
+
+func (f *firewall) BlockIPWithPorts(blockIP blocking.BlockIPWithPorts) (bool, error) {
+	isBanned, err := f.blockingService.BlockIPWithPorts(blockIP)
 
 	if err != nil {
 		f.logger.Warn(fmt.Sprintf("Failed to block ip %s: %s", blockIP.IP.String(), err))

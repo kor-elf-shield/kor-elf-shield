@@ -2,6 +2,7 @@ package socket
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -11,7 +12,12 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
-type HandleCommand func(command string, socket Connect) error
+type Message struct {
+	Command string            `json:"command"`
+	Args    map[string]string `json:"args"`
+}
+
+type HandleCommand func(command string, args map[string]string, socket Connect) error
 
 type Socket interface {
 	EnsureNoOtherProcess() error
@@ -121,13 +127,19 @@ func (s *socket) handleAction(conn net.Conn, handleCommand HandleCommand) {
 		_ = sock.Close()
 	}()
 
-	cmd, err := sock.Read()
+	raw, err := sock.Read()
 	if err != nil {
 		s.logger.Error(fmt.Sprintf("Failed to read command: %s", err))
 		return
 	}
 
-	if err := handleCommand(cmd, sock); err != nil {
+	cmd, args, err := parseCommand(raw)
+	if err != nil {
+		s.logger.Error(fmt.Sprintf("Failed to parse command: %s", err))
+		return
+	}
+
+	if err := handleCommand(cmd, args, sock); err != nil {
 		s.logger.Error(fmt.Sprintf("Failed to handle command: %s", err))
 	}
 }
@@ -146,4 +158,22 @@ func canConnect(path string) bool {
 
 func isUseOfClosedNetworkError(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "use of closed network connection")
+}
+
+func parseCommand(raw string) (string, map[string]string, error) {
+	var msg Message
+
+	if err := json.Unmarshal([]byte(raw), &msg); err != nil {
+		return "", nil, err
+	}
+
+	if msg.Command == "" {
+		return "", nil, errors.New("command is empty")
+	}
+
+	if msg.Args == nil {
+		msg.Args = map[string]string{}
+	}
+
+	return msg.Command, msg.Args, nil
 }

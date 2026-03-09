@@ -3,11 +3,13 @@ package analysis
 import (
 	"fmt"
 	"net"
+	"strings"
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/brute_force_protection"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
@@ -18,12 +20,10 @@ type BruteForceProtection interface {
 	ClearDBData() error
 }
 
-type BlockIPFunc func(blockIP blocking.BlockIP) (bool, error)
-
 type bruteForceProtection struct {
 	rulesIndex   *RulesIndex
 	groupService brute_force_protection_group.Group
-	blockIP      BlockIPFunc
+	blockService brute_force_protection_group.BlockService
 	logger       log.Logger
 	notify       notifications.Notifications
 }
@@ -38,17 +38,18 @@ type bruteForceProtectionNotify struct {
 	rule     *brute_force_protection.Rule
 	messages []string
 	ip       net.IP
+	ports    []types.L4Port
 	time     time.Time
 	fields   []*regexField
 	blockSec uint32
 	err      error
 }
 
-func NewBruteForceProtection(rulesIndex *RulesIndex, groupService brute_force_protection_group.Group, blockIP BlockIPFunc, logger log.Logger, notify notifications.Notifications) BruteForceProtection {
+func NewBruteForceProtection(rulesIndex *RulesIndex, groupService brute_force_protection_group.Group, blockService brute_force_protection_group.BlockService, logger log.Logger, notify notifications.Notifications) BruteForceProtection {
 	return &bruteForceProtection{
 		rulesIndex:   rulesIndex,
 		groupService: groupService,
-		blockIP:      blockIP,
+		blockService: blockService,
 		logger:       logger,
 		notify:       notify,
 	}
@@ -81,29 +82,35 @@ func (p *bruteForceProtection) Analyze(entry *Entry) {
 			continue
 		}
 
-		blockIP := blocking.BlockIP{
-			IP:          result.ip,
-			TimeSeconds: groupResult.BlockSec,
-			Reason:      rule.Message,
-		}
-
-		isBanned, err := p.blockIP(blockIP)
-		if isBanned == false {
-			p.logger.Info(fmt.Sprintf("IP %s are not blocked (%s) (group:%s): %s. Err: %s", result.ip, rule.Name, rule.Group.Name, entry.Message, err.Error()))
-			p.sendNotifyError(&bruteForceProtectionNotify{
-				rule:     rule,
-				ip:       result.ip,
-				messages: groupResult.LastLogs,
-				time:     entry.Time,
-				fields:   result.fields,
-				blockSec: groupResult.BlockSec,
-				err:      err,
-			})
+		ipWithPorts, l4Ports := groupResult.BlockConfig.PortsBlocked()
+		if !ipWithPorts {
+			p.handleBlockIP(entry, rule, &result, &groupResult)
 			continue
 		}
 
-		p.logger.Info(fmt.Sprintf("Block IP %s detected (%s) (group:%s): %s", result.ip, rule.Name, rule.Group.Name, entry.Message))
-		p.sendNotify(&bruteForceProtectionNotify{
+		p.handleBlockIPWithPorts(entry, rule, &result, &groupResult, l4Ports)
+	}
+}
+
+func (p *bruteForceProtection) ClearDBData() error {
+	return p.groupService.ClearDBData()
+}
+
+func (p *bruteForceProtection) handleBlockIP(
+	entry *Entry,
+	rule *brute_force_protection.Rule,
+	result *bruteForceProtectionAnalyzeRuleReturn,
+	groupResult *brute_force_protection_group.AnalysisResult,
+) {
+	blockIP := blocking.BlockIP{
+		IP:          result.ip,
+		TimeSeconds: groupResult.BlockSec,
+		Reason:      rule.Message,
+	}
+	isBanned, err := p.blockService.BlockIP(blockIP)
+	if isBanned == false {
+		p.logger.Info(fmt.Sprintf("IP %s are not blocked (%s) (group:%s): %s. Err: %s", result.ip, rule.Name, rule.Group.Name, entry.Message, err.Error()))
+		p.sendNotifyError(&bruteForceProtectionNotify{
 			rule:     rule,
 			ip:       result.ip,
 			messages: groupResult.LastLogs,
@@ -112,11 +119,61 @@ func (p *bruteForceProtection) Analyze(entry *Entry) {
 			blockSec: groupResult.BlockSec,
 			err:      err,
 		})
+		return
 	}
+
+	p.logger.Info(fmt.Sprintf("Block IP %s detected (%s) (group:%s): %s", result.ip, rule.Name, rule.Group.Name, entry.Message))
+	p.sendNotifySuccess(&bruteForceProtectionNotify{
+		rule:     rule,
+		ip:       result.ip,
+		messages: groupResult.LastLogs,
+		time:     entry.Time,
+		fields:   result.fields,
+		blockSec: groupResult.BlockSec,
+		err:      err,
+	})
 }
 
-func (p *bruteForceProtection) ClearDBData() error {
-	return p.groupService.ClearDBData()
+func (p *bruteForceProtection) handleBlockIPWithPorts(
+	entry *Entry,
+	rule *brute_force_protection.Rule,
+	result *bruteForceProtectionAnalyzeRuleReturn,
+	groupResult *brute_force_protection_group.AnalysisResult,
+	l4Ports []types.L4Port,
+) {
+	blockIPWithPorts := blocking.BlockIPWithPorts{
+		IP:          result.ip,
+		TimeSeconds: groupResult.BlockSec,
+		Reason:      rule.Message,
+		Ports:       l4Ports,
+	}
+	isBanned, err := p.blockService.BlockIPWithPorts(blockIPWithPorts)
+	if isBanned == false {
+		p.logger.Info(fmt.Sprintf("IP %s are not blocked (%s) (group:%s): %s. Err: %s", result.ip, rule.Name, rule.Group.Name, entry.Message, err.Error()))
+		p.sendNotifyError(&bruteForceProtectionNotify{
+			rule:     rule,
+			ip:       result.ip,
+			ports:    l4Ports,
+			messages: groupResult.LastLogs,
+			time:     entry.Time,
+			fields:   result.fields,
+			blockSec: groupResult.BlockSec,
+			err:      err,
+		})
+		return
+	}
+
+	p.logger.Info(fmt.Sprintf("Block IP %s detected (%s) (group:%s): %s", result.ip, rule.Name, rule.Group.Name, entry.Message))
+	p.sendNotifySuccess(&bruteForceProtectionNotify{
+		rule:     rule,
+		ip:       result.ip,
+		ports:    l4Ports,
+		messages: groupResult.LastLogs,
+		time:     entry.Time,
+		fields:   result.fields,
+		blockSec: groupResult.BlockSec,
+		err:      err,
+	})
 }
 
 func (p *bruteForceProtection) analyzeRule(rule *brute_force_protection.Rule, message string) bruteForceProtectionAnalyzeRuleReturn {
@@ -171,40 +228,20 @@ func (p *bruteForceProtection) analyzeRule(rule *brute_force_protection.Rule, me
 	return result
 }
 
-func (p *bruteForceProtection) sendNotify(notify *bruteForceProtectionNotify) {
+func (p *bruteForceProtection) sendNotifySuccess(notify *bruteForceProtectionNotify) {
 	if !notify.rule.IsNotification {
 		return
 	}
 
 	groupName := notify.rule.Group.Name
-	groupMessage := notify.rule.Group.Message + "\n\n"
 
 	subject := i18n.Lang.T("alert.bruteForceProtection.subject", map[string]any{
 		"Name":      notify.rule.Name,
 		"GroupName": groupName,
 		"IP":        notify.ip,
 	})
-	text := subject + "\n\n" + groupMessage + notify.rule.Message + "\n\n"
-	if notify.err != nil {
-		text += i18n.Lang.T("alert.bruteForceProtection.error", map[string]any{
-			"Error": notify.err.Error(),
-		}) + "\n"
-	}
-	text += "IP: " + notify.ip.String() + "\n"
-	text += i18n.Lang.T("blockSec", map[string]any{
-		"BlockSec": notify.blockSec,
-	}) + "\n"
-	text += i18n.Lang.T("time", map[string]any{
-		"Time": notify.time,
-	}) + "\n"
-	for _, field := range notify.fields {
-		text += fmt.Sprintf("%s: %s\n", field.name, field.value)
-	}
-	text += "\n" + i18n.Lang.T("log") + "\n"
-	for _, message := range notify.messages {
-		text += message + "\n"
-	}
-	p.notify.SendAsync(notifications.Message{Subject: subject, Body: text})
+
+	p.sendNotify(subject, notify)
 }
 
 func (p *bruteForceProtection) sendNotifyError(notify *bruteForceProtectionNotify) {
@@ -213,13 +250,23 @@ func (p *bruteForceProtection) sendNotifyError(notify *bruteForceProtectionNotif
 	}
 
 	groupName := notify.rule.Group.Name
-	groupMessage := notify.rule.Group.Message + "\n\n"
 
 	subject := i18n.Lang.T("alert.bruteForceProtection.subject-error", map[string]any{
 		"Name":      notify.rule.Name,
 		"GroupName": groupName,
 		"IP":        notify.ip,
 	})
+
+	p.sendNotify(subject, notify)
+}
+
+func (p *bruteForceProtection) sendNotify(subject string, notify *bruteForceProtectionNotify) {
+	if !notify.rule.IsNotification {
+		return
+	}
+
+	groupMessage := notify.rule.Group.Message + "\n\n"
+
 	text := subject + "\n\n" + groupMessage + notify.rule.Message + "\n\n"
 	if notify.err != nil {
 		text += i18n.Lang.T("alert.bruteForceProtection.error", map[string]any{
@@ -227,6 +274,18 @@ func (p *bruteForceProtection) sendNotifyError(notify *bruteForceProtectionNotif
 		}) + "\n"
 	}
 	text += "IP: " + notify.ip.String() + "\n"
+	if len(notify.ports) > 0 {
+		var ports []string
+		for _, port := range notify.ports {
+			ports = append(ports, port.ToString())
+		}
+		text += i18n.Lang.T("ports", map[string]any{
+			"Ports": strings.Join(ports, ", "),
+		}) + "\n"
+	}
+	text += i18n.Lang.T("blockSec", map[string]any{
+		"BlockSec": notify.blockSec,
+	}) + "\n"
 	text += i18n.Lang.T("time", map[string]any{
 		"Time": notify.time,
 	}) + "\n"

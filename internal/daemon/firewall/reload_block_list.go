@@ -1,15 +1,23 @@
 package firewall
 
 func (f *firewall) reloadBlockList() error {
-	listBan, err := f.chains.NewBlockListIP("ban")
+	listBlockedIP, err := f.chains.NewBlockListIP("blocked_ip")
 	if err != nil {
 		return err
 	}
-	if err := listBan.AddRuleToChain(f.chains.BeforeLocalInput().AddRule, "drop"); err != nil {
+	if err := listBlockedIP.AddRuleToChain(f.chains.BeforeLocalInput().AddRule, "drop"); err != nil {
 		return err
 	}
 
-	if err := f.blockingService.NftReload(listBan); err != nil {
+	listBlockedIPWithPort, err := f.chains.NewBlockListIPWithPort("blocked_ip_port")
+	if err != nil {
+		return err
+	}
+	if err := listBlockedIPWithPort.AddRuleToChain(f.chains.BeforeLocalInput().AddRule, "drop"); err != nil {
+		return err
+	}
+
+	if err := f.blockingService.NftReload(listBlockedIP, listBlockedIPWithPort); err != nil {
 		return err
 	}
 
