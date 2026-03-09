@@ -7,6 +7,7 @@
   * Смотрите полный список по ссылке: https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/commit/d0a358a445b1dec850d8b84c06e86bd6872796cf/assets/configs/analyzer.toml
 * Команда `kor-elf-shield ban clear` была переименованна в `kor-elf-shield block clear`.
 * Добавлена команда `kor-elf-shield block add`. Через эту команду можно заблокировать IP адрес. Смотрите подробно в `kor-elf-shield block add --help`.
+* Добавлена команда `kor-elf-shield block delete`. Через эту команду можно удалить заблокированный IP адрес. Смотрите подробно в `kor-elf-shield block delete --help`.
 ***
 #### English
 * You can now fine-tune port blocking for the IP address attempting to brute-force a password.
@@ -17,6 +18,7 @@
   * See the full list at: https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/commit/d0a358a445b1dec850d8b84c06e86bd6872796cf/assets/configs/analyzer.toml
 * The `kor-elf-shield ban clear` command has been renamed to `kor-elf-shield block clear`.
 * The `kor-elf-shield block add` command has been added. This command can be used to block an IP address. See `kor-elf-shield block add --help` for details.
+* The `kor-elf-shield block delete` command has been added. This command can be used to delete a blocked IP address. See `kor-elf-shield block delete --help` for details.
 ***
 ## 0.7.0 (8.2.2026)
 ***
