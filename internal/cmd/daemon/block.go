@@ -11,22 +11,22 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func CmdBan() *cli.Command {
+func CmdBlock() *cli.Command {
 	return &cli.Command{
-		Name:  "ban",
-		Usage: i18n.Lang.T("cmd.daemon.ban.Usage"),
+		Name:  "block",
+		Usage: i18n.Lang.T("cmd.daemon.block.Usage"),
 		Commands: []*cli.Command{
 			{
 				Name:        "clear",
-				Usage:       i18n.Lang.T("cmd.daemon.ban.clear.Usage"),
-				Description: i18n.Lang.T("cmd.daemon.ban.clear.Description"),
-				Action:      CmdBanClear,
+				Usage:       i18n.Lang.T("cmd.daemon.block.clear.Usage"),
+				Description: i18n.Lang.T("cmd.daemon.block.clear.Description"),
+				Action:      CmdBlockClear,
 			},
 		},
 	}
 }
 
-func CmdBanClear(_ context.Context, _ *cli.Command) error {
+func CmdBlockClear(_ context.Context, _ *cli.Command) error {
 	if setting.Config.SocketFile == "" {
 		return errors.New(i18n.Lang.T("socket file is not specified"))
 	}
@@ -38,16 +38,16 @@ func CmdBanClear(_ context.Context, _ *cli.Command) error {
 		_ = sock.Close()
 	}()
 
-	result, err := sock.Send("ban_clear")
+	result, err := sock.Send("block_clear")
 	if err != nil {
 		return err
 	}
 
 	if result != "ok" {
-		return errors.New(i18n.Lang.T("ban_clear_error"))
+		return errors.New(i18n.Lang.T("block_clear_error"))
 	}
 
-	fmt.Println(i18n.Lang.T("ban_clear_success"))
+	fmt.Println(i18n.Lang.T("block_clear_success"))
 
 	return nil
 }

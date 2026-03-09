@@ -39,7 +39,7 @@ func NewMainApp(appVer AppVersion, defaultConfigPath string) *cli.Command {
 		daemon.CmdStatus(),
 		daemon.CmdReopenLogger(),
 		daemon.CmdNotifications(),
-		daemon.CmdBan(),
+		daemon.CmdBlock(),
 	}
 
 	return app

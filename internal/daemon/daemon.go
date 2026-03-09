@@ -150,9 +150,9 @@ func (d *daemon) socketCommand(command string, socket socket.Connect) error {
 			return err
 		}
 		return socket.Write("ok")
-	case "ban_clear":
+	case "block_clear":
 		if err := d.firewall.UnblockAllIPs(); err != nil {
-			_ = socket.Write("ban clear failed: " + err.Error())
+			_ = socket.Write("block clear failed: " + err.Error())
 			return err
 		}
 		return socket.Write("ok")

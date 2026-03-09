@@ -25,11 +25,11 @@
   "notifications_queue_clear_error": "Failed to clear notification queue",
   "notifications_queue_clear_success": "The notification queue has been cleared.",
 
-  "cmd.daemon.ban.Usage": "Ban",
-  "cmd.daemon.ban.clear.Usage": "Unban all banned IP addresses",
-  "cmd.daemon.ban.clear.Description": "Unban all banned IP addresses.",
-  "ban_clear_error": "Unable to unban all IP addresses",
-  "ban_clear_success": "The request was successfully completed",
+  "cmd.daemon.block.Usage": "Blocking",
+  "cmd.daemon.block.clear.Usage": "Unblock all banned IP addresses",
+  "cmd.daemon.block.clear.Description": "Unblock all banned IP addresses.",
+  "block_clear_error": "Unable to unblock all IP addresses",
+  "block_clear_success": "The request was successfully completed",
 
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
