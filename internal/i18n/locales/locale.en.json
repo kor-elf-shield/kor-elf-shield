@@ -31,6 +31,13 @@
   "block_clear_error": "Unable to unblock all IP addresses",
   "block_clear_success": "The request was successfully completed",
 
+  "cmd.daemon.block.add.Usage": "Add IP address to block list",
+  "cmd.daemon.block.add.Description": "Add an IP address to the block list. \nExamples: \nkor-elf-shield block add 192.168.1.1 \nkor-elf-shield block add 192.168.1.1 --seconds=600 \nkor-elf-shield block add 192.168.1.1 --port 80/tcp",
+  "cmd.daemon.block.add.FlagUsage.port": "The port to be blocked. If not specified, all ports will be blocked. \nExamples: \n--port=80/tcp \n--port=1000/udp",
+  "cmd.daemon.block.add.FlagUsage.seconds": "The blocking time in seconds. If not specified, the blocking will be permanent.",
+  "cmd.daemon.block.add.FlagUsage.reason": "Reason for blocking.",
+  "block_add_ip_success": "The IP address has been successfully added to the block list.",
+
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
   "invalid log encoding": "Invalid encoding setting. Currently set to: {{.Encoding}}. Valid values: {{.Encodings}}",
@@ -61,5 +68,7 @@
   "alert.bruteForceProtection.subject-error": "A hacking attempt was detected, but the IP {{.IP}} is not blocked. Alert ({{.Name}}) (group:{{.GroupName}})",
   "alert.bruteForceProtection.error": "Error: {{.Error}}",
   "alert.bruteForceProtection.ssh.message": "An attempt to brute-force SSH was detected.",
-  "alert.bruteForceProtection.group._default.message": "Default group."
+  "alert.bruteForceProtection.group._default.message": "Default group.",
+
+  "cmd.error": "Command error: {{.Error}}"
 }

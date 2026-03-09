@@ -31,6 +31,13 @@
   "block_clear_error": "Барлық IP мекенжайларын бұғаттан шығару мүмкін емес",
   "block_clear_success": "Сұраныс сәтті орындалды",
 
+  "cmd.daemon.block.add.Usage": "Блоктау тізіміне IP мекенжайын қосу",
+  "cmd.daemon.block.add.Description": "Блоктау тізіміне IP мекенжайын қосыңыз. \nМысалдар: \nkor-elf-shield block add 192.168.1.1 \nkor-elf-shield block add 192.168.1.1 --seconds=600 \nkor-elf-shield block add 192.168.1.1 --port 80/tcp",
+  "cmd.daemon.block.add.FlagUsage.port": "Блокталатын порт. Егер көрсетілмесе, барлық порттар бұғатталады. \nМысалдар: \n--port=80/tcp \n--port=1000/udp",
+  "cmd.daemon.block.add.FlagUsage.seconds": "Блоктау уақыты секундпен. Егер көрсетілмесе, блоктау тұрақты болады.",
+  "cmd.daemon.block.add.FlagUsage.reason": "Блоктау себебі.",
+  "block_add_ip_success": "IP мекенжайы блоктау тізіміне сәтті қосылды.",
+
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
   "invalid log encoding": "Жарамсыз кодтау параметрі. Қазіргі уақытта орнатылған: {{.Encoding}}. Жарамды мәндер: {{.Encodings}}",
@@ -61,5 +68,7 @@
   "alert.bruteForceProtection.subject-error": "Хакерлік әрекет анықталды, бірақ IP мекенжайы {{.IP}} бұғатталмаған. Ескерту ({{.Name}}) (Топ:{{.GroupName}})",
   "alert.bruteForceProtection.error": "Қате: {{.Error}}",
   "alert.bruteForceProtection.ssh.message": "SSH-ті күштеп қолдану әрекеті анықталды.",
-  "alert.bruteForceProtection.group._default.message": "Әдепкі топ."
+  "alert.bruteForceProtection.group._default.message": "Әдепкі топ.",
+
+  "cmd.error": "Команда қатесі: {{.Error}}"
 }

@@ -31,6 +31,13 @@
   "block_clear_error": "Не смогли разблокировать все IP адреса",
   "block_clear_success": "Запрос успешно выполнен",
 
+  "cmd.daemon.block.add.Usage": "Добавить IP адрес в список заблокированных",
+  "cmd.daemon.block.add.Description": "Добавить IP адрес в список заблокированных. \nПримеры: \nkor-elf-shield block add 192.168.1.1 \nkor-elf-shield block add 192.168.1.1 --seconds=600 \nkor-elf-shield block add 192.168.1.1 --port 80/tcp",
+  "cmd.daemon.block.add.FlagUsage.port": "Порт, который будет заблокирован. Если не указать, то заблокируются все порты. \nПримеры: \n--port=80/tcp \n--port=1000/udp",
+  "cmd.daemon.block.add.FlagUsage.seconds": "Время блокировки в секундах. Если не указать, то блокировка будет вечной.",
+  "cmd.daemon.block.add.FlagUsage.reason": "Причина блокировки.",
+  "block_add_ip_success": "IP адрес успешно добавлен в список заблокированных.",
+
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
   "invalid log encoding": "Неверная настройка encoding. Сейчас указан: {{.Encoding}}. Допустимые значения: {{.Encodings}}",
@@ -61,5 +68,7 @@
   "alert.bruteForceProtection.subject-error": "Обнаружена попытка взлома, но IP {{.IP}} не заблокирован. Оповещение ({{.Name}}) (группа:{{.GroupName}})",
   "alert.bruteForceProtection.error": "Ошибка: {{.Error}}",
   "alert.bruteForceProtection.ssh.message": "Обнаружена попытка атаки на SSH методом перебора паролей.",
-  "alert.bruteForceProtection.group._default.message": "Группа по умолчанию."
+  "alert.bruteForceProtection.group._default.message": "Группа по умолчанию.",
+
+  "cmd.error": "Ошибка команды: {{.Error}}"
 }

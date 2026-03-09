@@ -4,16 +4,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"strconv"
+	"strings"
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
 type Daemon interface {
@@ -150,6 +156,28 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 			return err
 		}
 		return socket.Write("ok")
+	case "block_add_ip":
+		if args["ip"] == "" {
+			return socket.Write("ip argument is required")
+		}
+		ip := net.ParseIP(args["ip"])
+		if ip == nil {
+			_ = socket.Write("invalid ip address")
+			return errors.New("invalid ip address")
+		}
+
+		port := args["port"]
+		if port != "" {
+			if err := d.cmdBlockAddIPWithPort(ip, port, args); err != nil {
+				return socket.Write("block add failed: " + err.Error())
+			}
+		} else {
+			if err := d.cmdBlockAddIP(ip, args); err != nil {
+				return socket.Write("block add failed: " + err.Error())
+			}
+		}
+
+		return socket.Write("ok")
 	case "block_clear":
 		if err := d.firewall.UnblockAllIPs(); err != nil {
 			_ = socket.Write("block clear failed: " + err.Error())
@@ -160,4 +188,89 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 		_ = socket.Write("unknown command")
 		return errors.New("unknown command")
 	}
+}
+
+func (d *daemon) cmdBlockAddIP(ip net.IP, args map[string]string) error {
+	blockIP := blocking.BlockIP{
+		IP: ip,
+	}
+
+	if args["seconds"] != "" {
+		seconds, err := strconv.Atoi(args["seconds"])
+		if err != nil {
+			return err
+		}
+		blockIP.TimeSeconds = uint32(seconds)
+	}
+
+	if args["reason"] != "" {
+		blockIP.Reason = args["reason"]
+	}
+
+	isBlock, err := d.firewall.BlockIP(blockIP)
+	if err != nil {
+		return err
+	}
+	if !isBlock {
+		return errors.New("the IP address is not blocked")
+	}
+	return nil
+}
+
+func (d *daemon) cmdBlockAddIPWithPort(ip net.IP, port string, args map[string]string) error {
+	l4Port, err := newL4PortFromString(port)
+	if err != nil {
+		return err
+	}
+
+	blockIP := blocking.BlockIPWithPorts{
+		IP:    ip,
+		Ports: []types.L4Port{l4Port},
+	}
+
+	if args["seconds"] != "" {
+		seconds, err := strconv.Atoi(args["seconds"])
+		if err != nil {
+			return err
+		}
+		blockIP.TimeSeconds = uint32(seconds)
+	}
+
+	if args["reason"] != "" {
+		blockIP.Reason = args["reason"]
+	}
+
+	isBlock, err := d.firewall.BlockIPWithPorts(blockIP)
+	if err != nil {
+		return err
+	}
+	if !isBlock {
+		return errors.New("the IP address is not blocked")
+	}
+	return nil
+}
+
+func newL4PortFromString(s string) (types.L4Port, error) {
+	if s == "" {
+		return nil, errors.New("port is empty")
+	}
+
+	data := strings.Split(s, "/")
+	protocol := types.ProtocolTCP
+	port, err := strconv.Atoi(data[0])
+	if err != nil {
+		return nil, err
+	}
+	if err := validate.Port(port, "port"); err != nil {
+		return nil, err
+	}
+
+	if len(data) == 2 {
+		protocol, err = ip.ToProtocol(data[1])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return types.NewL4Port(uint16(port), protocol)
 }
