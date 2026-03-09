@@ -1,4 +1,4 @@
-## 0.8.0 (Soon)
+## 0.8.0 (9.3.2026)
 * Теперь можно тонко настроить блокировку портов для IP адреса, который пытается подобрать пароль.
   * В файл настроек analyzer.toml в [[bruteForceProtection.groups]] добавлен новый параметр "block_type". 
   * В файл настроек analyzer.toml в [[bruteForceProtection.groups]] добавлен новый параметр "ports".
