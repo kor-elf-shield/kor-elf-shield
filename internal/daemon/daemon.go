@@ -128,7 +128,7 @@ func (d *daemon) runWorker(ctx context.Context, isTesting bool, testingInterval 
 	}
 }
 
-func (d *daemon) socketCommand(command string, socket socket.Connect) error {
+func (d *daemon) socketCommand(command string, args map[string]string, socket socket.Connect) error {
 	switch command {
 	case "stop":
 		d.stopCh <- struct{}{}
