@@ -37,6 +37,12 @@ func CmdBlock() *cli.Command {
 				},
 			},
 			{
+				Name:        "delete",
+				Usage:       i18n.Lang.T("cmd.daemon.block.delete.Usage"),
+				Description: i18n.Lang.T("cmd.daemon.block.delete.Description"),
+				Action:      cmdBlockDelete,
+			},
+			{
 				Name:        "clear",
 				Usage:       i18n.Lang.T("cmd.daemon.block.clear.Usage"),
 				Description: i18n.Lang.T("cmd.daemon.block.clear.Description"),
@@ -77,6 +83,37 @@ func cmdBlockAdd(_ context.Context, cmd *cli.Command) error {
 	}
 
 	fmt.Println(i18n.Lang.T("block_add_ip_success"))
+	return nil
+}
+
+func cmdBlockDelete(_ context.Context, cmd *cli.Command) error {
+	ip := net.ParseIP(cmd.Args().Get(0))
+	if ip == nil {
+		return errors.New("invalid ip address")
+	}
+
+	sock, err := newSocket()
+	if err != nil {
+		return errors.New(i18n.Lang.T("daemon is not running"))
+	}
+	defer func() {
+		_ = sock.Close()
+	}()
+
+	result, err := sock.SendCommand("block_delete_ip", map[string]string{
+		"ip": ip.String(),
+	})
+	if err != nil {
+		return err
+	}
+
+	if result != "ok" {
+		return errors.New(i18n.Lang.T("cmd.error", map[string]any{
+			"Error": result,
+		}))
+	}
+
+	fmt.Println(i18n.Lang.T("block_delete_ip_success"))
 	return nil
 }
 

@@ -38,6 +38,10 @@
   "cmd.daemon.block.add.FlagUsage.reason": "Блоктау себебі.",
   "block_add_ip_success": "IP мекенжайы блоктау тізіміне сәтті қосылды.",
 
+  "cmd.daemon.block.delete.Usage": "IP мекенжайын блоктау тізімінен алып тастаңыз",
+  "cmd.daemon.block.delete.Description": "IP мекенжайын блоктау тізімінен алып тастаңыз. \nМысал: \nkor-elf-shield block delete 192.168.1.1",
+  "block_delete_ip_success": "IP мекенжайы блоктау тізімінен сәтті жойылды.",
+
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
   "invalid log encoding": "Жарамсыз кодтау параметрі. Қазіргі уақытта орнатылған: {{.Encoding}}. Жарамды мәндер: {{.Encodings}}",

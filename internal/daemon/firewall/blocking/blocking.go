@@ -19,6 +19,7 @@ type API interface {
 	BlockIP(block BlockIP) (bool, error)
 	BlockIPWithPorts(block BlockIPWithPorts) (bool, error)
 	UnblockAllIPs() error
+	UnblockIP(ip net.IP) error
 	ClearDBData() error
 }
 
@@ -171,6 +172,33 @@ func (b *blocking) BlockIPWithPorts(block BlockIPWithPorts) (bool, error) {
 	return true, nil
 }
 
+func (b *blocking) UnblockIP(ip net.IP) error {
+	err := b.blockingRepository.DeleteByIP(ip, func(e entity.Blocking) error {
+		if e.IsPorts() {
+			l4Ports, err := e.ToL4Ports()
+			if err != nil {
+				return err
+			}
+			return b.removeIPWithPorts(ip, l4Ports)
+		}
+
+		if err := b.blockListIP.DeleteIP(ip); err != nil {
+			if strings.Contains(err.Error(), "element does not exist") {
+				return nil
+			}
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (b *blocking) UnblockAllIPs() error {
 	err := b.blockingRepository.List(func(e entity.Blocking) error {
 		ip := net.ParseIP(e.IP)
@@ -213,4 +241,17 @@ func (b *blocking) UnblockAllIPs() error {
 
 func (b *blocking) ClearDBData() error {
 	return b.blockingRepository.Clear()
+}
+
+func (b *blocking) removeIPWithPorts(ip net.IP, l4Ports []types.L4Port) error {
+	for _, port := range l4Ports {
+		if err := b.blockListIPWithPort.DeleteIP(ip, port); err != nil {
+			if strings.Contains(err.Error(), "element does not exist") ||
+				strings.Contains(err.Error(), "Error: Could not process rule: No such file or directory") {
+				continue
+			}
+			return err
+		}
+	}
+	return nil
 }

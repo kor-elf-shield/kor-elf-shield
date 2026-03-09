@@ -2,6 +2,7 @@ package firewall
 
 import (
 	"fmt"
+	"net"
 	"os"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
@@ -30,6 +31,9 @@ type API interface {
 
 	// UnblockAllIPs Unblock all IP addresses.
 	UnblockAllIPs() error
+
+	// UnblockIP Unblock IP address.
+	UnblockIP(ip net.IP) error
 
 	// ClearDBData Clear all data from DB
 	ClearDBData() error
@@ -127,6 +131,10 @@ func (f *firewall) ClearRules() {
 
 func (f *firewall) UnblockAllIPs() error {
 	return f.blockingService.UnblockAllIPs()
+}
+
+func (f *firewall) UnblockIP(ip net.IP) error {
+	return f.blockingService.UnblockIP(ip)
 }
 
 func (f *firewall) ClearDBData() error {

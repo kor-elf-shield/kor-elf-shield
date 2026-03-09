@@ -38,6 +38,10 @@
   "cmd.daemon.block.add.FlagUsage.reason": "Причина блокировки.",
   "block_add_ip_success": "IP адрес успешно добавлен в список заблокированных.",
 
+  "cmd.daemon.block.delete.Usage": "Удалить IP адрес из списка заблокированных",
+  "cmd.daemon.block.delete.Description": "Удалить IP адрес из списка заблокированных. \nПример: \nkor-elf-shield block delete 192.168.1.1",
+  "block_delete_ip_success": "IP адрес успешно удален из списка заблокированных.",
+
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
   "invalid log encoding": "Неверная настройка encoding. Сейчас указан: {{.Encoding}}. Допустимые значения: {{.Encodings}}",

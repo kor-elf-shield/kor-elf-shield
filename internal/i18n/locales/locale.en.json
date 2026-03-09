@@ -38,6 +38,10 @@
   "cmd.daemon.block.add.FlagUsage.reason": "Reason for blocking.",
   "block_add_ip_success": "The IP address has been successfully added to the block list.",
 
+  "cmd.daemon.block.delete.Usage": "Remove IP address from block list",
+  "cmd.daemon.block.delete.Description": "Remove an IP address from the block list. \nExample: \nkor-elf-shield block delete 192.168.1.1",
+  "block_delete_ip_success": "The IP address has been successfully removed from the block list.",
+
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
   "invalid log encoding": "Invalid encoding setting. Currently set to: {{.Encoding}}. Valid values: {{.Encodings}}",

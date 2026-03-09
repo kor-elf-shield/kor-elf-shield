@@ -160,24 +160,43 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 		if args["ip"] == "" {
 			return socket.Write("ip argument is required")
 		}
-		ip := net.ParseIP(args["ip"])
-		if ip == nil {
+		ipAddr := net.ParseIP(args["ip"])
+		if ipAddr == nil {
 			_ = socket.Write("invalid ip address")
 			return errors.New("invalid ip address")
 		}
 
 		port := args["port"]
 		if port != "" {
-			if err := d.cmdBlockAddIPWithPort(ip, port, args); err != nil {
-				return socket.Write("block add failed: " + err.Error())
+			if err := d.cmdBlockAddIPWithPort(ipAddr, port, args); err != nil {
+				_ = socket.Write("block add failed: " + err.Error())
+				return err
 			}
 		} else {
-			if err := d.cmdBlockAddIP(ip, args); err != nil {
-				return socket.Write("block add failed: " + err.Error())
+			if err := d.cmdBlockAddIP(ipAddr, args); err != nil {
+				_ = socket.Write("block add failed: " + err.Error())
+				return err
 			}
 		}
 
 		return socket.Write("ok")
+	case "block_delete_ip":
+		if args["ip"] == "" {
+			return socket.Write("ip argument is required")
+		}
+		ipAddr := net.ParseIP(args["ip"])
+		if ipAddr == nil {
+			_ = socket.Write("invalid ip address")
+			return errors.New("invalid ip address")
+		}
+
+		if err := d.firewall.UnblockIP(ipAddr); err != nil {
+			_ = socket.Write("block delete failed: " + err.Error())
+			return err
+		}
+
+		return socket.Write("ok")
+
 	case "block_clear":
 		if err := d.firewall.UnblockAllIPs(); err != nil {
 			_ = socket.Write("block clear failed: " + err.Error())
