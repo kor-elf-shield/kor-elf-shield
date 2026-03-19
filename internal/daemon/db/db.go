@@ -19,6 +19,7 @@ type Repositories interface {
 	AlertGroup() repository.AlertGroupRepository
 	BruteForceProtectionGroup() repository.BruteForceProtectionGroupRepository
 	Blocking() repository.BlockingRepository
+	Blocklist() repository.BlocklistRepository
 
 	Close() error
 }
@@ -28,6 +29,7 @@ type repositories struct {
 	alertGroup                repository.AlertGroupRepository
 	bruteForceProtectionGroup repository.BruteForceProtectionGroupRepository
 	blocking                  repository.BlockingRepository
+	blocklist                 repository.BlocklistRepository
 
 	db []*bbolt.DB
 }
@@ -57,6 +59,7 @@ func New(dataDir string) (Repositories, error) {
 		alertGroup:                repository.NewAlertGroupRepository(appDB),
 		bruteForceProtectionGroup: repository.NewBruteForceProtectionGroupRepository(securityDB),
 		blocking:                  repository.NewBlockingRepository(securityDB),
+		blocklist:                 repository.NewBlocklistRepository(securityDB),
 
 		db: []*bbolt.DB{appDB, securityDB},
 	}, nil
@@ -76,6 +79,10 @@ func (r *repositories) BruteForceProtectionGroup() repository.BruteForceProtecti
 
 func (r *repositories) Blocking() repository.BlockingRepository {
 	return r.blocking
+}
+
+func (r *repositories) Blocklist() repository.BlocklistRepository {
+	return r.blocklist
 }
 
 func (r *repositories) Close() error {
