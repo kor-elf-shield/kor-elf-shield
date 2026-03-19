@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
@@ -75,7 +76,9 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	d, err := daemon.NewDaemon(config, logger, notificationsService, dockerService)
+	blocklistService := newBlocklistService(ctx, repositories.Blocklist(), logger)
+
+	d, err := daemon.NewDaemon(config, logger, notificationsService, dockerService, blocklistService)
 	if err != nil {
 		logger.Fatal(err.Error())
 
@@ -122,4 +125,28 @@ func newDockerService(ctx context.Context, logger log.Logger) (dockerService doc
 	}
 
 	return dockerService, dockerSupport, nil
+}
+
+func newBlocklistService(ctx context.Context, blocklistRepository repository.BlocklistRepository, logger log.Logger) blocklist.Blocklist {
+	config, isEnabled, err := setting.Config.OtherSettingsPath.ToBlocklistConfig(logger)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to create blocklist service: %s", err))
+		return blocklist.NewFalseBlocklist()
+	}
+	if !isEnabled {
+		return blocklist.NewFalseBlocklist()
+	}
+
+	blocklistConfig := blocklist.Config{
+		BlocklistRepository: blocklistRepository,
+		Sources:             config,
+	}
+
+	blocklistService, err := blocklist.New(blocklistConfig, ctx, logger)
+	if err != nil {
+		logger.Error(err.Error())
+		return blocklist.NewFalseBlocklist()
+	}
+
+	return blocklistService
 }

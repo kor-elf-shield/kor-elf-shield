@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
@@ -35,6 +36,7 @@ type daemon struct {
 	notifications notifications.Notifications
 	analyzer      analyzer.Analyzer
 	docker        docker_monitor.Docker
+	blocklist     blocklist.Blocklist
 
 	stopCh chan struct{}
 }
@@ -82,6 +84,11 @@ func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16
 			_ = d.docker.Close()
 		}()
 	}
+
+	d.blocklist.Run()
+	defer func() {
+		_ = d.blocklist.Close()
+	}()
 
 	go d.socket.Run(ctx, d.socketCommand)
 	d.runWorker(ctx, isTesting, testingInterval)
