@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
@@ -49,9 +50,17 @@ type firewall struct {
 	blockingService blocking.API
 	chains          chain.Chains
 	docker          docker_monitor.Docker
+	blocklist       blocklist.Blocklist
 }
 
-func New(pathNFT string, blockingService blocking.API, logger log.Logger, config Config, docker docker_monitor.Docker) (API, error) {
+func New(
+	pathNFT string,
+	blockingService blocking.API,
+	logger log.Logger,
+	config Config,
+	docker docker_monitor.Docker,
+	blocklist blocklist.Blocklist,
+) (API, error) {
 	nft, err := nftables.NewWithPath(pathNFT)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create nft client: %w %s", err, pathNFT)
@@ -63,6 +72,7 @@ func New(pathNFT string, blockingService blocking.API, logger log.Logger, config
 		config:          &config,
 		blockingService: blockingService,
 		docker:          docker,
+		blocklist:       blocklist,
 	}, nil
 }
 
@@ -104,6 +114,10 @@ func (f *firewall) Reload() error {
 
 	if err := f.reloadBlockList(); err != nil {
 		return err
+	}
+
+	if err := f.blocklist.NftReload(f.chains.NewBlocklist); err != nil {
+		f.logger.Error(fmt.Sprintf("Failed to reload blocklist: %s", err))
 	}
 
 	f.logger.Debug("Reload nftables rules done")
