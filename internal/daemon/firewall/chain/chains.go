@@ -43,6 +43,7 @@ type Chains interface {
 	NewChain(chain string, baseChain nftChain.ChainOptions) (Chain, error)
 	NewBlockListIP(name string) (block.ListIP, error)
 	NewBlockListIPWithPort(name string) (block.ListIPWithPort, error)
+	NewBlocklist(name string) (block.Blocklist, error)
 }
 
 type chains struct {
@@ -235,6 +236,19 @@ func (c *chains) NewBlockListIP(name string) (block.ListIP, error) {
 func (c *chains) NewBlockListIPWithPort(name string) (block.ListIPWithPort, error) {
 	blockList, err := block.NewListIPWithPort(c.nft, c.family, c.table, name)
 	if err != nil {
+		return nil, err
+	}
+
+	return blockList, nil
+}
+
+func (c *chains) NewBlocklist(name string) (block.Blocklist, error) {
+	blockList, err := block.NewBlocklist(c.nft, c.family, c.table, name)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := blockList.AddRuleToChain(c.afterLocalInput.AddRule, "drop"); err != nil {
 		return nil, err
 	}
 
