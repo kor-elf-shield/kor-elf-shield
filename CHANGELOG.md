@@ -1,4 +1,34 @@
+## 0.9.0 (Soon)
+#### Русский
+* Теперь вы можете получить список IP-адресов от различных сервисов для блокировки доступа:
+  * Spamhaus Don't Route Or Peer Lists
+  * DShield.org Recommended Block List
+  * TOR Exit Nodes List
+  * Project Honey Pot Directory of Dictionary Attacker IPs
+  * C.I. Army Malicious IP List
+  * BruteForceBlocker IP List
+  * Blocklist.de
+  * Stop Forum Spam
+  * GreenSnow Hack List
+* В настройки файла kor-elf-shield.toml добавлен параметр otherSettingsPath.blocklists.
+* Добавлен новый файл настроек, blocklists.toml. Он содержит параметры для получения списка IP-адресов для блокировки.
+***
+#### English
+* Now you can get a list of IP addresses from various services to block access:
+  * Spamhaus Don't Route Or Peer Lists
+  * DShield.org Recommended Block List
+  * TOR Exit Nodes List
+  * Project Honey Pot Directory of Dictionary Attacker IPs
+  * C.I. Army Malicious IP List
+  * BruteForceBlocker IP List
+  * Blocklist.de
+  * Stop Forum Spam
+  * GreenSnow Hack List
+* Added the otherSettingsPath.blocklists parameter to the kor-elf-shield.toml settings.
+* Added a new settings file, blocklists.toml. It contains settings for obtaining a list of IP addresses to block.
 ## 0.8.0 (9.3.2026)
+***
+#### Русский
 * Теперь можно тонко настроить блокировку портов для IP адреса, который пытается подобрать пароль.
   * В файл настроек analyzer.toml в [[bruteForceProtection.groups]] добавлен новый параметр "block_type". 
   * В файл настроек analyzer.toml в [[bruteForceProtection.groups]] добавлен новый параметр "ports".
