@@ -1,0 +1,341 @@
+###############################################################################
+# РАЗДЕЛ:Настройки для определения списков блокировки IP-адресов
+# ***
+# SECTION:Settings for defining IP address block lists
+###############################################################################
+
+###
+# Обеспечивает поддержку получения списков заблокированных IP-адресов.
+# !!! Для полученние данных нужно открыть исходящий порт 443. !!!
+# !!! После включения не забудьте включить необходимые списки, так как по умолчанию они все отключены. !!!
+# По умолчанию: false
+# ***
+# Enables support for retrieving IP block lists.
+# !!! To receive data, you need to open outgoing port 443. !!!
+# !!! After turning on, do not forget to turn on the necessary lists, as they are all turned off by default. !!!
+# Default: false
+###
+enabled = false
+
+###
+# Spamhaus Don't Route Or Peer Lists (DROP IPv4)
+# Details: https://www.spamhaus.org/blocklists/do-not-route-or-peer/
+###
+[[sources]]
+enabled = false
+name = "SPAMDROP"
+url = "https://www.spamhaus.org/drop/drop_v4.json"
+format = "json"
+json_field = "cidr"
+limit = 0
+interval = 86400
+
+###
+# Spamhaus Don't Route Or Peer Lists (DROP IPv6)
+# Details: https://www.spamhaus.org/blocklists/do-not-route-or-peer/
+###
+[[sources]]
+enabled = false
+name = "SPAMDROPV6"
+url = "https://www.spamhaus.org/drop/drop_v6.json"
+format = "json"
+json_field = "cidr"
+limit = 0
+interval = 86400
+
+###
+# DShield.org Recommended Block List
+# Details: https://dshield.org
+###
+[[sources]]
+enabled = false
+name = "DSHIELD"
+url = "https://www.dshield.org/block.txt"
+format = "txt"
+txt_type = "cidr"
+txt_field_ip = 0
+txt_field_cidr = 2
+txt_separator = "\t"
+limit = 0
+interval = 86400
+###
+# Тот же список, только мы получаем данные не через CIDR, а через диапазон IP-адресов.
+# !!! Не рекомендуется включать DSHIELD и DSHIELD_INTERVAL одновременно. !!!
+# ***
+# The same list, only we receive data not via CIDR, but via a range of IP addresses.
+# !!! It is not recommended to turn on DSHIELD and DSHIELD_INTERVAL together. !!!
+###
+[[sources]]
+enabled = false
+name = "DSHIELD_INTERVAL"
+url = "https://www.dshield.org/block.txt"
+format = "txt"
+txt_type = "interval"
+txt_field_ip = 0
+txt_field_ip2 = 1
+txt_separator = "\t"
+limit = 0
+interval = 600
+
+###
+# TOR Exit Nodes List
+# Details: https://trac.torproject.org/projects/tor/wiki/doc/TorDNSExitList
+###
+[[sources]]
+enabled = false
+name = "TOR"
+url = "https://check.torproject.org/torbulkexitlist"
+format = "txt"
+txt_type = "default"
+txt_field_ip = 0
+txt_separator = " "
+limit = 0
+interval = 86400
+
+###
+# Project Honey Pot Directory of Dictionary Attacker IPs
+# Details: https://www.projecthoneypot.org/
+###
+[[sources]]
+enabled = false
+name = "HONEYPOT"
+url = "https://www.projecthoneypot.org/list_of_ips.php?t=d&rss=1"
+format = "rss"
+rss_tag = "item"
+rss_field = "title"
+rss_field_ip = 0
+rss_field_separator = "|"
+limit = 0
+interval = 86400
+
+###
+# C.I. Army Malicious IP List
+# Details: https://www.ciarmy.com/
+###
+[[sources]]
+enabled = false
+name = "CIARMY"
+url = "https://www.ciarmy.com/list/ci-badguys.txt"
+format = "txt"
+txt_type = "default"
+txt_field_ip = 0
+txt_separator = " "
+limit = 0
+interval = 86400
+
+###
+# BruteForceBlocker IP List
+# Details: https://danger.rulez.sk/index.php/bruteforceblocker/
+###
+[[sources]]
+enabled = false
+name = "BFB"
+url = "https://danger.rulez.sk/projects/bruteforceblocker/blist.php"
+format = "txt"
+txt_type = "default"
+txt_field_ip = 0
+txt_separator = "\t"
+limit = 0
+interval = 86400
+
+###
+# Blocklist.de
+# Details: https://www.blocklist.de
+# В первом списке отображаются только IP-адреса, добавленные за последний час.
+# ***
+# This first list only retrieves the IP addresses added in the last hour.
+###
+[[sources]]
+enabled = false
+name = "BDE"
+url = "https://api.blocklist.de/getlast.php?time=3600"
+format = "txt"
+txt_type = "default"
+txt_field_ip = 0
+txt_separator = "\t"
+limit = 0
+interval = 86400
+###
+# Второй список содержит все IP-адреса, добавленные за последние 48 часов.
+# Обычно это очень большой список (более 10000 записей), поэтому убедитесь, что у вас
+# есть необходимые ресурсы для его использования.
+# !!! Не рекомендуется включать BDE и BDEALL одновременно. !!!
+# ***
+# This second list retrieves all the IP addresses added in the last 48 hours
+# and is usually a very large list (over 10000 entries), so be sure that you
+# have the resources available to use it
+# !!! It is not recommended to turn on BDE and BDEALL together. !!!
+###
+[[sources]]
+enabled = false
+name = "BDEALL"
+url = "https://lists.blocklist.de/lists/all.txt"
+format = "txt"
+txt_type = "default"
+txt_field_ip = 0
+txt_separator = "\t"
+limit = 0
+interval = 86400
+
+# Stop Forum Spam (IPv4)
+# Details: https://www.stopforumspam.com/downloads
+# Многие из доступных списков содержат огромное количество IP-адресов,
+# поэтому следует проявлять осторожность при выборе из этих списков.
+# ***
+# Many of the lists available contain a vast number of IP addresses so special
+# care needs to be made when selecting from their lists.
+[[sources]]
+enabled = false
+name = "STOPFORUMSPAM"
+url = "https://www.stopforumspam.com/downloads/listed_ip_1.zip"
+zip = true
+format = "txt"
+txt_type = "default"
+txt_field_ip = 0
+txt_separator = " "
+limit = 0
+interval = 86400
+
+# Stop Forum Spam (IPv6)
+# Details: https://www.stopforumspam.com/downloads
+# Многие из доступных списков содержат огромное количество IP-адресов,
+# поэтому следует проявлять осторожность при выборе из этих списков.
+# ***
+# Many of the lists available contain a vast number of IP addresses so special
+# care needs to be made when selecting from their lists.
+[[sources]]
+enabled = false
+name = "STOPFORUMSPAMV6"
+url = "https://www.stopforumspam.com/downloads/listed_ip_1_ipv6.zip"
+zip = true
+format = "txt"
+txt_type = "default"
+txt_field_ip = 0
+txt_separator = " "
+limit = 0
+interval = 86400
+
+###
+# GreenSnow Hack List
+# Details: https://greensnow.co
+###
+[[sources]]
+enabled = false
+name = "GREENSNOW"
+url = "https://blocklist.greensnow.co/greensnow.txt"
+format = "txt"
+txt_type = "default"
+txt_field_ip = 0
+txt_separator = " "
+limit = 0
+interval = 86400
+
+###############################################################################
+# Если вы хотите реализовать свой собственный список или хотите понять параметры,
+# описание параметров вам может помочь:
+# ***
+# If you want to implement your own list or want to understand the parameters,
+# the parameter description might help:
+###############################################################################
+#
+# [[sources]]
+#
+# Включает или выключает получения данных с этого списка
+# ***
+# Enables or disables retrieving data from this list
+#   enabled = false
+#
+# Имя, которое будет использоваться в создание set в nftables.
+# Имя должно быть уникальное и разрешены символы "a-z, A-Z, -, _"
+# ***
+# The name that will be used when creating a set in nftables.
+# The name must be unique and the characters "a-z, A-Z, -, _" are allowed.
+#   name = "SPAMDROP"
+#
+# Адрес по которому будет программа обращаться, чтобы получить список IP адресов для блокировки.
+# ***
+# The address that the program will contact to obtain a list of IP addresses to block.
+#   url = "https://www.spamhaus.org/drop/drop_v4.json"
+#
+# Это максимальное количество IP-адресов из списка, которые можно использовать.
+# Значение 0 означает использование всех IP-адресов.
+# ***
+# This is the maximum number of IP addresses from the list that can be used.
+# A value of 0 means all IP addresses are used.
+#   limit = 0
+#
+# Интервал обновления для загрузки списка должен составлять минимум 60 секунд (не рекомендуется),
+# но 86400 (в день) будет более чем достаточно.
+# ***
+# The refresh interval for loading the list should be at least 60 seconds (not recommended),
+# but 86400 (per day) will be more than enough.
+#   interval = 86400
+#
+# Если получаемый файл в zip формате, то надо включить zip = true.
+# ***
+# If the file received is in zip format, then you must include zip = true.
+#   zip = false
+#
+# Есть несколько форматов: "json", "txt", "rss".
+# ***
+# There are several formats: "json", "txt", "rss".
+#   format = "json"
+#
+# Это поле используется, если `format = "json"`. Здесь мы указываем имя ключа, по которому получаем IP-адрес.
+# ***
+# This field is used if the `format = "json"`. Here we specify the name of the key by which we obtain the IP address.
+#   json_field = "cidr"
+#
+# Это поле используется, если `format = "txt"`. Допустимые значения: "default", "cidr", "interval"
+# ***
+# This field is used if `format = "txt"`. Valid values: "default", "cidr", "interval"
+#   txt_type = "cidr"
+#
+# Это поле используется, если `format = "txt"`. Это индекс поля для получения IP адреса.
+# Допустимые значения от 0 и выше.
+# ***
+# This field is used if `format = "txt"`. This is the field index for obtaining the IP address.
+# Valid values are 0 and higher.
+#   txt_field_ip = 0
+#
+# Это поле используется, если `format = "txt"`. Это разделитель. Парсер использует его для разделения строки на поля.
+# ***
+# This field is used if `format = "txt"`. It's a delimiter. The parser uses it to divide the string into fields.
+#   txt_separator = "\t"
+#
+# Это поле используется, если `format = "txt"` и `txt_type = "cidr"`. Указывает индекс поля для получения cidr.
+# Допустимые значения от 0 и выше.
+# ***
+# This field is used if `format = "txt"` and `txt_type = "cidr"`. Specifies the field index to retrieve the cidr.
+# Valid values are 0 and above.
+#   txt_field_cidr = 2
+#
+# Это поле используется, если `format = "txt"` и `txt_type = "interval"`.
+# Указывает индекс поля для получения второго IP (по). Допустимые значения от 0 и выше.
+# ***
+# This field is used if `format = "txt"` and `txt_type = "interval"`.
+# Specifies the field index to retrieve the second IP (to). Valid values are 0 and higher.
+#   txt_field_ip2 = 1
+#
+# Это поле используется, если `format = "rss"`. Указывает на родительский тег.
+# ***
+# This field is used if `format="rss"`. Points to the parent tag.
+#   rss_tag = "item"
+#
+# Это поле используется, если `format = "rss"`. Указывает на тег, который находится внутри родительского тега.
+# ***
+# This field is used if `format="rss"`. Points to a tag that is inside the parent tag.
+#   rss_field = "title"
+#
+# Это поле используется, если `format = "rss"`. Если нужно разделить получаемый текст.
+# ***
+# This field is used if `format = "rss"`. If you need to split the received text.
+#   rss_field_separator = "|"
+#
+# Это поле используется, если `format = "rss"` и указан `rss_field_separator`. Это индекс поля для получения IP адреса.
+# Допустимые значения от 0 и выше.
+# ***
+# This field is used if `format = "rss"` and `rss_field_separator` is specified. This is the field index for obtaining the IP address.
+# Valid values are 0 and above.
+#   rss_field_ip = 0
+###
