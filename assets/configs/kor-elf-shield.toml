@@ -273,3 +273,14 @@ analyzer = "/etc/kor-elf-shield/analyzer.toml"
 # Default: /etc/kor-elf-shield/docker.toml
 ###
 docker = "/etc/kor-elf-shield/docker.toml"
+
+###
+# Укажите путь к настройкам для получения списков блокировки IP-адресов.
+# Файл должен иметь расширение .toml.
+# По умолчанию: /etc/kor-elf-shield/blocklists.toml
+# ***
+# Specify the path to the settings for retrieving IP address block lists.
+# The file must have the .toml extension.
+# Default: /etc/kor-elf-shield/blocklists.toml
+###
+blocklists = "/etc/kor-elf-shield/blocklists.toml"
