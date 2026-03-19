@@ -4,14 +4,18 @@ import (
 	"errors"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	logger "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 	analyzerSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/analyzer"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/blocklists"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/docker"
 	firewallSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/firewall"
 	notificationsSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/notifications"
+
 	"github.com/wneessen/go-mail"
 )
 
@@ -20,6 +24,7 @@ type otherSettingsPath struct {
 	Notifications string `mapstructure:"notifications"`
 	Analyzer      string `mapstructure:"analyzer"`
 	Docker        string `mapstructure:"docker"`
+	Blocklists    string `mapstructure:"blocklists"`
 }
 
 func otherSettingsPathDefault() *otherSettingsPath {
@@ -28,6 +33,7 @@ func otherSettingsPathDefault() *otherSettingsPath {
 		Notifications: "/etc/kor-elf-shield/notifications.toml",
 		Analyzer:      "/etc/kor-elf-shield/analyzer.toml",
 		Docker:        "/etc/kor-elf-shield/docker.toml",
+		Blocklists:    "/etc/kor-elf-shield/blocklists.toml",
 	}
 }
 
@@ -188,4 +194,19 @@ func (o *otherSettingsPath) ToDockerConfig(binaryLocations *binaryLocations) (co
 		Path:         binaryLocations.Docker,
 		RuleStrategy: ruleStrategy,
 	}, setting.Enabled, nil
+}
+
+func (o *otherSettingsPath) ToBlocklistConfig(logger logger.Logger) (sources []*blocklist.SourceConfig, blocklistSupport bool, err error) {
+	setting, err := blocklists.InitSetting(o.Blocklists)
+	if err != nil {
+		return []*blocklist.SourceConfig{}, false, err
+	}
+
+	sources = setting.ToSources(logger)
+
+	if setting.Enabled && len(sources) == 0 {
+		return []*blocklist.SourceConfig{}, false, errors.New(i18n.Lang.T("blocklist sources are empty"))
+	}
+
+	return sources, setting.Enabled, nil
 }
