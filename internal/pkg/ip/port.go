@@ -41,3 +41,18 @@ func ToAction(action string) (types.Action, error) {
 		return types.ActionAccept, errors.New("invalid action. Must be accept, drop or reject")
 	}
 }
+
+func ToKnockAction(action string) (types.KnockAction, error) {
+	switch strings.ToLower(action) {
+	case "accept":
+		return types.KnockActionAccept, nil
+	case "drop":
+		return types.KnockActionDrop, nil
+	case "reject":
+		return types.KnockActionReject, nil
+	case "return":
+		return types.KnockActionReturn, nil
+	default:
+		return types.KnockActionDrop, errors.New("invalid action. Must be accept, return, drop or reject")
+	}
+}
