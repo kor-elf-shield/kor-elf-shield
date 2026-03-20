@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg"
 )
 
@@ -247,6 +248,10 @@ func (f *firewall) reloadInputAddIPs() error {
 		return err
 	}
 
+	if err := f.reloadPortKnocking(chain); err != nil {
+		return err
+	}
+
 	for _, ipConfig := range f.config.IP4.InIPs {
 		if err := inputAddIP(chain.AddRule, ipConfig, "ip"); err != nil {
 			return err
@@ -262,6 +267,49 @@ func (f *firewall) reloadInputAddIPs() error {
 			return err
 		}
 	}
+	return nil
+}
+
+func (f *firewall) reloadPortKnocking(chain chain.LocalInput) error {
+	if len(f.config.PortKnocking) == 0 {
+		return nil
+	}
+
+	portKnocking, err := f.chains.NewPortKnocking("port_knocking")
+	if err != nil {
+		return err
+	}
+
+	for _, portKnockingConfig := range f.config.PortKnocking {
+		var knockName, prevKnockName string
+		for index, knock := range portKnockingConfig.Knocks {
+			prevKnockName = knockName
+			knockName = fmt.Sprintf("knock_%s_%d", portKnockingConfig.Name, index)
+			if index == 0 {
+				if err := portKnocking.AddFirstStageRule(knockName, portKnockingConfig.IPVersion, knock.Port, knock.Timeout, knock.Action); err != nil {
+					return err
+				}
+				continue
+			}
+
+			if err := portKnocking.AddNextStageRule(prevKnockName, knockName, portKnockingConfig.IPVersion, knock.Port, knock.Timeout, knock.Action); err != nil {
+				return err
+			}
+		}
+
+		expr := []string{
+			portKnockingConfig.IPVersion.ToNft(), "saddr", "@" + knockName,
+			portKnockingConfig.Port.ProtocolString(), "dport", portKnockingConfig.Port.NumberString(), "accept",
+		}
+		if err := chain.AddRule(expr...); err != nil {
+			return err
+		}
+	}
+
+	if err := portKnocking.AddRuleIn(chain.AddRule); err != nil {
+		return err
+	}
+
 	return nil
 }
 
