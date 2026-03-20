@@ -23,6 +23,17 @@ func (v Version) ToNft() string {
 	}
 }
 
+func (v Version) ToNftForSet() string {
+	switch v {
+	case IPv4:
+		return "ipv4_addr"
+	case IPv6:
+		return "ipv6_addr"
+	default:
+		return "unknown"
+	}
+}
+
 func DetermineIPVersion(ip string) (ipNet string, version Version, err error) {
 	ipNet, version, err = parseCIDR(ip)
 	if err != nil {
