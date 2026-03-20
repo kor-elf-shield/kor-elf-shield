@@ -44,6 +44,7 @@ type Chains interface {
 	NewBlockListIP(name string) (block.ListIP, error)
 	NewBlockListIPWithPort(name string) (block.ListIPWithPort, error)
 	NewBlocklist(name string) (block.Blocklist, error)
+	NewPortKnocking(name string) (PortKnocking, error)
 }
 
 type chains struct {
@@ -253,6 +254,15 @@ func (c *chains) NewBlocklist(name string) (block.Blocklist, error) {
 	}
 
 	return blockList, nil
+}
+
+func (c *chains) NewPortKnocking(name string) (PortKnocking, error) {
+	portKnocking, err := newPortKnocking(c.nft, c.family, c.table, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return portKnocking, nil
 }
 
 func clearRules(nft nft.NFT, family nftFamily.Type, table string) error {
