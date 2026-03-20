@@ -63,6 +63,11 @@ func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewall.Confi
 		return firewall.Config{}, err
 	}
 
+	portKnocking, err := setting.ToConfigPortKnocking()
+	if err != nil {
+		return firewall.Config{}, err
+	}
+
 	return firewall.Config{
 		InPorts:  inPorts,
 		OutPorts: outPorts,
@@ -96,7 +101,8 @@ func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewall.Confi
 			ChainOutputName:  setting.MetadataNaming.ChainOutputName,
 			ChainForwardName: setting.MetadataNaming.ChainForwardName,
 		},
-		Policy: configPolicy,
+		Policy:       configPolicy,
+		PortKnocking: portKnocking,
 	}, nil
 }
 
