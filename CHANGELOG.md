@@ -1,5 +1,7 @@
 ## 0.9.0 (Soon)
 #### Русский
+* Добавилась поддержка Port knocking.
+  * В firewall.toml добавился раздел Port knocking.
 * Теперь вы можете получить список IP-адресов от различных сервисов для блокировки доступа:
   * Spamhaus Don't Route Or Peer Lists
   * DShield.org Recommended Block List
@@ -14,6 +16,8 @@
 * Добавлен новый файл настроек, blocklists.toml. Он содержит параметры для получения списка IP-адресов для блокировки.
 ***
 #### English
+* Added support for port knocking.
+  * A Port knocking section has been added to firewall.toml.
 * Now you can get a list of IP addresses from various services to block access:
   * Spamhaus Don't Route Or Peer Lists
   * DShield.org Recommended Block List
