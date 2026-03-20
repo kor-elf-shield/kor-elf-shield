@@ -509,6 +509,67 @@ forward_drop = "drop"
 forward_priority = -10
 
 ###############################################################################
+# РАЗДЕЛ:Port knocking
+# ***
+# SECTION:Port knocking
+###############################################################################
+###
+# Тут можно настрить Port knocking. Это когда надо открыть порт, только поcле определённых стуков по определённому портам.
+#
+# Пример:
+# [[portKnocking]]
+# name = "ssh" # Имя должно быть уникальное и разрешены символы: "a-z, A-Z, -, _"
+# port = 22 # Номер порта, который нужно открыть после всех стуков
+# protocol = "tcp" # Протокол: tcp, udp
+# ip_version = "ip4" # Версия IP: ip4, ip6
+# [[portKnocking.knock]] # Первый стук
+# port = 2222 # Порт стука
+# protocol = "tcp" # Протокол: tcp, udp
+# timeout = 30 # Время в секундах на которое работает стук
+# action = "drop" # Во время стука, какой ответ отдавать: accept, return, drop or reject
+## Лучше установить для параметра "action" значение "drop", чтобы любой, кто попытается угадать такие порты для "стука",
+## не смог отличить их от заблокированного порта.
+# [[portKnocking.knock]] # Второй стук (можно добавлять сколько хотите)
+# port = 2225
+# protocol = "tcp"
+# timeout = 30
+# action = "drop"
+#
+# Рассмотрим пример. Мы назвали настройку для portKnocking "ssh". В nftables будут созданны наборы sets таким образом:
+# knock_ssh_0, knock_ssh_1. Мы открываем 22/tcp порт для IP адреса, который прошёл в данном случае два стука.
+# 1 стук надо сделать на 2222/tcp и в течении 30 секунд надо сделать второй стук на порт 2225/tcp.
+# После второго стука будет открыт для данного IP адреса порт 22/tcp на 30 секунд.
+#
+# ***
+#
+# Here you can configure port knocking. This allows you to open a port only after certain knocks on a specific ports.
+#
+# Example:
+# [[portKnocking]]
+# name = "ssh" # The name must be unique and symbols are allowed: "a-z, A-Z, -, _"
+# port = 22 # The port number that needs to be opened after all the knocking
+# protocol = "tcp" # Protocol: tcp, udp
+# ip_version = "ip4" # IP version: ip4, ip6
+# [[portKnocking.knock]] # The first knock
+# port = 2222 # Port of knocking
+# protocol = "tcp" # Protocol: tcp, udp
+# timeout = 30 # The time in seconds for which the knocking works
+# action = "drop" # When knocking, what answer should I give: accept, return, drop or reject
+## It's best to set the "action" parameter to "drop" so that anyone trying to guess such ports for "knocking"
+## won't be able to distinguish them from a blocked port.
+# [[portKnocking.knock]] # Second knock (you can add as many as you want)
+# port = 2225
+# protocol = "tcp"
+# timeout = 30
+# action = "drop"
+#
+# Let's look at an example. We named the portKnocking setting "ssh." Sets will be created in nftables as follows:
+# knock_ssh_0, knock_ssh_1. We open port 22/tcp for the IP address that, in this case, has been knocked twice.
+# The first knock should be made on 2222/tcp, and within 30 seconds, a second knock should be made on port 2225/tcp.
+# After the second knock, port 22/tcp will be opened for this IP address for 30 seconds.
+###
+
+###############################################################################
 # РАЗДЕЛ:Именование метаданных
 # ***
 # SECTION:Metadata Naming
