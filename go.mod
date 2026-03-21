@@ -3,6 +3,7 @@ module git.kor-elf.net/kor-elf-shield/kor-elf-shield
 go 1.25
 
 require (
+	git.kor-elf.net/kor-elf-shield/blocklist v1.1.0
 	git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.1
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
 	github.com/nxadm/tail v1.4.11

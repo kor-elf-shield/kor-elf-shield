@@ -2,6 +2,7 @@ package firewall
 
 import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
 )
 
 type Config struct {
@@ -12,6 +13,7 @@ type Config struct {
 	Options        ConfigOptions
 	MetadataNaming ConfigMetadata
 	Policy         ConfigPolicy
+	PortKnocking   []ConfigPortKnocking
 }
 
 type ConfigOptions struct {
@@ -72,6 +74,19 @@ type ConfigIP struct {
 	Port      types.L4Port
 	Action    types.Action
 	LimitRate string
+}
+
+type ConfigPortKnocking struct {
+	Name      string
+	Port      types.L4Port
+	IPVersion ip.Version
+	Knocks    []*ConfigKnock
+}
+
+type ConfigKnock struct {
+	Port    types.L4Port
+	Action  types.KnockAction
+	Timeout uint32
 }
 
 type ClearMode int8

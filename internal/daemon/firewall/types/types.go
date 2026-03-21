@@ -41,6 +41,30 @@ func (a Action) String() string {
 	}
 }
 
+type KnockAction int8
+
+const (
+	KnockActionAccept KnockAction = iota + 1
+	KnockActionReject
+	KnockActionDrop
+	KnockActionReturn
+)
+
+func (a KnockAction) String() string {
+	switch a {
+	case KnockActionAccept:
+		return "accept"
+	case KnockActionReject:
+		return "reject"
+	case KnockActionDrop:
+		return "drop"
+	case KnockActionReturn:
+		return "return"
+	default:
+		return "drop"
+	}
+}
+
 type Protocol int8
 
 const (

@@ -5,6 +5,7 @@ import (
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
@@ -14,7 +15,13 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
-func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notifications.Notifications, docker docker_monitor.Docker) (Daemon, error) {
+func NewDaemon(
+	opts DaemonOptions,
+	logger log.Logger,
+	notifications notifications.Notifications,
+	docker docker_monitor.Docker,
+	blocklist blocklist.Blocklist,
+) (Daemon, error) {
 	if logger == nil {
 		return nil, errors.New("logger is nil")
 	}
@@ -30,7 +37,14 @@ func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notification
 	}
 
 	blockingService := blocking.New(opts.Repositories.Blocking(), logger)
-	firewall, err := firewall2.New(opts.PathNftables, blockingService, logger, opts.ConfigFirewall, docker)
+	firewall, err := firewall2.New(
+		opts.PathNftables,
+		blockingService,
+		logger,
+		opts.ConfigFirewall,
+		docker,
+		blocklist,
+	)
 
 	blockService := brute_force_protection_group.NewBlockService(firewall.BlockIP, firewall.BlockIPWithPorts)
 	analyzerService := analyzer.New(opts.ConfigAnalyzer, blockService, opts.Repositories, logger, notifications)
@@ -43,5 +57,6 @@ func NewDaemon(opts DaemonOptions, logger log.Logger, notifications notification
 		notifications: notifications,
 		analyzer:      analyzerService,
 		docker:        docker,
+		blocklist:     blocklist,
 	}, nil
 }

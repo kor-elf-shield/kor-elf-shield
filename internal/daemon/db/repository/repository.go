@@ -12,6 +12,7 @@ const (
 	alertGroupBucket                = "alert_group"
 	bruteForceProtectionGroupBucket = "brute_force_protection_group"
 	blockingBucket                  = "blocking"
+	blocklistBucket                 = "blocklist"
 )
 
 func nextID(b *bbolt.Bucket) ([]byte, error) {

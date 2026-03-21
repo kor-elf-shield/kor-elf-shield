@@ -1,6 +1,8 @@
 package firewall
 
 import (
+	"fmt"
+
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 	"github.com/spf13/viper"
@@ -14,6 +16,7 @@ type Setting struct {
 	Options        options
 	MetadataNaming metadataNaming
 	Policy         policy
+	PortKnocking   []portKnocking
 }
 
 func InitSetting(path string) (Setting, error) {
@@ -49,6 +52,7 @@ func settingDefault() Setting {
 		Options:        defaultOptions(),
 		MetadataNaming: defaultMetadataNaming(),
 		Policy:         defaultPolicy(),
+		PortKnocking:   defaultPortKnocking(),
 	}
 }
 
@@ -100,4 +104,26 @@ func (s Setting) ToIPs() (IPs IPs, error error) {
 	}
 
 	return
+}
+
+func (s Setting) ToConfigPortKnocking() ([]firewall.ConfigPortKnocking, error) {
+	fmt.Println(s.PortKnocking)
+
+	var configPortKnocking []firewall.ConfigPortKnocking
+
+	portKnockingNames := make(map[string]string)
+
+	for _, portKnocking := range s.PortKnocking {
+		if _, ok := portKnockingNames[portKnocking.Name]; ok {
+			return nil, fmt.Errorf("port knocking name %s is duplicated", portKnocking.Name)
+		}
+		portKnockingNames[portKnocking.Name] = portKnocking.Name
+
+		addPortKnocking, err := portKnocking.ToPortKnocking()
+		if err != nil {
+			return nil, err
+		}
+		configPortKnocking = append(configPortKnocking, addPortKnocking)
+	}
+	return configPortKnocking, nil
 }
