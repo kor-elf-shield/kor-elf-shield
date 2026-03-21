@@ -1,4 +1,4 @@
-## 0.9.0 (Soon)
+## 0.9.0 (21.3.2026)
 #### Русский
 * Добавилась поддержка Port knocking.
   * В firewall.toml добавился раздел Port knocking.
