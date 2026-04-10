@@ -107,8 +107,6 @@ func (s Setting) ToIPs() (IPs IPs, error error) {
 }
 
 func (s Setting) ToConfigPortKnocking() ([]firewall.ConfigPortKnocking, error) {
-	fmt.Println(s.PortKnocking)
-
 	var configPortKnocking []firewall.ConfigPortKnocking
 
 	portKnockingNames := make(map[string]string)
