@@ -1,11 +1,13 @@
 ## 0.10.0 (soon)
 #### Русский
 * При автоматической блокировке добавил возможность получать данные об IP-адресах (континент, страна, город, часовой пояс).
+* В файл analyzer.toml добавлен параметр type к [[logAlert.rules.patterns.values]] в котором можно указать тип "ip". Это позволит для этого поля получить данные об IP-адресе при отправке оповещения.
 * В настройки файла kor-elf-shield.toml добавлен параметр otherSettingsPath.geoip.
 * Добавлен новый файл настроек geoip.toml. В этом файле настраиваются параметры для получения данных об IP-адресах.
 ***
 #### English
 * Added the ability to receive data on IP addresses (continent, country, city, time zone) during automatic blocking.
+* The analyzer.toml file now has a new parameter, type, added to [[logAlert.rules.patterns.values]], allowing you to specify the "ip" type. This will allow this field to retrieve IP address data when sending an alert.
 * The otherSettingsPath.geoip parameter has been added to the kor-elf-shield.toml file.
 * A new geoip.toml settings file has been added. This file configures parameters for retrieving IP address data.
 ***
