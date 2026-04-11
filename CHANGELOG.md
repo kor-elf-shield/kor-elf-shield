@@ -4,6 +4,7 @@
 * В файл analyzer.toml добавлен параметр type к [[logAlert.rules.patterns.values]] в котором можно указать тип "ip". Это позволит для этого поля получить данные об IP-адресе при отправке оповещения.
 * Для получения данных об IP-адресах можно вызвать команду `kor-elf-shield geoip info <ip_address>`.
 * Можно принудительно обновить базу geoip командой `kor-elf-shield geoip refresh`.
+* Исправлена ошибка, когда в уведомлениях приходили лишние записи logs.
 * В настройки файла kor-elf-shield.toml добавлен параметр otherSettingsPath.geoip.
 * Добавлен новый файл настроек geoip.toml. В этом файле настраиваются параметры для получения данных об IP-адресах.
 ***
@@ -12,6 +13,7 @@
 * The analyzer.toml file now has a new parameter, type, added to [[logAlert.rules.patterns.values]], allowing you to specify the "ip" type. This will allow this field to retrieve IP address data when sending an alert.
 * To obtain IP address data, you can use the `kor-elf-shield geoip info <ip_address>` command.
 * You can force a geoip database update with the `kor-elf-shield geoip refresh` command.
+* Fixed a bug where notifications contained extra logs.
 * The otherSettingsPath.geoip parameter has been added to the kor-elf-shield.toml file.
 * A new geoip.toml settings file has been added. This file configures parameters for retrieving IP address data.
 ***
