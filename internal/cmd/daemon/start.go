@@ -9,6 +9,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
@@ -78,7 +79,12 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 
 	blocklistService := newBlocklistService(ctx, repositories.Blocklist(), logger)
 
-	d, err := daemon.NewDaemon(config, logger, notificationsService, dockerService, blocklistService)
+	geoIPService := newGeoIPService(config.DataDir, logger)
+	defer func() {
+		_ = geoIPService.Close()
+	}()
+
+	d, err := daemon.NewDaemon(config, logger, notificationsService, dockerService, blocklistService, geoIPService)
 	if err != nil {
 		logger.Fatal(err.Error())
 
@@ -149,4 +155,17 @@ func newBlocklistService(ctx context.Context, blocklistRepository repository.Blo
 	}
 
 	return blocklistService
+}
+
+func newGeoIPService(dataDir string, logger log.Logger) geoip.GeoIP {
+	config, geoIPSupport, err := setting.Config.OtherSettingsPath.ToConfig(dataDir, logger)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to create geoIP service: %s", err))
+		return geoip.NewFalseGeoIP()
+	}
+	if !geoIPSupport || config.GeoIP == nil {
+		return geoip.NewFalseGeoIP()
+	}
+
+	return geoip.New(config, logger)
 }

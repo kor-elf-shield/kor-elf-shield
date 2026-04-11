@@ -15,6 +15,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
@@ -37,6 +38,7 @@ type daemon struct {
 	analyzer      analyzer.Analyzer
 	docker        docker_monitor.Docker
 	blocklist     blocklist.Blocklist
+	geoIPService  geoip.GeoIP
 
 	stopCh chan struct{}
 }
@@ -88,6 +90,11 @@ func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16
 	d.blocklist.Run()
 	defer func() {
 		_ = d.blocklist.Close()
+	}()
+
+	d.geoIPService.Run(ctx)
+	defer func() {
+		_ = d.geoIPService.Close()
 	}()
 
 	go d.socket.Run(ctx, d.socketCommand)
