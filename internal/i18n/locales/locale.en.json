@@ -65,7 +65,7 @@
   "daemon is not reopening logger": "The daemon did not reopen the log",
 
   "time": "Time: {{.Time}}",
-  "log": "Log: ",
+  "log": "Log ({{.Count}}): ",
   "user": "User",
   "access to user has been gained": "Access to user has been gained",
   "unknown": "unknown",

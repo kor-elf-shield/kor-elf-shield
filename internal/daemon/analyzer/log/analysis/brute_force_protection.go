@@ -309,7 +309,9 @@ func (p *bruteForceProtection) sendNotify(subject string, notify *bruteForceProt
 	for _, field := range notify.fields {
 		text += fmt.Sprintf("%s: %s\n", field.name, field.value)
 	}
-	text += "\n" + i18n.Lang.T("log") + "\n"
+	text += "\n" + i18n.Lang.T("log", map[string]any{
+		"Count": len(notify.messages),
+	}) + "\n"
 	for _, message := range notify.messages {
 		text += message + "\n\n"
 	}

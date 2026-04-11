@@ -164,7 +164,9 @@ func (a *alert) sendNotify(notify *alertNotify) {
 		}
 		text += fmt.Sprintf("%s: %s\n", field.name, v)
 	}
-	text += "\n" + i18n.Lang.T("log") + "\n"
+	text += "\n" + i18n.Lang.T("log", map[string]any{
+		"Count": len(notify.messages),
+	}) + "\n"
 	for _, message := range notify.messages {
 		text += message + "\n\n"
 	}

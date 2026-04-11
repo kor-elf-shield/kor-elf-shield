@@ -65,7 +65,7 @@
   "daemon is not reopening logger": "Демон не открыл журнал повторно",
 
   "time": "Время: {{.Time}}",
-  "log": "Лог: ",
+  "log": "Лог ({{.Count}}): ",
   "user": "Пользователь",
   "access to user has been gained": "Получен доступ к пользователю",
   "unknown": "неизвестный",

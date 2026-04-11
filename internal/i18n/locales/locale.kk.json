@@ -65,7 +65,7 @@
   "daemon is not reopening logger": "Жын журналды қайта ашпады",
 
   "time": "Уақыт: {{.Time}}",
-  "log": "Лог: ",
+  "log": "Лог ({{.Count}}): ",
   "user": "Пайдаланушы",
   "access to user has been gained": "Пайдаланушыға кіру мүмкіндігі алынды",
   "unknown": "белгісіз",
