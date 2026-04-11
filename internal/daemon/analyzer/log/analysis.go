@@ -35,7 +35,7 @@ func NewAnalysis(
 	bruteForceProtectionGroupService := brute_force_protection_group.NewGroup(repositories.BruteForceProtectionGroup(), logger)
 
 	return &analysis{
-		alertService: analysisServices.NewAlert(rulesIndex, alertGroupService, logger, notify),
+		alertService: analysisServices.NewAlert(rulesIndex, alertGroupService, logger, notify, ipInfo),
 		bruteForceProtectionService: analysisServices.NewBruteForceProtection(
 			rulesIndex,
 			bruteForceProtectionGroupService,

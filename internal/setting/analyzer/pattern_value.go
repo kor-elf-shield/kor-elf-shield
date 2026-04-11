@@ -10,6 +10,7 @@ import (
 type PatternValue struct {
 	Name  string `mapstructure:"name"`
 	Value int8   `mapstructure:"value"`
+	Type  string `mapstructure:"type"`
 }
 
 func (v *PatternValue) ToPatternValue() (config.PatternValue, error) {
@@ -20,6 +21,14 @@ func (v *PatternValue) ToPatternValue() (config.PatternValue, error) {
 	value := config.PatternValue{
 		Name:  v.Name,
 		Value: uint8(v.Value),
+	}
+
+	if v.Type != "" {
+		t, err := v.toPatternTypeValue()
+		if err != nil {
+			return value, err
+		}
+		value.Type = t
 	}
 
 	return value, nil
@@ -48,4 +57,17 @@ func (v *PatternValue) validate() error {
 	}
 
 	return nil
+}
+
+func (v *PatternValue) toPatternTypeValue() (config.PatternTypeValue, error) {
+	if v.Type == "" {
+		return "", fmt.Errorf("type is required")
+	}
+
+	switch v.Type {
+	case "ip":
+		return config.PatternValueIP, nil
+	default:
+		return "", fmt.Errorf("type not support")
+	}
 }
