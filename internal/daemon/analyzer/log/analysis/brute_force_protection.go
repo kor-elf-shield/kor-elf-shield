@@ -311,7 +311,7 @@ func (p *bruteForceProtection) sendNotify(subject string, notify *bruteForceProt
 	}
 	text += "\n" + i18n.Lang.T("log") + "\n"
 	for _, message := range notify.messages {
-		text += message + "\n"
+		text += message + "\n\n"
 	}
 	p.notify.SendAsync(notifications.Message{Subject: subject, Body: text})
 }

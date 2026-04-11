@@ -166,7 +166,7 @@ func (a *alert) sendNotify(notify *alertNotify) {
 	}
 	text += "\n" + i18n.Lang.T("log") + "\n"
 	for _, message := range notify.messages {
-		text += message + "\n"
+		text += message + "\n\n"
 	}
 	a.notify.SendAsync(notifications.Message{Subject: subject, Body: text})
 }
