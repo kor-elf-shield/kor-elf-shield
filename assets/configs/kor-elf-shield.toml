@@ -284,3 +284,14 @@ docker = "/etc/kor-elf-shield/docker.toml"
 # Default: /etc/kor-elf-shield/blocklists.toml
 ###
 blocklists = "/etc/kor-elf-shield/blocklists.toml"
+
+###
+# Укажите путь к настройкам для получения данных об IP-адресах.
+# Файл должен иметь расширение .toml.
+# По умолчанию: /etc/kor-elf-shield/geoip.toml
+# ***
+# Specify the path to the settings for obtaining data on IP addresses.
+# The file must have the .toml extension.
+# Default: /etc/kor-elf-shield/geoip.toml
+###
+geoip = "/etc/kor-elf-shield/geoip.toml"
