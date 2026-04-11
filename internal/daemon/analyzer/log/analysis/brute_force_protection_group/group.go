@@ -67,6 +67,7 @@ func (g *group) Analyze(group *brute_force_protection.Group, eventTime time.Time
 		}
 
 		g.logger.Debug(fmt.Sprintf("Brute force protection not rate limited"))
+		entityGroup.LastLogs = []string{}
 		analysisResult, entityGroup = g.analysisResult(rateLimit, eventTime, message, entityGroup)
 
 		return entityGroup, nil
