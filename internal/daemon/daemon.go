@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -20,6 +21,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/format"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
@@ -30,6 +32,7 @@ type Daemon interface {
 }
 
 type daemon struct {
+	info          DaemonInfo
 	pidFile       pidfile.PidFile
 	socket        socket.Socket
 	logger        log.Logger
@@ -41,6 +44,12 @@ type daemon struct {
 	geoIPService  geoip.GeoIP
 
 	stopCh chan struct{}
+}
+
+type DaemonInfo struct {
+	Ver       string
+	BuiltWith string
+	StartTime time.Time
 }
 
 func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16) error {
@@ -153,8 +162,36 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 	case "stop":
 		d.stopCh <- struct{}{}
 		return socket.Write("ok")
+
 	case "status":
-		return socket.Write("ok")
+		uptime := time.Since(d.info.StartTime)
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+
+		text := fmt.Sprintf(
+			"ok\n\n***\n"+
+				"Version:    %s\n"+
+				"BuiltWith: %s\n"+
+				"Uptime:     %s\n"+
+				"Goroutines: %d\n"+
+				"Alloc:      %s\n"+
+				"HeapAlloc:  %s\n"+
+				"Sys:        %s\n"+
+				"HeapSys:    %s\n"+
+				"NumGC:      %d\n"+
+				"***\n",
+			d.info.Ver,
+			d.info.BuiltWith,
+			uptime,
+			runtime.NumGoroutine(),
+			format.HumanBytes(m.Alloc),     // Alloc is the total bytes of allocated heap objects.
+			format.HumanBytes(m.HeapAlloc), // HeapAlloc is the total bytes of heap memory obtained from the OS.
+			format.HumanBytes(m.Sys),       // Sys is the total bytes of memory obtained from the OS.
+			format.HumanBytes(m.HeapSys),   // HeapSys is the total bytes of heap memory obtained from the OS.
+			m.NumGC,
+		)
+		return socket.Write(text)
+
 	case "reopen_logger":
 		if err := d.logger.ReOpen(); err != nil {
 			_ = socket.Write("logger reopen failed: " + err.Error())

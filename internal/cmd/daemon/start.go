@@ -14,7 +14,6 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
-
 	"github.com/urfave/cli/v3"
 )
 
@@ -84,7 +83,12 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		_ = geoIPService.Close()
 	}()
 
-	d, err := daemon.NewDaemon(config, logger, notificationsService, dockerService, blocklistService, geoIPService)
+	info := daemon.DaemonInfo{
+		Ver:       setting.AppVer,
+		BuiltWith: setting.AppBuiltWith,
+		StartTime: setting.AppStartTime,
+	}
+	d, err := daemon.NewDaemon(info, config, logger, notificationsService, dockerService, blocklistService, geoIPService)
 	if err != nil {
 		logger.Fatal(err.Error())
 

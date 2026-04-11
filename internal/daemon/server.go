@@ -17,6 +17,7 @@ import (
 )
 
 func NewDaemon(
+	info DaemonInfo,
 	opts DaemonOptions,
 	logger log.Logger,
 	notifications notifications.Notifications,
@@ -52,6 +53,7 @@ func NewDaemon(
 	analyzerService := analyzer.New(opts.ConfigAnalyzer, blockService, opts.Repositories, logger, notifications, geoIPService.Info)
 
 	return &daemon{
+		info:          info,
 		pidFile:       pidFile,
 		socket:        sock,
 		logger:        logger,

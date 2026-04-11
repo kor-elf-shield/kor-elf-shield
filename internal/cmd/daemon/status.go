@@ -32,11 +32,7 @@ func cmdStatus(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	if result != "ok" {
-		return errors.New(i18n.Lang.T("daemon is not running"))
-	}
-
-	fmt.Println("ok")
+	fmt.Println(result)
 
 	return nil
 }
