@@ -1,3 +1,14 @@
+## 0.10.0 (soon)
+#### Русский
+* При автоматической блокировке добавил возможность получать данные об IP-адресах (континент, страна, город, часовой пояс).
+* В настройки файла kor-elf-shield.toml добавлен параметр otherSettingsPath.geoip.
+* Добавлен новый файл настроек geoip.toml. В этом файле настраиваются параметры для получения данных об IP-адресах.
+***
+#### English
+* Added the ability to receive data on IP addresses (continent, country, city, time zone) during automatic blocking.
+* The otherSettingsPath.geoip parameter has been added to the kor-elf-shield.toml file.
+* A new geoip.toml settings file has been added. This file configures parameters for retrieving IP address data.
+***
 ## 0.9.0 (21.3.2026)
 #### Русский
 * Добавилась поддержка Port knocking.
