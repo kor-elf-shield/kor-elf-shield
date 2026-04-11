@@ -42,6 +42,16 @@
   "cmd.daemon.block.delete.Description": "IP мекенжайын блоктау тізімінен алып тастаңыз. \nМысал: \nkor-elf-shield block delete 192.168.1.1",
   "block_delete_ip_success": "IP мекенжайы блоктау тізімінен сәтті жойылды.",
 
+  "cmd.daemon.geoip.Usage": "IP мекенжайы бойынша ел мен қала деректерін алу",
+
+  "cmd.daemon.geoip.info.Usage": "IP мекенжайы бойынша ел мен қала туралы ақпарат алу",
+  "cmd.daemon.geoip.info.Description": "IP мекенжайы бойынша ел мен қала туралы ақпарат алу. geoip.toml файлында қосулы және конфигурацияланған болуы керек. \nМысал: \nkor-elf-shield geoip info 192.168.1.1",
+  "cmd.daemon.geoip.info.FlagUsage.ip": "Ел мен қала туралы ақпарат алу үшін IP мекенжайы",
+
+  "cmd.daemon.geoip.refresh.Usage": "GeoIP дерекқорын жаңарту",
+  "cmd.daemon.geoip.refresh.Description": "GeoIP дерекқорын жаңарту. geoip.toml файлында қосулы және конфигурацияланған болуы керек. \nМысал: \nkor-elf-shield geoip refresh",
+  "geoip_refresh_success": "GeoIP дерекқоры сәтті жаңартылды",
+
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
   "invalid log encoding": "Жарамсыз кодтау параметрі. Қазіргі уақытта орнатылған: {{.Encoding}}. Жарамды мәндер: {{.Encodings}}",

@@ -217,6 +217,27 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 			return err
 		}
 		return socket.Write("ok")
+
+	case "geoip_info":
+		if args["ip"] == "" {
+			return socket.Write("ip argument is required")
+		}
+		info, err := d.geoIPService.Info(args["ip"])
+		if err != nil {
+			_ = socket.Write("geoip info failed: " + err.Error())
+			return err
+		}
+		return socket.Write(info)
+
+	case "geoip_refresh":
+		ctx := context.Background()
+		if err := d.geoIPService.Refresh(ctx); err != nil {
+			_ = socket.Write("geoip refresh failed: " + err.Error())
+			return err
+		}
+		_ = socket.Write("ok")
+		return nil
+
 	default:
 		_ = socket.Write("unknown command")
 		return errors.New("unknown command")

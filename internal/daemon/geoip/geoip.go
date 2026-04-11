@@ -16,6 +16,7 @@ type Info func(ip string) (string, error)
 type GeoIP interface {
 	Info(ip string) (string, error)
 	Run(ctx context.Context)
+	Refresh(ctx context.Context) (err error)
 	Close() error
 }
 
@@ -72,6 +73,10 @@ func (g *geoIP) Run(ctx context.Context) {
 			}
 		}
 	}()
+}
+
+func (g *geoIP) Refresh(ctx context.Context) (err error) {
+	return g.config.GeoIP.Refresh(ctx)
 }
 
 func (g *geoIP) Close() error {

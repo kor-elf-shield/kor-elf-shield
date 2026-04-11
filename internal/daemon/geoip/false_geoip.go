@@ -19,6 +19,10 @@ func (g *falseGeoIP) Run(_ context.Context) {
 
 }
 
+func (g *falseGeoIP) Refresh(_ context.Context) error {
+	return nil
+}
+
 func (g *falseGeoIP) Close() error {
 	return nil
 }
