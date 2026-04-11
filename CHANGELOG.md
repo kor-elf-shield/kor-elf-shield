@@ -5,6 +5,7 @@
 * Для получения данных об IP-адресах можно вызвать команду `kor-elf-shield geoip info <ip_address>`.
 * Можно принудительно обновить базу geoip командой `kor-elf-shield geoip refresh`.
 * Исправлена ошибка, когда в уведомлениях приходили лишние записи logs.
+* Улучшен вывод информации в комманде `kor-elf-shield status`.
 * В настройки файла kor-elf-shield.toml добавлен параметр otherSettingsPath.geoip.
 * Добавлен новый файл настроек geoip.toml. В этом файле настраиваются параметры для получения данных об IP-адресах.
 ***
@@ -14,6 +15,7 @@
 * To obtain IP address data, you can use the `kor-elf-shield geoip info <ip_address>` command.
 * You can force a geoip database update with the `kor-elf-shield geoip refresh` command.
 * Fixed a bug where notifications contained extra logs.
+* Improved output of information in the `kor-elf-shield status` command.
 * The otherSettingsPath.geoip parameter has been added to the kor-elf-shield.toml file.
 * A new geoip.toml settings file has been added. This file configures parameters for retrieving IP address data.
 ***
