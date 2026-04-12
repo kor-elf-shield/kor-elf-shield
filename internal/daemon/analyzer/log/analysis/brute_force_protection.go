@@ -10,6 +10,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
@@ -26,6 +27,7 @@ type bruteForceProtection struct {
 	blockService brute_force_protection_group.BlockService
 	logger       log.Logger
 	notify       notifications.Notifications
+	ipInfo       geoip.Info
 }
 
 type bruteForceProtectionAnalyzeRuleReturn struct {
@@ -45,13 +47,21 @@ type bruteForceProtectionNotify struct {
 	err      error
 }
 
-func NewBruteForceProtection(rulesIndex *RulesIndex, groupService brute_force_protection_group.Group, blockService brute_force_protection_group.BlockService, logger log.Logger, notify notifications.Notifications) BruteForceProtection {
+func NewBruteForceProtection(
+	rulesIndex *RulesIndex,
+	groupService brute_force_protection_group.Group,
+	blockService brute_force_protection_group.BlockService,
+	logger log.Logger,
+	notify notifications.Notifications,
+	ipInfo geoip.Info,
+) BruteForceProtection {
 	return &bruteForceProtection{
 		rulesIndex:   rulesIndex,
 		groupService: groupService,
 		blockService: blockService,
 		logger:       logger,
 		notify:       notify,
+		ipInfo:       ipInfo,
 	}
 }
 
@@ -273,7 +283,14 @@ func (p *bruteForceProtection) sendNotify(subject string, notify *bruteForceProt
 			"Error": notify.err.Error(),
 		}) + "\n"
 	}
-	text += "IP: " + notify.ip.String() + "\n"
+
+	ipInfo, err := p.ipInfo(notify.ip.String())
+	if err != nil {
+		ipInfo = notify.ip.String()
+		p.logger.Error(fmt.Sprintf("Failed to get geoip info for ip %s: %s", notify.ip, err))
+	}
+
+	text += "IP: " + ipInfo + "\n"
 	if len(notify.ports) > 0 {
 		var ports []string
 		for _, port := range notify.ports {
@@ -292,9 +309,11 @@ func (p *bruteForceProtection) sendNotify(subject string, notify *bruteForceProt
 	for _, field := range notify.fields {
 		text += fmt.Sprintf("%s: %s\n", field.name, field.value)
 	}
-	text += "\n" + i18n.Lang.T("log") + "\n"
+	text += "\n" + i18n.Lang.T("log", map[string]any{
+		"Count": len(notify.messages),
+	}) + "\n"
 	for _, message := range notify.messages {
-		text += message + "\n"
+		text += message + "\n\n"
 	}
 	p.notify.SendAsync(notifications.Message{Subject: subject, Body: text})
 }

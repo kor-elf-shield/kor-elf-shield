@@ -1,5 +1,7 @@
 git.kor-elf.net/kor-elf-shield/blocklist v1.1.0 h1:NS8be3TFBsUn+ft3oG5sAD56iJTGOkFH6GgjepEnS0s=
 git.kor-elf.net/kor-elf-shield/blocklist v1.1.0/go.mod h1:nNbQux5vbuoCa3wMiC2QsLb4tO1JLCssGzdljizcJUs=
+git.kor-elf.net/kor-elf-shield/geoip2 v0.1.2 h1:/J9U+h9H92hW6TtwCznkRANqhX5kvBpN4uV7xDbwXpM=
+git.kor-elf.net/kor-elf-shield/geoip2 v0.1.2/go.mod h1:ULMUjpd2I9ikkDDE69IlpKT4vR2/nlYT0cqoR2T95sM=
 git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.1 h1:3oGtZ/r1YAdlvI16OkZSCaxcWztHe/33ITWfI2LaQm0=
 git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.1/go.mod h1:a7F+XdL1pK5P3ucQRR2EK/fABAP37LLBENiA4hX7L6A=
 github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk=
@@ -23,6 +25,10 @@ github.com/nicksnyder/go-i18n/v2 v2.6.1 h1:JDEJraFsQE17Dut9HFDHzCoAWGEQJom5s0TRd
 github.com/nicksnyder/go-i18n/v2 v2.6.1/go.mod h1:Vee0/9RD3Quc/NmwEjzzD7VTZ+Ir7QbXocrkhOzmUKA=
 github.com/nxadm/tail v1.4.11 h1:8feyoE3OzPrcshW5/MJ4sGESc5cqmGkGCWlco4l0bqY=
 github.com/nxadm/tail v1.4.11/go.mod h1:OTaG3NK980DZzxbRq6lEuzgU+mug70nY11sMd4JXXHc=
+github.com/oschwald/geoip2-golang/v2 v2.1.0 h1:DjnLhNJu9WHwTrmoiQFvgmyJoczhdnm7LB23UBI2Amo=
+github.com/oschwald/geoip2-golang/v2 v2.1.0/go.mod h1:qdVmcPgrTJ4q2eP9tHq/yldMTdp2VMr33uVdFbHBiBc=
+github.com/oschwald/maxminddb-golang/v2 v2.1.1 h1:lA8FH0oOrM4u7mLvowq8IT6a3Q/qEnqRzLQn9eH5ojc=
+github.com/oschwald/maxminddb-golang/v2 v2.1.1/go.mod h1:PLdx6PR+siSIoXqqy7C7r3SB3KZnhxWr1Dp6g0Hacl8=
 github.com/pelletier/go-toml/v2 v2.2.4 h1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=
 github.com/pelletier/go-toml/v2 v2.2.4/go.mod h1:2gIqNv+qfxSVS7cM2xJQKtLSTLUE9V8t9Stt+h56mCY=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

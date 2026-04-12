@@ -402,6 +402,7 @@ notify = true
 # [[logAlert.rules.patterns.values]]
 # name = "IP"
 # value = 3
+# type = "ip"
 #
 # ***
 # Specify the log settings to monitor for notifications.
@@ -425,4 +426,5 @@ notify = true
 # [[logAlert.rules.patterns.values]]
 # name = "IP"
 # value = 3
+# type = "ip"
 ###

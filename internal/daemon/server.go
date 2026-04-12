@@ -9,6 +9,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
@@ -16,11 +17,13 @@ import (
 )
 
 func NewDaemon(
+	info DaemonInfo,
 	opts DaemonOptions,
 	logger log.Logger,
 	notifications notifications.Notifications,
 	docker docker_monitor.Docker,
 	blocklist blocklist.Blocklist,
+	geoIPService geoip.GeoIP,
 ) (Daemon, error) {
 	if logger == nil {
 		return nil, errors.New("logger is nil")
@@ -47,9 +50,10 @@ func NewDaemon(
 	)
 
 	blockService := brute_force_protection_group.NewBlockService(firewall.BlockIP, firewall.BlockIPWithPorts)
-	analyzerService := analyzer.New(opts.ConfigAnalyzer, blockService, opts.Repositories, logger, notifications)
+	analyzerService := analyzer.New(opts.ConfigAnalyzer, blockService, opts.Repositories, logger, notifications, geoIPService.Info)
 
 	return &daemon{
+		info:          info,
 		pidFile:       pidFile,
 		socket:        sock,
 		logger:        logger,
@@ -58,5 +62,6 @@ func NewDaemon(
 		analyzer:      analyzerService,
 		docker:        docker,
 		blocklist:     blocklist,
+		geoIPService:  geoIPService,
 	}, nil
 }

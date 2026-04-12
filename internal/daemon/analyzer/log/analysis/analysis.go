@@ -20,8 +20,9 @@ type Entry struct {
 }
 
 type regexField struct {
-	name  string
-	value string
+	name      string
+	value     string
+	typeValue config.PatternTypeValue
 }
 
 func getValueStartEndByRegexIndex(valueId int, idx []int) (start int, end int, err error) {

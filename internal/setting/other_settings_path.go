@@ -7,13 +7,16 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	logger "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+
 	analyzerSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/blocklists"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/docker"
 	firewallSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/firewall"
+	geoIPSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/geoip"
 	notificationsSetting "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/notifications"
 
 	"github.com/wneessen/go-mail"
@@ -25,6 +28,7 @@ type otherSettingsPath struct {
 	Analyzer      string `mapstructure:"analyzer"`
 	Docker        string `mapstructure:"docker"`
 	Blocklists    string `mapstructure:"blocklists"`
+	GeoIP         string `mapstructure:"geoip"`
 }
 
 func otherSettingsPathDefault() *otherSettingsPath {
@@ -34,6 +38,7 @@ func otherSettingsPathDefault() *otherSettingsPath {
 		Analyzer:      "/etc/kor-elf-shield/analyzer.toml",
 		Docker:        "/etc/kor-elf-shield/docker.toml",
 		Blocklists:    "/etc/kor-elf-shield/blocklists.toml",
+		GeoIP:         "/etc/kor-elf-shield/geoip.toml",
 	}
 }
 
@@ -215,4 +220,22 @@ func (o *otherSettingsPath) ToBlocklistConfig(logger logger.Logger) (sources []*
 	}
 
 	return sources, setting.Enabled, nil
+}
+
+func (o *otherSettingsPath) ToConfig(dataDir string, logger logger.Logger) (geoIPService *geoip.Config, geoIPSupport bool, err error) {
+	setting, err := geoIPSetting.InitSetting(o.GeoIP)
+	if err != nil {
+		return &geoip.Config{}, false, err
+	}
+
+	if !setting.Enabled {
+		return nil, false, nil
+	}
+
+	geoIPService, err = setting.ToConfig(dataDir, logger)
+	if err != nil {
+		return geoIPService, false, err
+	}
+
+	return geoIPService, setting.Enabled, nil
 }

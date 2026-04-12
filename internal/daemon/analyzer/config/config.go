@@ -119,4 +119,11 @@ type AlertRegexPattern struct {
 type PatternValue struct {
 	Name  string
 	Value uint8
+	Type  PatternTypeValue
 }
+
+type PatternTypeValue string
+
+const (
+	PatternValueIP PatternTypeValue = "ip"
+)

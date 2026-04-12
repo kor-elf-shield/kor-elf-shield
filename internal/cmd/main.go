@@ -40,6 +40,7 @@ func NewMainApp(appVer AppVersion, defaultConfigPath string) *cli.Command {
 		daemon.CmdReopenLogger(),
 		daemon.CmdNotifications(),
 		daemon.CmdBlock(),
+		daemon.CmdGeoIP(),
 	}
 
 	return app

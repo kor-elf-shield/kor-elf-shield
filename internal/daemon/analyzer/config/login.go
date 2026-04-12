@@ -33,6 +33,7 @@ func NewLoginSSH(isNotify bool) ([]*Source, error) {
 						{
 							Name:  "IP",
 							Value: 3,
+							Type:  PatternValueIP,
 						},
 					},
 				},

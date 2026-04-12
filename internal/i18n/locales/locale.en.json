@@ -42,6 +42,16 @@
   "cmd.daemon.block.delete.Description": "Remove an IP address from the block list. \nExample: \nkor-elf-shield block delete 192.168.1.1",
   "block_delete_ip_success": "The IP address has been successfully removed from the block list.",
 
+  "cmd.daemon.geoip.Usage": "Obtaining country and city data by IP address",
+
+  "cmd.daemon.geoip.info.Usage": "Obtaining information about a country and city by IP address",
+  "cmd.daemon.geoip.info.Description": "Obtaining information about a country and city by IP address. Must be enabled and configured in geoip.toml. \nExample: \nkor-elf-shield geoip info 192.168.1.1",
+  "cmd.daemon.geoip.info.FlagUsage.ip": "IP address to obtain information about the country and city",
+
+  "cmd.daemon.geoip.refresh.Usage": "GeoIP database update",
+  "cmd.daemon.geoip.refresh.Description": "GeoIP database update. Must be enabled and configured in geoip.toml. \nExample: \nkor-elf-shield geoip refresh",
+  "geoip_refresh_success": "GeoIP database updated successfully",
+
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
   "invalid log encoding": "Invalid encoding setting. Currently set to: {{.Encoding}}. Valid values: {{.Encodings}}",
@@ -55,7 +65,7 @@
   "daemon is not reopening logger": "The daemon did not reopen the log",
 
   "time": "Time: {{.Time}}",
-  "log": "Log: ",
+  "log": "Log ({{.Count}}): ",
   "user": "User",
   "access to user has been gained": "Access to user has been gained",
   "unknown": "unknown",

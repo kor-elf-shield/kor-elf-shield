@@ -64,6 +64,7 @@ func (g *group) Analyze(alertGroup *config.AlertGroup, eventTime time.Time, mess
 		}
 
 		g.logger.Debug(fmt.Sprintf("Alert not rate limited"))
+		entityAlertGroup.LastLogs = []string{}
 		analysisResult, entityAlertGroup = g.analysisResult(rateLimit, eventTime, message, entityAlertGroup)
 
 		return entityAlertGroup, nil

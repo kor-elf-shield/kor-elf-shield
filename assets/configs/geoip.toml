@@ -1,0 +1,101 @@
+###############################################################################
+# РАЗДЕЛ:Настройки для получения данных об IP-адресах
+# ***
+# SECTION:Settings for obtaining IP address data
+###############################################################################
+
+###
+# Включает или выключает получения данных об IP-адресах.
+# !!! Не забудьте перед включением настроить данные от сервиса maxmind.com !!!
+# false = Выключает.
+# true  = Включает.
+#
+# По умолчанию: false
+# ***
+# Enables or disables retrieval of IP address data.
+# !!! Don't forget to configure the data from the maxmind.com service before turning it on !!!
+# false = Disables.
+# true = Enables.
+#
+# Default: false
+###
+enabled = false
+
+###
+# Мы указываем, через какой сервис мы будем получать данные об IP-адресе.
+# По умолчанию: maxmind
+# ***
+# We indicate through which service we will receive data about the IP address.
+# Default: maxmind
+###
+service = "maxmind"
+
+###############################################################################
+# СЕРВИС: MaxMind https://www.maxmind.com/en/geolite-free-ip-geolocation-data
+# ***
+# SERVICE: MaxMind https://www.maxmind.com/en/geolite-free-ip-geolocation-data
+###############################################################################
+[maxmind]
+
+###
+# ID пользователя.
+# Чтобы получить, нужно вначале зарегестрироватья тут: https://www.maxmind.com/en/geolite2/signup
+# ***
+# User ID.
+# To receive it, you must first register here: https://www.maxmind.com/en/geolite2/signup
+###
+username = ""
+
+###
+# Лицензионный ключ. Его надо сгенерировать в личном кабинете.
+# ***
+# License Key. It must be generated in your personal account.
+####
+password = ""
+
+###
+# Интервал обновления для обновления базы в секундах. Рекомендуется оставить на 86400 (1 раз в день).
+# ***
+# Update interval for database updates in seconds. Recommended setting: 86400 (once per day).
+###
+interval = 86400
+
+###
+# Язык на котором будут возвращаться данные об IP-адрессе.
+#
+# Допустимые значения:
+# Russian
+# English
+# Spanish
+# French
+# German
+# Japanese
+# Brazilian Portuguese
+# Simplified Chinese
+#
+# ***
+# The language in which IP address data will be returned.
+#
+# Acceptable values:
+# Russian
+# English
+# Spanish
+# French
+# German
+# Japanese
+# Brazilian Portuguese
+# Simplified Chinese
+#
+###
+language = "Russian"
+
+###
+# Если по каким-то причинам захотите поменять адрес.
+# Например: у сервиса поменялся адрес или у Вас есть платная подписка.
+# Не забудьте поле измененяи параметра url убрать комментарий.
+# ***
+# If for some reason you want to change your address.
+# For example: the service's address has changed or you have a paid subscription.
+# Don't forget to remove the comment from the change field for the url parameter.
+###
+#url = ""
