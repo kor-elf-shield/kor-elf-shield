@@ -12,6 +12,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 
 	nftables "git.kor-elf.net/kor-elf-shield/go-nftables-client"
+	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client/contract"
 )
 
 type API interface {
@@ -44,7 +45,7 @@ type API interface {
 }
 
 type firewall struct {
-	nft             nftables.NFT
+	nft             nft.NFT
 	logger          log.Logger
 	config          *Config
 	blockingService blocking.API
@@ -61,13 +62,13 @@ func New(
 	docker docker_monitor.Docker,
 	blocklist blocklist.Blocklist,
 ) (API, error) {
-	nft, err := nftables.NewWithPath(pathNFT)
+	nftClient, err := nftables.NewWithPath(pathNFT)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create nft client: %w %s", err, pathNFT)
 	}
 
 	return &firewall{
-		nft:             nft,
+		nft:             nftClient,
 		logger:          logger,
 		config:          &config,
 		blockingService: blockingService,

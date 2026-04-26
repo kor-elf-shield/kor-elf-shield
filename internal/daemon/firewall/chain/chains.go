@@ -3,8 +3,8 @@ package chain
 import (
 	"strings"
 
-	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client"
 	nftChain "git.kor-elf.net/kor-elf-shield/go-nftables-client/chain"
+	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client/contract"
 	nftFamily "git.kor-elf.net/kor-elf-shield/go-nftables-client/family"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain/block"
 )

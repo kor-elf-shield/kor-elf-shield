@@ -1,7 +1,7 @@
 package block
 
 import (
-	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client"
+	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client/contract"
 	"git.kor-elf.net/kor-elf-shield/go-nftables-client/family"
 )
 

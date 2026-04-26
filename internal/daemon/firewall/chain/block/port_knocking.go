@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client"
+	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client/contract"
 	"git.kor-elf.net/kor-elf-shield/go-nftables-client/family"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
 )
