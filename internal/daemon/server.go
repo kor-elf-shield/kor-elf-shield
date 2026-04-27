@@ -48,6 +48,9 @@ func NewDaemon(
 		docker,
 		blocklist,
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	blockService := brute_force_protection_group.NewBlockService(firewall.BlockIP, firewall.BlockIPWithPorts)
 	analyzerService := analyzer.New(opts.ConfigAnalyzer, blockService, opts.Repositories, logger, notifications, geoIPService.Info)
