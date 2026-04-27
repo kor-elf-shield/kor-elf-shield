@@ -1,9 +1,9 @@
 ## 0.11.0 (soon)
 #### Русский
-* Обновлена версия go-nftables-client до v0.2.0.
+* Обновлена версия go-nftables-client до v0.2.1.
 ***
 #### English
-* Updated go-nftables-client to v0.2.0.
+* Updated go-nftables-client to v0.2.1.
 ***
 ## 0.10.0 (12.4.2026)
 #### Русский
