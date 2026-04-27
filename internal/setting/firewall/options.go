@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
@@ -49,13 +49,13 @@ func (o options) ValidateSavesRulesPath() error {
 	return nil
 }
 
-func (o options) ToClearMode() (firewall.ClearMode, error) {
+func (o options) ToClearMode() (config.ClearMode, error) {
 	switch o.ClearMode {
 	case "global":
-		return firewall.ClearModeGlobal, nil
+		return config.ClearModeGlobal, nil
 	case "own":
-		return firewall.ClearModeOwn, nil
+		return config.ClearModeOwn, nil
 	}
 
-	return firewall.ClearModeGlobal, errors.New("invalid option clear_mode. Must be 'global' or 'own'")
+	return config.ClearModeGlobal, errors.New("invalid option clear_mode. Must be 'global' or 'own'")
 }

@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg"
 )
 
@@ -313,7 +314,7 @@ func (f *firewall) reloadPortKnocking(chain chain.LocalInput) error {
 	return nil
 }
 
-func inputAddIP(addRuleFunc func(expr ...string) error, config ConfigIP, ipMatch string) error {
+func inputAddIP(addRuleFunc func(expr ...string) error, config config.ConfigIP, ipMatch string) error {
 
 	rule := ipMatch + " saddr " + config.IP + " iifname != \"lo\""
 	if !config.OnlyIP {

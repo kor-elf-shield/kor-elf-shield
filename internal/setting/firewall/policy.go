@@ -3,7 +3,7 @@ package firewall
 import (
 	"fmt"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 )
 
@@ -33,23 +33,23 @@ func defaultPolicy() policy {
 	}
 }
 
-func (p policy) ToConfigPolicy() (firewall.ConfigPolicy, error) {
+func (p policy) ToConfigPolicy() (config.ConfigPolicy, error) {
 	inputDrop, err := p.dropToPolicyDrop(p.InputDrop, "input_drop")
 	if err != nil {
-		return firewall.ConfigPolicy{}, err
+		return config.ConfigPolicy{}, err
 	}
 
 	outputDrop, err := p.dropToPolicyDrop(p.OutputDrop, "output_drop")
 	if err != nil {
-		return firewall.ConfigPolicy{}, err
+		return config.ConfigPolicy{}, err
 	}
 
 	forwardDrop, err := p.dropToPolicyDrop(p.ForwardDrop, "forward_drop")
 	if err != nil {
-		return firewall.ConfigPolicy{}, err
+		return config.ConfigPolicy{}, err
 	}
 
-	return firewall.ConfigPolicy{
+	return config.ConfigPolicy{
 		DefaultAllowInput:   p.DefaultAllowInput,
 		DefaultAllowOutput:  p.DefaultAllowOutput,
 		DefaultAllowForward: p.DefaultAllowForward,

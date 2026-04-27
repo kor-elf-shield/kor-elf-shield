@@ -3,7 +3,7 @@ package firewall
 import (
 	"errors"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
@@ -21,7 +21,7 @@ func defaultPorts() []Port {
 	return []Port{}
 }
 
-func (p *Port) ToPorts() (InPorts []firewall.ConfigPort, OutPorts []firewall.ConfigPort, error error) {
+func (p *Port) ToPorts() (InPorts []config.ConfigPort, OutPorts []config.ConfigPort, error error) {
 	if err := p.validate(); err != nil {
 		error = err
 		return
@@ -56,7 +56,7 @@ func (p *Port) ToPorts() (InPorts []firewall.ConfigPort, OutPorts []firewall.Con
 					return
 				}
 
-				addPort := firewall.ConfigPort{
+				addPort := config.ConfigPort{
 					Port:      l4Port,
 					Action:    action,
 					LimitRate: p.LimitRate,

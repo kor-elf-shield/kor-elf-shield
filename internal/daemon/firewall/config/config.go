@@ -1,4 +1,4 @@
-package firewall
+package config
 
 import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"

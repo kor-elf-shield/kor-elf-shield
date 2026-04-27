@@ -1,6 +1,9 @@
 package firewall
 
-import "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
+import (
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
+)
 
 func (f *firewall) reloadForward() error {
 	f.logger.Debug("Reloading forward chain")
@@ -64,7 +67,7 @@ func (f *firewall) reloadForwardAddIPs() error {
 	return nil
 }
 
-func forwardAddIP(addRuleFunc func(expr ...string) error, config ConfigIP, ipMatch string) error {
+func forwardAddIP(addRuleFunc func(expr ...string) error, config config.ConfigIP, ipMatch string) error {
 	rule := ipMatch + " saddr " + config.IP + " iifname != \"lo\""
 
 	// There, during routing, the port changes and then the IP blocking rule will not work.

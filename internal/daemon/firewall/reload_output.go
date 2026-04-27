@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg"
 )
 
@@ -226,7 +227,7 @@ func (f *firewall) reloadOutputAddIPs() error {
 	return nil
 }
 
-func outputAddIP(addRuleFunc func(expr ...string) error, config ConfigIP, ipMatch string) error {
+func outputAddIP(addRuleFunc func(expr ...string) error, config config.ConfigIP, ipMatch string) error {
 
 	rule := ipMatch + " daddr " + config.IP + " oifname != \"lo\""
 	if !config.OnlyIP {

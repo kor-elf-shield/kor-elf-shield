@@ -9,6 +9,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 
 	nftables "git.kor-elf.net/kor-elf-shield/go-nftables-client"
@@ -47,7 +48,7 @@ type API interface {
 type firewall struct {
 	nft             nft.NFT
 	logger          log.Logger
-	config          *Config
+	config          *config.Config
 	blockingService blocking.API
 	chains          chain.Chains
 	docker          docker_monitor.Docker
@@ -58,7 +59,7 @@ func New(
 	pathNFT string,
 	blockingService blocking.API,
 	logger log.Logger,
-	config Config,
+	config config.Config,
 	docker docker_monitor.Docker,
 	blocklist blocklist.Blocklist,
 ) (API, error) {
@@ -79,7 +80,7 @@ func New(
 
 func (f *firewall) Reload() error {
 	f.logger.Debug("Reload nftables rules")
-	if f.config.Options.ClearMode == ClearModeGlobal {
+	if f.config.Options.ClearMode == config.ClearModeGlobal {
 		if err := f.nft.Clear(); err != nil {
 			return err
 		}
@@ -129,12 +130,12 @@ func (f *firewall) ClearRules() {
 	f.logger.Debug("Clear nftables rules")
 
 	switch f.config.Options.ClearMode {
-	case ClearModeGlobal:
+	case config.ClearModeGlobal:
 		if err := f.nft.Clear(); err != nil {
 			f.logger.Error(fmt.Sprintf("Failed to clear rules: %s", err))
 		}
 		break
-	case ClearModeOwn:
+	case config.ClearModeOwn:
 		if err := f.chains.ClearRules(); err != nil {
 			f.logger.Error(fmt.Sprintf("Failed to clear rules: %s", err))
 		}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	port2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
@@ -22,40 +22,40 @@ func defaultPortKnocking() []portKnocking {
 	return []portKnocking{}
 }
 
-func (p *portKnocking) ToPortKnocking() (firewall.ConfigPortKnocking, error) {
+func (p *portKnocking) ToPortKnocking() (config.ConfigPortKnocking, error) {
 	if len(p.Knocks) == 0 {
-		return firewall.ConfigPortKnocking{}, fmt.Errorf("port knocking must have at least one knock")
+		return config.ConfigPortKnocking{}, fmt.Errorf("port knocking must have at least one knock")
 	}
 
 	if err := p.validate(); err != nil {
-		return firewall.ConfigPortKnocking{}, err
+		return config.ConfigPortKnocking{}, err
 	}
 
 	protocol, err := port2.ToProtocol(p.Protocol)
 	if err != nil {
-		return firewall.ConfigPortKnocking{}, err
+		return config.ConfigPortKnocking{}, err
 	}
 
 	l4Port, err := types.NewL4Port(uint16(p.Port), protocol)
 	if err != nil {
-		return firewall.ConfigPortKnocking{}, err
+		return config.ConfigPortKnocking{}, err
 	}
 
 	ipVersion, err := toVersionIP(p.IPVersion)
 	if err != nil {
-		return firewall.ConfigPortKnocking{}, err
+		return config.ConfigPortKnocking{}, err
 	}
 
-	knocks := make([]*firewall.ConfigKnock, 0, len(p.Knocks))
+	knocks := make([]*config.ConfigKnock, 0, len(p.Knocks))
 	for _, knock := range p.Knocks {
 		knock, err := knock.ToKnock()
 		if err != nil {
-			return firewall.ConfigPortKnocking{}, err
+			return config.ConfigPortKnocking{}, err
 		}
 		knocks = append(knocks, &knock)
 	}
 
-	return firewall.ConfigPortKnocking{
+	return config.ConfigPortKnocking{
 		Name:      p.Name,
 		Port:      l4Port,
 		IPVersion: ipVersion,
