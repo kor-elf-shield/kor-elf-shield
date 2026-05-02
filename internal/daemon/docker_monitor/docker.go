@@ -5,14 +5,13 @@ import (
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/chain"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/client"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/rule_strategy"
-	nftChain "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
 type Docker interface {
-	NftReload(newNoneChain func(chain string) (nftChain.Chain, error)) error
-	NftChains() chain.Chains
+	NftReload(nftDocker firewall.NFTDocker) error
 	Run()
 	Close() error
 }
@@ -39,12 +38,8 @@ func New(config *Config, ctx context.Context, logger log.Logger) (Docker, error)
 	}, nil
 }
 
-func (d *docker) NftReload(newNoneChain func(chain string) (nftChain.Chain, error)) error {
-	return d.ruleStrategy.Reload(newNoneChain)
-}
-
-func (d *docker) NftChains() chain.Chains {
-	return d.ruleStrategy.Chains()
+func (d *docker) NftReload(nftDocker firewall.NFTDocker) error {
+	return d.ruleStrategy.Reload(nftDocker)
 }
 
 func (d *docker) Run() {

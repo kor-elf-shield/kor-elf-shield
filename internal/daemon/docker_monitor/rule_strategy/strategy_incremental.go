@@ -3,15 +3,16 @@ package rule_strategy
 import (
 	"fmt"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/chain"
+	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client/contract"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/client"
-	nftChain "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/chain"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
 type incrementalStrategy struct {
 	dockerClient client.Docker
-	chains       chain.Chains
+	nftDocker    firewall.NFTDocker
 	generator    Generator
 	logger       log.Logger
 }
@@ -24,20 +25,26 @@ func NewIncrementalStrategy(generator Generator, dockerClient client.Docker, log
 	}
 }
 
-func (i *incrementalStrategy) Reload(newNoneChain func(chain string) (nftChain.Chain, error)) error {
-	chains, err := chain.NewChains(newNoneChain)
+func (i *incrementalStrategy) Reload(nftDocker firewall.NFTDocker) error {
+	i.nftDocker = nftDocker
+
+	batchBuilder, err := i.nftDocker.NFT().NewBuildBatch()
 	if err != nil {
 		return err
 	}
-	i.chains = chains
+	defer func() {
+		if err := batchBuilder.Close(); err != nil {
+			i.logger.Warn(err.Error())
+		}
+	}()
 
-	i.generator.GenerateAll(i.chains, true)
+	i.generator.GenerateAll(batchBuilder, i.nftDocker.Chains(), true)
 
-	return nil
+	return i.nftDocker.NFT().RunBatch(batchBuilder)
 }
 
-func (i *incrementalStrategy) Chains() chain.Chains {
-	return i.chains
+func (i *incrementalStrategy) Chains() firewall.NFTDockerChains {
+	return i.nftDocker.Chains()
 }
 
 func (i *incrementalStrategy) Event(event *client.Event) {
@@ -54,7 +61,9 @@ func (i *incrementalStrategy) Event(event *client.Event) {
 		}
 
 		if event.Action == "die" {
-			i.eventContainerStop(event.ID)
+			if err := i.eventContainerStop(event.ID); err != nil {
+				i.logger.Error(fmt.Sprintf("failed to handle container stop event: %s", err))
+			}
 			return
 		}
 
@@ -66,10 +75,14 @@ func (i *incrementalStrategy) Event(event *client.Event) {
 			if err := i.eventNetworkCreate(event.ID); err != nil {
 				i.logger.Error(fmt.Sprintf("failed to handle network create event: %s", err))
 			}
+			return
 		}
 
 		if event.Action == "destroy" {
-			i.eventNetworkDestroy(event.ID)
+			if err := i.eventNetworkDestroy(event.ID); err != nil {
+				i.logger.Error(fmt.Sprintf("failed to handle network destroy event: %s", err))
+			}
+			return
 		}
 
 		return
@@ -82,35 +95,55 @@ func (i *incrementalStrategy) eventContainerStart(containerId string) error {
 		return err
 	}
 
+	batchBuilder, err := i.nftDocker.NFT().NewBuildBatch()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := batchBuilder.Close(); err != nil {
+			i.logger.Warn(err.Error())
+		}
+	}()
+
 	for _, ipInfo := range container.Networks.IPAddresses {
 		bridge, err := i.dockerClient.FetchBridge(ipInfo.NetworkID)
 		if err != nil {
 			i.logger.Error(fmt.Sprintf("failed to fetch bridge for container %s: %s", containerId, err))
 			continue
 		}
-		i.generator.GenerateContainer(container, bridge.Name, i.chains, true)
+		i.generator.GenerateContainer(container, bridge.Name, batchBuilder, i.nftDocker.Chains(), true)
 	}
 
-	return nil
+	return i.nftDocker.NFT().RunBatch(batchBuilder)
 }
 
-func (i *incrementalStrategy) eventContainerStop(containerId string) {
-	listChains := i.chains.List()
+func (i *incrementalStrategy) eventContainerStop(containerId string) error {
+	batchBuilder, err := i.nftDocker.NFT().NewBuildBatch()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := batchBuilder.Close(); err != nil {
+			i.logger.Warn(err.Error())
+		}
+	}()
 
-	if err := i.nftRuleDeleteContainer(containerId, &listChains.PreroutingFilter); err != nil {
+	if err := i.nftRuleDeleteContainer(containerId, batchBuilder, i.nftDocker.Chains().PreroutingFilter()); err != nil {
 		i.logger.Error(fmt.Sprintf("failed to delete container %s rules: %s", containerId, err))
 	}
 
-	if err := i.nftRuleDeleteContainer(containerId, &listChains.DockerNat); err != nil {
+	if err := i.nftRuleDeleteContainer(containerId, batchBuilder, i.nftDocker.Chains().DockerNat()); err != nil {
 		i.logger.Error(fmt.Sprintf("failed to delete container %s rules: %s", containerId, err))
 	}
 
-	if err := i.nftRuleDeleteContainer(containerId, &listChains.DockerFilterFirst); err != nil {
+	if err := i.nftRuleDeleteContainer(containerId, batchBuilder, i.nftDocker.Chains().DockerFilterFirst()); err != nil {
 		i.logger.Error(fmt.Sprintf("failed to delete container %s rules: %s", containerId, err))
 	}
+
+	return i.nftDocker.NFT().RunBatch(batchBuilder)
 }
 
-func (i *incrementalStrategy) nftRuleDeleteContainer(containerId string, chain *chain.Data) error {
+func (i *incrementalStrategy) nftRuleDeleteContainer(containerId string, builder nft.BatchBuilder, chain chain.Docker) error {
 	rules, err := chain.ListRules()
 	if err != nil {
 		return err
@@ -120,7 +153,7 @@ func (i *incrementalStrategy) nftRuleDeleteContainer(containerId string, chain *
 		if rule.Comment != "container_id:"+containerId {
 			continue
 		}
-		if err := chain.RemoveRuleByHandle(rule.Handle); err != nil {
+		if err := chain.RemoveRuleByHandle(builder, rule.Handle); err != nil {
 			i.logger.Error(fmt.Sprintf("failed to delete container %s rule: %s", containerId, err))
 		}
 	}
@@ -129,40 +162,60 @@ func (i *incrementalStrategy) nftRuleDeleteContainer(containerId string, chain *
 }
 
 func (i *incrementalStrategy) eventNetworkCreate(bridgeId string) error {
+	batchBuilder, err := i.nftDocker.NFT().NewBuildBatch()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := batchBuilder.Close(); err != nil {
+			i.logger.Warn(err.Error())
+		}
+	}()
+
 	bridge, err := i.dockerClient.FetchBridge(bridgeId)
 	if err != nil {
 		return err
 	}
 
-	i.generator.GenerateBridge(bridge, i.chains, true)
-	return nil
+	i.generator.GenerateBridge(bridge, batchBuilder, i.nftDocker.Chains(), true)
+	return i.nftDocker.NFT().RunBatch(batchBuilder)
 }
 
-func (i *incrementalStrategy) eventNetworkDestroy(bridgeId string) {
-	listChains := i.chains.List()
+func (i *incrementalStrategy) eventNetworkDestroy(bridgeId string) error {
+	batchBuilder, err := i.nftDocker.NFT().NewBuildBatch()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := batchBuilder.Close(); err != nil {
+			i.logger.Warn(err.Error())
+		}
+	}()
 
-	if err := i.nftRuleDeleteBridge(bridgeId, &listChains.DockerFilterSecond); err != nil {
+	if err := i.nftRuleDeleteBridge(bridgeId, batchBuilder, i.nftDocker.Chains().DockerFilterSecond()); err != nil {
 		i.logger.Error(fmt.Sprintf("failed to delete bridge %s rules: %s", bridgeId, err))
 	}
 
-	if err := i.nftRuleDeleteBridge(bridgeId, &listChains.ForwardFilter); err != nil {
+	if err := i.nftRuleDeleteBridge(bridgeId, batchBuilder, i.nftDocker.Chains().ForwardFilter()); err != nil {
 		i.logger.Error(fmt.Sprintf("failed to delete bridge %s rules: %s", bridgeId, err))
 	}
 
-	if err := i.nftRuleDeleteBridge(bridgeId, &listChains.ForwardBridge); err != nil {
+	if err := i.nftRuleDeleteBridge(bridgeId, batchBuilder, i.nftDocker.Chains().ForwardBridge()); err != nil {
 		i.logger.Error(fmt.Sprintf("failed to delete bridge %s rules: %s", bridgeId, err))
 	}
 
-	if err := i.nftRuleDeleteBridge(bridgeId, &listChains.ForwardCT); err != nil {
+	if err := i.nftRuleDeleteBridge(bridgeId, batchBuilder, i.nftDocker.Chains().ForwardCT()); err != nil {
 		i.logger.Error(fmt.Sprintf("failed to delete bridge %s rules: %s", bridgeId, err))
 	}
 
-	if err := i.nftRuleDeleteBridge(bridgeId, &listChains.PostroutingNat); err != nil {
+	if err := i.nftRuleDeleteBridge(bridgeId, batchBuilder, i.nftDocker.Chains().PostroutingNat()); err != nil {
 		i.logger.Error(fmt.Sprintf("failed to delete bridge %s rules: %s", bridgeId, err))
 	}
+
+	return i.nftDocker.NFT().RunBatch(batchBuilder)
 }
 
-func (i *incrementalStrategy) nftRuleDeleteBridge(bridgeId string, chain *chain.Data) error {
+func (i *incrementalStrategy) nftRuleDeleteBridge(bridgeId string, builder nft.BatchBuilder, chain chain.Docker) error {
 	rules, err := chain.ListRules()
 	if err != nil {
 		return err
@@ -172,7 +225,7 @@ func (i *incrementalStrategy) nftRuleDeleteBridge(bridgeId string, chain *chain.
 		if rule.Comment != "bridge_id:"+bridgeId {
 			continue
 		}
-		if err := chain.RemoveRuleByHandle(rule.Handle); err != nil {
+		if err := chain.RemoveRuleByHandle(builder, rule.Handle); err != nil {
 			i.logger.Error(fmt.Sprintf("failed to delete bridge %s rule: %s", bridgeId, err))
 		}
 	}

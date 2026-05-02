@@ -13,7 +13,7 @@ func newRuleStrategy(config *Config, dockerClient client.Docker, logger log.Logg
 
 	switch config.RuleStrategy {
 	case RuleStrategyRebuild:
-		return rule_strategy.NewRebuildStrategy(generate), nil
+		return rule_strategy.NewRebuildStrategy(generate, logger), nil
 	case RuleStrategyIncremental:
 		return rule_strategy.NewIncrementalStrategy(generate, dockerClient, logger), nil
 	}

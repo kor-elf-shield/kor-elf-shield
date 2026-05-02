@@ -1,32 +1,23 @@
 package docker_monitor
 
 import (
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/chain"
-	nftChain "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
 )
 
-type DockerNotSupport struct {
-	chains chain.Chains
-}
+type dockerNotSupport struct{}
 
 func NewDockerNotSupport() Docker {
-	return &DockerNotSupport{
-		chains: chain.NewEmptyChains(),
-	}
+	return &dockerNotSupport{}
 }
 
-func (d *DockerNotSupport) NftReload(_ func(chain string) (nftChain.Chain, error)) error {
+func (d *dockerNotSupport) NftReload(_ firewall.NFTDocker) error {
 	return nil
 }
 
-func (d *DockerNotSupport) NftChains() chain.Chains {
-	return d.chains
-}
-
-func (d *DockerNotSupport) Run() {
+func (d *dockerNotSupport) Run() {
 
 }
 
-func (d *DockerNotSupport) Close() error {
+func (d *dockerNotSupport) Close() error {
 	return nil
 }
