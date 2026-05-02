@@ -3,7 +3,6 @@ package docker_monitor
 import (
 	"context"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/chain"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/client"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/rule_strategy"
@@ -60,10 +59,4 @@ func (d *docker) Run() {
 
 func (d *docker) Close() error {
 	return d.dockerClient.EventsClose()
-}
-
-func (d *docker) chainCommand(chainData chain.Data, rule string) {
-	if err := chainData.AddRule(rule); err != nil {
-		d.logger.Error(err.Error())
-	}
 }
