@@ -83,7 +83,10 @@ func (r *reload) Run(blockListNames []string) (dataTable.Table, error) {
 		return nil, err
 	}
 
-	return dataTable.New(blockList, dockerChains), nil
+	return dataTable.New(
+		r.nft, r.table.family, r.table.name,
+		blockList, dockerChains,
+	), nil
 }
 
 func (r *reload) clear(builder nft.BatchBuilder) error {
@@ -100,8 +103,12 @@ func (r *reload) clear(builder nft.BatchBuilder) error {
 		if err := builder.Table().Add(r.table.family, r.table.name); err != nil {
 			return fmt.Errorf("failed to add table: %w", err)
 		}
-		if err := builder.Table().Clear(r.table.family, r.table.name); err != nil {
+		// clear does not clean completely
+		if err := builder.Table().Delete(r.table.family, r.table.name); err != nil {
 			return fmt.Errorf("failed to clear table: %w", err)
+		}
+		if err := builder.Table().Add(r.table.family, r.table.name); err != nil {
+			return fmt.Errorf("failed to add table: %w", err)
 		}
 		break
 	default:

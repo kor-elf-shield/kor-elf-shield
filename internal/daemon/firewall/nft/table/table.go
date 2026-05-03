@@ -1,11 +1,14 @@
 package table
 
 import (
+	"git.kor-elf.net/kor-elf-shield/go-nftables-client/family"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/block"
 )
 
 type Table interface {
+	Clear() error
 	DockerChains() firewall.NFTDockerChains
 	BlockList() BlockList
 }
@@ -17,15 +20,31 @@ type BlockList interface {
 }
 
 type table struct {
+	nft    nft.NFT
+	family family.Type
+	name   string
+
 	dockerChains firewall.NFTDockerChains
 	blockList    BlockList
 }
 
-func New(blockList BlockList, dockerChains firewall.NFTDockerChains) Table {
+func New(
+	nft nft.NFT, family family.Type, name string,
+	blockList BlockList, dockerChains firewall.NFTDockerChains,
+) Table {
 	return &table{
+		nft:    nft,
+		family: family,
+		name:   name,
+
 		dockerChains: dockerChains,
 		blockList:    blockList,
 	}
+}
+
+func (t *table) Clear() error {
+	// clear does not clean completely
+	return t.nft.NFT().Table().Delete(t.family, t.name)
 }
 
 func (t *table) DockerChains() firewall.NFTDockerChains {
