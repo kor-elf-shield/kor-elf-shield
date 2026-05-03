@@ -40,6 +40,9 @@ func NewDaemon(
 	}
 
 	blockingService := blocking.New(opts.Repositories.Blocking(), logger)
+
+	dataDirForFirewall := opts.DataDir + "/firewall"
+
 	firewall, err := firewall2.New(
 		opts.PathNftables,
 		blockingService,
@@ -47,6 +50,7 @@ func NewDaemon(
 		opts.ConfigFirewall,
 		docker,
 		blocklist,
+		dataDirForFirewall,
 	)
 	if err != nil {
 		return nil, err

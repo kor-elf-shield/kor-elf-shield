@@ -4,16 +4,19 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"sync"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
+	dockerFirewall "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
+	nftFirewall "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/table"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/reload"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 
 	nftables "git.kor-elf.net/kor-elf-shield/go-nftables-client"
-	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client/contract"
 )
 
 type API interface {
@@ -46,13 +49,16 @@ type API interface {
 }
 
 type firewall struct {
-	nft             nft.NFT
+	nft             nftFirewall.NFT
+	table           table.Table
 	logger          log.Logger
 	config          *config.Config
 	blockingService blocking.API
-	chains          chain.Chains
 	docker          docker_monitor.Docker
 	blocklist       blocklist.Blocklist
+	dataDir         string
+
+	mu sync.Mutex
 }
 
 func New(
@@ -62,6 +68,7 @@ func New(
 	config config.Config,
 	docker docker_monitor.Docker,
 	blocklist blocklist.Blocklist,
+	dataDir string,
 ) (API, error) {
 	nftClient, err := nftables.NewWithPath(pathNFT)
 	if err != nil {
@@ -69,56 +76,44 @@ func New(
 	}
 
 	return &firewall{
-		nft:             nftClient,
+		nft:             nftFirewall.New(nftClient, dataDir+"/tmp"),
 		logger:          logger,
 		config:          &config,
 		blockingService: blockingService,
 		docker:          docker,
 		blocklist:       blocklist,
+		dataDir:         dataDir,
+
+		mu: sync.Mutex{},
 	}, nil
 }
 
 func (f *firewall) Reload() error {
 	f.logger.Debug("Reload nftables rules")
-	if f.config.Options.ClearMode == config.ClearModeGlobal {
-		if err := f.nft.Clear(); err != nil {
-			return err
-		}
-	}
+	nftReload := reload.New(f.nft, f.logger, f.config)
 
-	chains, err := chain.NewChains(f.nft, f.config.MetadataNaming.TableName)
+	blocklistNames := f.blocklist.Names()
+	table, err := nftReload.Run(blocklistNames)
 	if err != nil {
 		return err
 	}
-	f.chains = chains
 
-	if err := f.docker.NftReload(f.chains.NewNoneChain); err != nil {
-		return err
-	}
+	f.mu.Lock()
+	f.table = table
+	f.mu.Unlock()
 
-	if err := f.chains.NewPacketFilter(f.config.Options.PacketFilter); err != nil {
-		return err
-	}
-	if err := f.reloadInput(); err != nil {
-		return err
-	}
-	if err := f.reloadOutput(); err != nil {
-		return err
-	}
-	if err := f.reloadForward(); err != nil {
-		return err
-	}
-	if f.config.Options.DockerSupport {
-		if err := f.reloadDocker(); err != nil {
+	if f.config.Options.DockerSupport && table.DockerChains() != nil {
+		nftDocker := dockerFirewall.NewNFT(f.nft, table.DockerChains())
+		if err := f.docker.NftReload(nftDocker); err != nil {
 			return err
 		}
 	}
 
-	if err := f.reloadBlockList(); err != nil {
+	if err := f.blockingService.NftReload(f.nft, table.BlockList().ListIP(), table.BlockList().ListIPWithPort()); err != nil {
 		return err
 	}
 
-	if err := f.blocklist.NftReload(f.chains.NewBlocklist); err != nil {
+	if err := f.blocklist.NftReload(table.BlockList().Blocks()); err != nil {
 		f.logger.Error(fmt.Sprintf("Failed to reload blocklist: %s", err))
 	}
 
@@ -131,12 +126,16 @@ func (f *firewall) ClearRules() {
 
 	switch f.config.Options.ClearMode {
 	case config.ClearModeGlobal:
-		if err := f.nft.Clear(); err != nil {
+		if err := f.nft.NFT().Clear(); err != nil {
 			f.logger.Error(fmt.Sprintf("Failed to clear rules: %s", err))
 		}
 		break
 	case config.ClearModeOwn:
-		if err := f.chains.ClearRules(); err != nil {
+		if f.table == nil {
+			f.logger.Error("table is nil")
+			return
+		}
+		if err := f.table.Clear(); err != nil {
 			f.logger.Error(fmt.Sprintf("Failed to clear rules: %s", err))
 		}
 		break
@@ -169,7 +168,7 @@ func (f *firewall) SavesRules() {
 	}
 
 	args := []string{"list", "ruleset"}
-	output, err := f.nft.Command().RunWithOutput(args...)
+	output, err := f.nft.NFT().Command().RunWithOutput(args...)
 	if err != nil {
 		f.logger.Warn(fmt.Sprintf("Failed to save rules: %s", err))
 		return
