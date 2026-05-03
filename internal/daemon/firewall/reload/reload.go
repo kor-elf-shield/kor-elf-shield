@@ -16,7 +16,7 @@ import (
 )
 
 type Reload interface {
-	Run() (dataTable.Table, error)
+	Run(blockListNames []string) (dataTable.Table, error)
 }
 
 type table struct {
@@ -43,7 +43,7 @@ func New(nft nftFirewall.NFT, logger log.Logger, config *config.Config) Reload {
 	}
 }
 
-func (r *reload) Run() (dataTable.Table, error) {
+func (r *reload) Run(blockListNames []string) (dataTable.Table, error) {
 	var dockerChains firewall.NFTDockerChains
 	if r.config.Options.DockerSupport {
 		dockerChains = firewall.NewNFTChains(r.nft, r.table.family, r.table.name)
@@ -67,7 +67,7 @@ func (r *reload) Run() (dataTable.Table, error) {
 		return nil, err
 	}
 
-	blockList, err := r.input(batchBuilder, packetFilter)
+	blockList, err := r.input(batchBuilder, packetFilter, blockListNames)
 	if err != nil {
 		return nil, err
 	}

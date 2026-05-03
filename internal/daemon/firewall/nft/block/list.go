@@ -15,6 +15,7 @@ type List interface {
 	AddBatchElement(builder nft.BatchBuilder, element string) error
 	DeleteElement(element string) error
 	ReplaceElements(elements []string) error
+	ReplaceElementsWithSaveNFTFile(elements []string, pathFile string) error
 }
 
 type list struct {
@@ -72,6 +73,18 @@ func (l *list) DeleteElement(element string) error {
 }
 
 func (l *list) ReplaceElements(elements []string) error {
+	return l.replaceElements(elements, func(builder nft.BatchBuilder) error {
+		return l.nft.RunBatch(builder)
+	})
+}
+
+func (l *list) ReplaceElementsWithSaveNFTFile(elements []string, pathFile string) error {
+	return l.replaceElements(elements, func(builder nft.BatchBuilder) error {
+		return l.nft.RunBatchAndMoveFile(builder, pathFile)
+	})
+}
+
+func (l *list) replaceElements(elements []string, run func(builder nft.BatchBuilder) error) error {
 	batchBuilder, err := l.nft.NewBuildBatch()
 	if err != nil {
 		return err
@@ -85,7 +98,7 @@ func (l *list) ReplaceElements(elements []string) error {
 	}
 
 	if len(elements) == 0 {
-		return nil
+		return run(batchBuilder)
 	}
 
 	command := []string{
@@ -93,5 +106,9 @@ func (l *list) ReplaceElements(elements []string) error {
 		l.family.String(), l.table, l.name,
 		fmt.Sprintf("{ %s }", strings.Join(elements, ",")),
 	}
-	return batchBuilder.Command().Run(command...)
+	if err := batchBuilder.Command().Run(command...); err != nil {
+		return err
+	}
+
+	return run(batchBuilder)
 }

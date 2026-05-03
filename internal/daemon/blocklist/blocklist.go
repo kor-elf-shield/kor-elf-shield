@@ -8,14 +8,15 @@ import (
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/entity"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain/block"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/block"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
 type newBlocklist func(name string) (block.Blocklist, error)
 
 type Blocklist interface {
-	NftReload(newBlocklist newBlocklist) error
+	Names() []string
+	NftReload(blocks map[string]block.Blocklist) error
 	Run()
 	Close() error
 }
@@ -54,34 +55,38 @@ func New(config Config, ctx context.Context, logger log.Logger) (Blocklist, erro
 	}, nil
 }
 
-func (b *blocklist) NftReload(newBlocklist newBlocklist) error {
-	b.logger.Debug("Reload blocklist")
+func (b *blocklist) Names() []string {
+	names := []string{}
 	for _, source := range b.Sources {
-		b.logger.Debug(fmt.Sprintf("Reload blocklist from %s", source.Name))
-		if source.Name == "" {
-			continue
+		if source.Name != "" {
+			names = append(names, source.Name)
 		}
+	}
+	return names
+}
 
-		nftBlocklist, err := newBlocklist("blocklist_" + source.Name)
-		if err != nil {
-			b.logger.Error(fmt.Sprintf("Failed to create blocklist: %s", err))
-			continue
-		}
+func (b *blocklist) NftReload(blocks map[string]block.Blocklist) error {
+	b.logger.Debug("Reload blocklist")
 
-		b.mu.Lock()
-		b.nftBlocklists[source.Name] = nftBlocklist
-		b.mu.Unlock()
+	b.mu.Lock()
+	b.nftBlocklists = blocks
+	b.mu.Unlock()
 
-		if listEntity, err := b.blocklistRepository.Get(source.Name); err != nil {
-			b.logger.Error(fmt.Sprintf("Failed to get blocklist %s: %s", source.Name, err))
-		} else if listEntity.IsFresh(source.Interval) {
-			if err := nftBlocklist.ReplaceElementsIPv4(listEntity.IPsV4); len(listEntity.IPsV4) > 0 && err != nil {
-				b.logger.Error(fmt.Sprintf("Failed to replace elements (IPv4): %s", err))
+	for _, source := range b.Sources {
+		if nftBlocklist, ok := b.nftBlocklists[source.Name]; ok {
+			if listEntity, err := b.blocklistRepository.Get(source.Name); err != nil {
+				b.logger.Error(fmt.Sprintf("Failed to get blocklist %s: %s", source.Name, err))
+			} else if listEntity.IsFresh(source.Interval) {
+				if err := nftBlocklist.ReplaceElementsIPv4(listEntity.IPsV4); len(listEntity.IPsV4) > 0 && err != nil {
+					b.logger.Error(fmt.Sprintf("Failed to replace elements (IPv4): %s", err))
+				}
+
+				if err := nftBlocklist.ReplaceElementsIPv6(listEntity.IPsV6); len(listEntity.IPsV6) > 0 && err != nil {
+					b.logger.Error(fmt.Sprintf("Failed to replace elements (IPv6): %s", err))
+				}
 			}
-
-			if err := nftBlocklist.ReplaceElementsIPv6(listEntity.IPsV6); len(listEntity.IPsV6) > 0 && err != nil {
-				b.logger.Error(fmt.Sprintf("Failed to replace elements (IPv6): %s", err))
-			}
+		} else {
+			b.logger.Error(fmt.Sprintf("NFTables sets blocklist %s not found", source.Name))
 		}
 	}
 

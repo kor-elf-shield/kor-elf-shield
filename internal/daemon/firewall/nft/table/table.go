@@ -13,6 +13,7 @@ type Table interface {
 type BlockList interface {
 	ListIP() block.ListIP
 	ListIPWithPort() block.ListIPWithPort
+	Blocks() map[string]block.Blocklist
 }
 
 type table struct {
@@ -38,12 +39,14 @@ func (t *table) BlockList() BlockList {
 type blockList struct {
 	listIP         block.ListIP
 	listIPWithPort block.ListIPWithPort
+	blocks         map[string]block.Blocklist
 }
 
-func NewBlockList(listIP block.ListIP, listIPWithPort block.ListIPWithPort) BlockList {
+func NewBlockList(listIP block.ListIP, listIPWithPort block.ListIPWithPort, blocks map[string]block.Blocklist) BlockList {
 	return &blockList{
 		listIP:         listIP,
 		listIPWithPort: listIPWithPort,
+		blocks:         blocks,
 	}
 }
 
@@ -53,4 +56,8 @@ func (b *blockList) ListIP() block.ListIP {
 
 func (b *blockList) ListIPWithPort() block.ListIPWithPort {
 	return b.listIPWithPort
+}
+
+func (b *blockList) Blocks() map[string]block.Blocklist {
+	return b.blocks
 }

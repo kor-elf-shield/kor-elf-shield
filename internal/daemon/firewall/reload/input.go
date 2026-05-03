@@ -11,7 +11,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg"
 )
 
-func (r *reload) input(builder nft.BatchBuilder, packetfilter chain.PacketFilter) (nftTable.BlockList, error) {
+func (r *reload) input(builder nft.BatchBuilder, packetfilter chain.PacketFilter, blockListNames []string) (nftTable.BlockList, error) {
 	r.logger.Debug("Reloading input chain")
 
 	batchInput, err := chain.NewBatchInput(
@@ -81,7 +81,12 @@ func (r *reload) input(builder nft.BatchBuilder, packetfilter chain.PacketFilter
 		}
 	}
 
-	return r.blockList(builder, beforeLocalInput)
+	blocks, err := r.moduleBlockList(builder, afterLocalInput, blockListNames)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.blockList(builder, beforeLocalInput, blocks)
 }
 
 func (r *reload) reloadInputDnsNs(batchInput chain.Chain) error {
