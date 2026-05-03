@@ -123,7 +123,7 @@ func (b *blocking) NftReload(nft nftFirewall.NFT, blockListIP block.ListIP, bloc
 		return err
 	}
 
-	return nft.RunBatchAndMoveFile(batchBuilder, "/var/lib/kor-elf-shield/firewall/tmp/block.nft")
+	return nft.RunBatch(batchBuilder)
 }
 
 func (b *blocking) BlockIP(block BlockIP) (bool, error) {
