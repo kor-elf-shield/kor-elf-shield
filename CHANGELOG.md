@@ -1,8 +1,14 @@
 ## 0.11.0 (soon)
 #### Русский
+* Логика добавления правил в nftables была переработана.
+  * Команды теперь собираются во временном файле.
+  * Запрос выполняется с использованием параметра -f.
 * Обновлена версия go-nftables-client до v0.2.1.
 ***
 #### English
+* The logic for adding rules to nftables has been reworked.
+  * Commands are now collected in a temporary file.
+  * The query is executed using the -f parameter.
 * Updated go-nftables-client to v0.2.1.
 ***
 ## 0.10.0 (12.4.2026)
