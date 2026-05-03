@@ -7,10 +7,11 @@ import (
 	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client/contract"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/chain"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/rule"
+	nftTable "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/table"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg"
 )
 
-func (r *reload) input(builder nft.BatchBuilder, packetfilter chain.PacketFilter) error {
+func (r *reload) input(builder nft.BatchBuilder, packetfilter chain.PacketFilter) (nftTable.BlockList, error) {
 	r.logger.Debug("Reloading input chain")
 
 	batchInput, err := chain.NewBatchInput(
@@ -22,65 +23,65 @@ func (r *reload) input(builder nft.BatchBuilder, packetfilter chain.PacketFilter
 		r.config.Policy.InputPriority,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := r.reloadInputDnsNs(batchInput); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := batchInput.AddRule("iifname lo counter accept"); err != nil {
-		return err
+		return nil, err
 	}
 
 	beforeLocalInput, err := chain.NewBatchChain(builder, r.table.family, r.table.name, "before-local-input")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := beforeLocalInput.AddRuleIn(batchInput.AddRule); err != nil {
-		return err
+		return nil, err
 	}
 
 	localInput, err := chain.NewBatchChain(builder, r.table.family, r.table.name, "local-input")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := r.inputAddIPs(builder, batchInput, localInput); err != nil {
-		return err
+		return nil, err
 	}
 
 	afterLocalInput, err := chain.NewBatchChain(builder, r.table.family, r.table.name, "after-local-input")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := afterLocalInput.AddRuleIn(batchInput.AddRule); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := packetfilter.AddRuleIn(batchInput.AddRule); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := r.inputICMP(batchInput); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := batchInput.AddRule("iifname != \"lo\" ct state related,established counter accept"); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := r.inputPorts(batchInput); err != nil {
-		return err
+		return nil, err
 	}
 
 	if r.config.Policy.DefaultAllowInput == false {
 		drop := r.config.Policy.InputDrop.String()
 		if err := batchInput.AddRule("iifname != \"lo\" " + drop); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return r.blockList(builder, beforeLocalInput)
 }
 
 func (r *reload) reloadInputDnsNs(batchInput chain.Chain) error {

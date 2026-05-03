@@ -9,13 +9,14 @@ import (
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/entity"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain/block"
+	nftFirewall "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/block"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 )
 
 type API interface {
-	NftReload(blockListIP block.ListIP, blockListIPWithPort block.ListIPWithPort) error
+	NftReload(nft nftFirewall.NFT, blockListIP block.ListIP, blockListIPWithPort block.ListIPWithPort) error
 	BlockIP(block BlockIP) (bool, error)
 	BlockIPWithPorts(block BlockIPWithPorts) (bool, error)
 	UnblockAllIPs() error
@@ -53,15 +54,25 @@ func New(blockingRepository repository.BlockingRepository, logger log.Logger) AP
 	}
 }
 
-func (b *blocking) NftReload(blockListIP block.ListIP, blockListIPWithPort block.ListIPWithPort) error {
+func (b *blocking) NftReload(nft nftFirewall.NFT, blockListIP block.ListIP, blockListIPWithPort block.ListIPWithPort) error {
 	b.mu.Lock()
 	b.blockListIP = blockListIP
 	b.blockListIPWithPort = blockListIPWithPort
 	b.mu.Unlock()
 
+	batchBuilder, err := nft.NewBuildBatch()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := batchBuilder.Close(); err != nil {
+			b.logger.Warn(err.Error())
+		}
+	}()
+
 	isExpiredEntries := false
 	nowUnix := time.Now().Unix()
-	err := b.blockingRepository.List(func(e entity.Blocking) error {
+	err = b.blockingRepository.List(func(e entity.Blocking) error {
 		ip := net.ParseIP(e.IP)
 		if ip == nil {
 			b.logger.Error(fmt.Sprintf("Failed to parse IP address: %s", e.IP))
@@ -83,14 +94,14 @@ func (b *blocking) NftReload(blockListIP block.ListIP, blockListIPWithPort block
 				b.logger.Error(fmt.Sprintf("Failed to parse ports: %s", err))
 				return nil
 			}
-			if err := b.blockListIPWithPort.AddIP(ip, l4Ports, blockSeconds); err != nil {
+			if err := b.blockListIPWithPort.AddBatchIP(batchBuilder, ip, l4Ports, blockSeconds); err != nil {
 				b.logger.Error(fmt.Sprintf("Failed to add IP %s to block list: %s", ip.String(), err))
 			}
 
 			return nil
 		}
 
-		if err := b.blockListIP.AddIP(ip, blockSeconds); err != nil {
+		if err := b.blockListIP.AddBatchIP(batchBuilder, ip, blockSeconds); err != nil {
 			b.logger.Error(fmt.Sprintf("Failed to add IP %s to block list: %s", ip.String(), err))
 			return nil
 		}
@@ -108,7 +119,11 @@ func (b *blocking) NftReload(blockListIP block.ListIP, blockListIPWithPort block
 		}()
 	}
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nft.RunBatchAndMoveFile(batchBuilder, "/var/lib/kor-elf-shield/firewall/tmp/block.nft")
 }
 
 func (b *blocking) BlockIP(block BlockIP) (bool, error) {

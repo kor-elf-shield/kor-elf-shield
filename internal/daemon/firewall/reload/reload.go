@@ -67,9 +67,11 @@ func (r *reload) Run() (dataTable.Table, error) {
 		return nil, err
 	}
 
-	if err := r.input(batchBuilder, packetFilter); err != nil {
+	blockList, err := r.input(batchBuilder, packetFilter)
+	if err != nil {
 		return nil, err
 	}
+
 	if err := r.output(batchBuilder, packetFilter); err != nil {
 		return nil, err
 	}
@@ -81,7 +83,7 @@ func (r *reload) Run() (dataTable.Table, error) {
 		return nil, err
 	}
 
-	return dataTable.New(dockerChains), nil
+	return dataTable.New(blockList, dockerChains), nil
 }
 
 func (r *reload) clear(builder nft.BatchBuilder) error {
