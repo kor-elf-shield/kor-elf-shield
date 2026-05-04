@@ -3,13 +3,21 @@
 * Логика добавления правил в nftables была переработана.
   * Команды теперь собираются во временном файле.
   * Запрос выполняется с использованием параметра -f.
+* Переработана логика обновления данных по блокировке IP адресов, которые получаем через другие сервисы.
+  * Список IP адресов собирается в файл.
+  * Запрос выполняется с использованием параметра -f.
 * Обновлена версия go-nftables-client до v0.2.1.
+* Улучшен вывод Uptime в команде `kor-elf-shield status`.
 ***
 #### English
 * The logic for adding rules to nftables has been reworked.
   * Commands are now collected in a temporary file.
   * The query is executed using the -f parameter.
+* The logic for updating data on blocking IP addresses obtained through other services has been reworked.
+  * The list of IP addresses is collected into a file.
+  * The query is executed using the -f parameter.
 * Updated go-nftables-client to v0.2.1.
+* Improved Uptime output in `kor-elf-shield status` command.
 ***
 ## 0.10.0 (12.4.2026)
 #### Русский
