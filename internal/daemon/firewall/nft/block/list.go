@@ -15,7 +15,7 @@ type List interface {
 	AddBatchElement(builder nft.BatchBuilder, element string) error
 	DeleteElement(element string) error
 	ReplaceElements(elements []string) error
-	ReplaceElementsWithSaveNFTFile(elements []string, pathFile string) error
+	ReplaceBatchElements(builder nft.BatchBuilder, elements []string) error
 }
 
 type list struct {
@@ -73,18 +73,6 @@ func (l *list) DeleteElement(element string) error {
 }
 
 func (l *list) ReplaceElements(elements []string) error {
-	return l.replaceElements(elements, func(builder nft.BatchBuilder) error {
-		return l.nft.RunBatch(builder)
-	})
-}
-
-func (l *list) ReplaceElementsWithSaveNFTFile(elements []string, pathFile string) error {
-	return l.replaceElements(elements, func(builder nft.BatchBuilder) error {
-		return l.nft.RunBatchAndMoveFile(builder, pathFile)
-	})
-}
-
-func (l *list) replaceElements(elements []string, run func(builder nft.BatchBuilder) error) error {
 	batchBuilder, err := l.nft.NewBuildBatch()
 	if err != nil {
 		return err
@@ -93,12 +81,24 @@ func (l *list) replaceElements(elements []string, run func(builder nft.BatchBuil
 		_ = batchBuilder.Close()
 	}()
 
-	if err := batchBuilder.Command().Run("flush set", l.family.String(), l.table, l.name); err != nil {
+	if err := l.replaceElements(batchBuilder, elements); err != nil {
+		return err
+	}
+
+	return l.nft.RunBatch(batchBuilder)
+}
+
+func (l *list) ReplaceBatchElements(builder nft.BatchBuilder, elements []string) error {
+	return l.replaceElements(builder, elements)
+}
+
+func (l *list) replaceElements(builder nft.BatchBuilder, elements []string) error {
+	if err := builder.Command().Run("flush set", l.family.String(), l.table, l.name); err != nil {
 		return err
 	}
 
 	if len(elements) == 0 {
-		return run(batchBuilder)
+		return nil
 	}
 
 	command := []string{
@@ -106,9 +106,6 @@ func (l *list) replaceElements(elements []string, run func(builder nft.BatchBuil
 		l.family.String(), l.table, l.name,
 		fmt.Sprintf("{ %s }", strings.Join(elements, ",")),
 	}
-	if err := batchBuilder.Command().Run(command...); err != nil {
-		return err
-	}
 
-	return run(batchBuilder)
+	return builder.Command().Run(command...)
 }

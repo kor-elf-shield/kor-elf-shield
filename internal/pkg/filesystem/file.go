@@ -1,7 +1,10 @@
 package filesystem
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"io"
 	"os"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
@@ -17,4 +20,23 @@ func FileHasWritePermissions(path string) error {
 	_ = file.Close()
 
 	return nil
+}
+
+func FileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+func FileChecksum(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	hash := sha256.New()
+
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(hash.Sum(nil)), nil
 }

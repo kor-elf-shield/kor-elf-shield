@@ -3,6 +3,7 @@ package blocklist
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -10,9 +11,8 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/block"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/filesystem"
 )
-
-type newBlocklist func(name string) (block.Blocklist, error)
 
 type Blocklist interface {
 	Names() []string
@@ -27,7 +27,8 @@ type updateSource struct {
 }
 
 type blocklist struct {
-	Sources             []*SourceConfig
+	pathDir             string
+	sources             []*SourceConfig
 	blocklistRepository repository.BlocklistRepository
 	logger              log.Logger
 
@@ -42,8 +43,17 @@ type blocklist struct {
 }
 
 func New(config Config, ctx context.Context, logger log.Logger) (Blocklist, error) {
+	if config.PathDir == "" {
+		return nil, fmt.Errorf("pathDir is empty")
+	}
+
+	if err := filesystem.EnsureDir(config.PathDir); err != nil {
+		return nil, err
+	}
+
 	return &blocklist{
-		Sources:             config.Sources,
+		pathDir:             config.PathDir,
+		sources:             config.Sources,
 		blocklistRepository: config.BlocklistRepository,
 		logger:              logger,
 		ctx:                 ctx,
@@ -56,8 +66,8 @@ func New(config Config, ctx context.Context, logger log.Logger) (Blocklist, erro
 }
 
 func (b *blocklist) Names() []string {
-	names := []string{}
-	for _, source := range b.Sources {
+	var names []string
+	for _, source := range b.sources {
 		if source.Name != "" {
 			names = append(names, source.Name)
 		}
@@ -72,17 +82,20 @@ func (b *blocklist) NftReload(blocks map[string]block.Blocklist) error {
 	b.nftBlocklists = blocks
 	b.mu.Unlock()
 
-	for _, source := range b.Sources {
+	for _, source := range b.sources {
 		if nftBlocklist, ok := b.nftBlocklists[source.Name]; ok {
 			if listEntity, err := b.blocklistRepository.Get(source.Name); err != nil {
 				b.logger.Error(fmt.Sprintf("Failed to get blocklist %s: %s", source.Name, err))
-			} else if listEntity.IsFresh(source.Interval) {
-				if err := nftBlocklist.ReplaceElementsIPv4(listEntity.IPsV4); len(listEntity.IPsV4) > 0 && err != nil {
-					b.logger.Error(fmt.Sprintf("Failed to replace elements (IPv4): %s", err))
+			} else if b.isFresh(source, listEntity) {
+				file, err := b.pathFile(source)
+				if err != nil {
+					b.logger.Error(fmt.Sprintf("Failed to get blocklist file path: %s", err))
+					continue
 				}
 
-				if err := nftBlocklist.ReplaceElementsIPv6(listEntity.IPsV6); len(listEntity.IPsV6) > 0 && err != nil {
-					b.logger.Error(fmt.Sprintf("Failed to replace elements (IPv6): %s", err))
+				if err := nftBlocklist.ReplaceElementsWithFile(file); err != nil {
+					b.logger.Error(fmt.Sprintf("Failed to replace elements with file %s: %s", file, err))
+					continue
 				}
 			}
 		} else {
@@ -103,7 +116,7 @@ func (b *blocklist) Run() {
 	b.ctx, b.cancel = context.WithCancel(b.ctx)
 	go b.processUpdateData(b.ctx)
 
-	for _, src := range b.Sources {
+	for _, src := range b.sources {
 		if src == nil || src.Name == "" {
 			continue
 		}
@@ -163,7 +176,7 @@ func (b *blocklist) processUpdateData(ctx context.Context) {
 			if listEntity, err := b.blocklistRepository.Get(updSource.source.Name); err != nil {
 				b.logger.Error(fmt.Sprintf("Failed to get blocklist %s: %s", updSource.source.Name, err))
 				continue
-			} else if listEntity.IsFresh(updSource.source.Interval) {
+			} else if b.isFresh(updSource.source, listEntity) {
 				b.logger.Debug(fmt.Sprintf("blocklist %s is fresh", updSource.source.Name))
 				continue
 			}
@@ -183,24 +196,24 @@ func (b *blocklist) refreshSource(sourceConfig *SourceConfig) {
 	if nftBlocklist, ok := b.nftBlocklists[sourceConfig.Name]; ok {
 		listEntity := &entity.Blocklist{
 			UpdatedAtUnix: time.Now().Unix(),
-			IPsV4:         nil,
-			IPsV6:         nil,
 		}
 
-		if len(ipsV4) > 0 {
-			if err := nftBlocklist.ReplaceElementsIPv4(ipsV4); err != nil {
-				b.logger.Error(fmt.Sprintf("Failed to replace elements (IPv4): %s", err))
-			} else {
-				listEntity.IPsV4 = ipsV4
-			}
+		if err := filesystem.EnsureDir(b.pathDir); err != nil {
+			b.logger.Error(fmt.Sprintf("Failed to ensure dir: %s", err))
+		}
+		file, err := b.pathFile(sourceConfig)
+		if err != nil {
+			b.logger.Error(fmt.Sprintf("Failed to get blocklist file path: %s", err))
+			return
 		}
 
-		if len(ipsV6) > 0 {
-			if err := nftBlocklist.ReplaceElementsIPv6(ipsV6); err != nil {
-				b.logger.Error(fmt.Sprintf("Failed to replace elements (IPv6): %s", err))
-			} else {
-				listEntity.IPsV6 = ipsV6
-			}
+		if err := nftBlocklist.ReplaceElements(ipsV4, ipsV6, file); err != nil {
+			b.logger.Error(fmt.Sprintf("Failed to replace elements: %s", err))
+		}
+		listEntity.Checksum, err = filesystem.FileChecksum(file)
+		if err != nil {
+			b.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", file, err))
+			return
 		}
 
 		if err := b.blocklistRepository.Update(sourceConfig.Name, listEntity); err != nil {
@@ -224,4 +237,44 @@ func (b *blocklist) Close() error {
 	}
 	close(b.launchChannel)
 	return nil
+}
+
+func (b *blocklist) pathFile(sourceConfig *SourceConfig) (string, error) {
+	if sourceConfig == nil {
+		return "", fmt.Errorf("sourceConfig is nil")
+	}
+
+	if sourceConfig.Name == "" {
+		return "", fmt.Errorf("sourceConfig.Name is empty")
+	}
+
+	return strings.TrimRight(b.pathDir, "/") + "/" + sourceConfig.Name + ".nft", nil
+}
+
+func (b *blocklist) isFresh(sourceConfig *SourceConfig, listEntity *entity.Blocklist) bool {
+	if !listEntity.IsFresh(sourceConfig.Interval) {
+		return false
+	}
+
+	file, err := b.pathFile(sourceConfig)
+	if err != nil {
+		b.logger.Error(fmt.Sprintf("Failed to get blocklist file path: %s", err))
+		return false
+	}
+	if !filesystem.FileExists(file) {
+		b.logger.Warn(fmt.Sprintf("Blocklist file %s not found", file))
+		return false
+	}
+
+	fileChecksum, err := filesystem.FileChecksum(file)
+	if err != nil {
+		b.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", file, err))
+		return false
+	}
+	if listEntity.Checksum != fileChecksum {
+		b.logger.Error(fmt.Sprintf("Blocklist file %s checksum is not equal to database checksum", file))
+		return false
+	}
+
+	return true
 }

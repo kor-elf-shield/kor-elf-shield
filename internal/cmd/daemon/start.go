@@ -3,6 +3,7 @@ package daemon
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
@@ -150,6 +151,7 @@ func newBlocklistService(ctx context.Context, blocklistRepository repository.Blo
 	blocklistConfig := blocklist.Config{
 		BlocklistRepository: blocklistRepository,
 		Sources:             config,
+		PathDir:             strings.TrimRight(setting.Config.DataDir, "/") + "/blocklists",
 	}
 
 	blocklistService, err := blocklist.New(blocklistConfig, ctx, logger)
