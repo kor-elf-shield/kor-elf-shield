@@ -1,6 +1,9 @@
 package format
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func HumanBytes(n uint64) string {
 	const (
@@ -22,4 +25,33 @@ func HumanBytes(n uint64) string {
 	default:
 		return fmt.Sprintf("%d B", n)
 	}
+}
+
+func HumanDuration(d time.Duration) string {
+	d = d.Round(time.Second)
+
+	days := d / (24 * time.Hour)
+	d -= days * 24 * time.Hour
+
+	hours := d / time.Hour
+	d -= hours * time.Hour
+
+	minutes := d / time.Minute
+	d -= minutes * time.Minute
+
+	seconds := d / time.Second
+
+	if days > 0 {
+		return fmt.Sprintf("%dd %02dh %02dm %02ds", days, hours, minutes, seconds)
+	}
+
+	if hours > 0 {
+		return fmt.Sprintf("%dh %02dm %02ds", hours, minutes, seconds)
+	}
+
+	if minutes > 0 {
+		return fmt.Sprintf("%dm %02ds", minutes, seconds)
+	}
+
+	return fmt.Sprintf("%ds", seconds)
 }

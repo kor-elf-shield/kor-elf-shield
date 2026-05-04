@@ -182,7 +182,7 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 				"***\n",
 			d.info.Ver,
 			d.info.BuiltWith,
-			uptime,
+			format.HumanDuration(uptime),
 			runtime.NumGoroutine(),
 			format.HumanBytes(m.Alloc),     // Alloc is the total bytes of allocated heap objects.
 			format.HumanBytes(m.HeapAlloc), // HeapAlloc is the total bytes of heap memory obtained from the OS.
