@@ -255,10 +255,8 @@ func (r *reload) inputICMPAfter(batchInput chain.Chain) error {
 	if r.config.IP6.Enable {
 		if r.config.IP6.IcmpStrict {
 			return r.inputICMP6Strict(batchInput)
-		} else {
-			if err := batchInput.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp counter accept"); err != nil {
-				return err
-			}
+		} else if err := batchInput.AddRule("iifname != \"lo\" meta l4proto ipv6-icmp counter accept"); err != nil {
+			return err
 		}
 	}
 
@@ -307,17 +305,17 @@ func (r *reload) inputPorts(batchInput chain.Chain) error {
 		baseRule := "iifname != \"lo\" meta l4proto " + protocol + " ct state new " + protocol + " dport " + number
 
 		if port.LimitRate != "" {
-			rule := baseRule + " limit rate " + port.LimitRate + " counter " + port.Action.String()
-			if err := batchInput.AddRule(rule); err != nil {
+			addRule := baseRule + " limit rate " + port.LimitRate + " counter " + port.Action.String()
+			if err := batchInput.AddRule(addRule); err != nil {
 				return err
 			}
-			ruleDrop := baseRule + " counter " + r.config.Policy.InputDrop.String()
-			if err := batchInput.AddRule(ruleDrop); err != nil {
+			addRuleDrop := baseRule + " counter " + r.config.Policy.InputDrop.String()
+			if err := batchInput.AddRule(addRuleDrop); err != nil {
 				return err
 			}
 		} else {
-			rule := baseRule + " counter " + port.Action.String()
-			if err := batchInput.AddRule(rule); err != nil {
+			addRule := baseRule + " counter " + port.Action.String()
+			if err := batchInput.AddRule(addRule); err != nil {
 				return err
 			}
 		}

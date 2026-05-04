@@ -212,17 +212,17 @@ func (r *reload) outputPorts(batchOutput chain.Chain) error {
 		baseRule := "oifname != \"lo\" meta l4proto " + protocol + " ct state new " + protocol + " dport " + number
 
 		if port.LimitRate != "" {
-			rule := baseRule + " limit rate " + port.LimitRate + " counter " + port.Action.String()
-			if err := batchOutput.AddRule(rule); err != nil {
+			addRule := baseRule + " limit rate " + port.LimitRate + " counter " + port.Action.String()
+			if err := batchOutput.AddRule(addRule); err != nil {
 				return err
 			}
-			ruleDrop := baseRule + " counter " + r.config.Policy.InputDrop.String()
-			if err := batchOutput.AddRule(ruleDrop); err != nil {
+			addRuleDrop := baseRule + " counter " + r.config.Policy.InputDrop.String()
+			if err := batchOutput.AddRule(addRuleDrop); err != nil {
 				return err
 			}
 		} else {
-			rule := baseRule + " counter " + port.Action.String()
-			if err := batchOutput.AddRule(rule); err != nil {
+			addRule := baseRule + " counter " + port.Action.String()
+			if err := batchOutput.AddRule(addRule); err != nil {
 				return err
 			}
 		}
