@@ -10,8 +10,8 @@ import (
 func (r *reload) docker(builder nft.BatchBuilder, batchForward chain.Chain, dockerChains firewall.NFTDockerChains) error {
 	r.logger.Debug("Reload docker rules")
 
-	for _, chain := range dockerChains.List() {
-		if err := r.addChain(builder, chain.Name(), nftChain.TypeNone); err != nil {
+	for _, dockerChain := range dockerChains.List() {
+		if err := r.addChain(builder, dockerChain.Name(), nftChain.TypeNone); err != nil {
 			return err
 		}
 	}
