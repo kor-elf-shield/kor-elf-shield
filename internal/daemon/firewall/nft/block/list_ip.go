@@ -31,16 +31,16 @@ type listIP struct {
 }
 
 func NewListIP(nft nftFirewall.NFT, builder nft.BatchBuilder, family family.Type, table string, name string) (ListIP, error) {
+	listNameV4, listNameV6 := getNamesIP(name)
+
 	params := "type ipv4_addr; flags interval, timeout;"
-	listName := name + "_ip4"
-	listIPv4, err := newList(nft, builder, family, table, listName, params)
+	listIPv4, err := newList(nft, builder, family, table, listNameV4, params)
 	if err != nil {
 		return nil, err
 	}
 
 	params = "type ipv6_addr; flags interval, timeout;"
-	listName = name + "_ip6"
-	listIPv6, err := newList(nft, builder, family, table, listName, params)
+	listIPv6, err := newList(nft, builder, family, table, listNameV6, params)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +49,18 @@ func NewListIP(nft nftFirewall.NFT, builder nft.BatchBuilder, family family.Type
 		listIPv4: listIPv4,
 		listIPv6: listIPv6,
 	}, nil
+}
+
+func NewListIPWithoutCommand(nft nftFirewall.NFT, family family.Type, table string, name string) ListIP {
+	listNameV4, listNameV6 := getNamesIP(name)
+
+	listIPv4 := newListWithoutCommand(nft, family, table, listNameV4)
+	listIPv6 := newListWithoutCommand(nft, family, table, listNameV6)
+
+	return &listIP{
+		listIPv4: listIPv4,
+		listIPv6: listIPv6,
+	}
 }
 
 func (l *listIP) AddIP(addr net.IP, banSeconds uint32) error {

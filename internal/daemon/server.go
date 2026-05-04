@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"errors"
+	"strings"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
@@ -41,7 +42,9 @@ func NewDaemon(
 
 	blockingService := blocking.New(opts.Repositories.Blocking(), logger)
 
-	dataDirForFirewall := opts.DataDir + "/firewall"
+	dataDirForFirewall := strings.TrimRight(opts.DataDir, "/") + "/firewall"
+
+	metadataService := firewall2.NewMetadata(opts.Repositories.Metadata())
 
 	firewall, err := firewall2.New(
 		opts.PathNftables,
@@ -51,6 +54,7 @@ func NewDaemon(
 		docker,
 		blocklist,
 		dataDirForFirewall,
+		metadataService,
 	)
 	if err != nil {
 		return nil, err

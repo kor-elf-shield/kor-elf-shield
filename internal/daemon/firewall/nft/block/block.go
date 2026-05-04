@@ -29,3 +29,7 @@ func (b *setBatch) Add(name string, params string) error {
 	}
 	return b.builder.Command().Run(command...)
 }
+
+func getNamesIP(name string) (ipV4 string, ipV6 string) {
+	return name + "_ip4", name + "_ip6"
+}

@@ -25,16 +25,16 @@ type blocklist struct {
 }
 
 func NewBlocklist(nft nftFirewall.NFT, builder nft.BatchBuilder, family family.Type, table string, name string) (Blocklist, error) {
+	listNameV4, listNameV6 := getNamesIP(name)
+
 	params := "type ipv4_addr; flags interval; auto-merge;"
-	listName := name + "_ip4"
-	listIPv4, err := newList(nft, builder, family, table, listName, params)
+	listIPv4, err := newList(nft, builder, family, table, listNameV4, params)
 	if err != nil {
 		return nil, err
 	}
 
 	params = "type ipv6_addr; flags interval; auto-merge;"
-	listName = name + "_ip6"
-	listIPv6, err := newList(nft, builder, family, table, listName, params)
+	listIPv6, err := newList(nft, builder, family, table, listNameV6, params)
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +45,20 @@ func NewBlocklist(nft nftFirewall.NFT, builder nft.BatchBuilder, family family.T
 		listIPv4: listIPv4,
 		listIPv6: listIPv6,
 	}, nil
+}
+
+func NewBlocklistWithoutCommand(nft nftFirewall.NFT, family family.Type, table string, name string) Blocklist {
+	listNameV4, listNameV6 := getNamesIP(name)
+
+	listIPv4 := newListWithoutCommand(nft, family, table, listNameV4)
+	listIPv6 := newListWithoutCommand(nft, family, table, listNameV6)
+
+	return &blocklist{
+		nft: nft,
+
+		listIPv4: listIPv4,
+		listIPv6: listIPv6,
+	}
 }
 
 func (l *blocklist) ReplaceElements(ipV4 []string, ipV6 []string, pathSaveNft string) error {

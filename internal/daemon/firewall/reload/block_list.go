@@ -10,7 +10,7 @@ import (
 )
 
 func (r *reload) blockList(builder nft.BatchBuilder, beforeLocalInput chain.Chain, blocks map[string]block.Blocklist) (nftTable.BlockList, error) {
-	listBlockedIP, err := block.NewListIP(r.nft, builder, r.table.family, r.table.name, "blocked_ip")
+	listBlockedIP, err := block.NewListIP(r.nft, builder, r.table.family, r.table.name, blockedIP)
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +19,7 @@ func (r *reload) blockList(builder nft.BatchBuilder, beforeLocalInput chain.Chai
 		return nil, err
 	}
 
-	listBlockedIPWithPort, err := block.NewListIPWithPort(r.nft, builder, r.table.family, r.table.name, "blocked_ip_port")
+	listBlockedIPWithPort, err := block.NewListIPWithPort(r.nft, builder, r.table.family, r.table.name, blockedIPWithPort)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (r *reload) moduleBlockList(builder nft.BatchBuilder, afterLocalInput chain
 			continue
 		}
 		r.logger.Debug(fmt.Sprintf("Reload blocklist from %s", blockListName))
-		blockList, err := block.NewBlocklist(r.nft, builder, r.table.family, r.table.name, "blocklist_"+blockListName)
+		blockList, err := block.NewBlocklist(r.nft, builder, r.table.family, r.table.name, getBlocklistName(blockListName))
 		if err != nil {
 			r.logger.Error(fmt.Sprintf("Failed to create blocklist: %s", err))
 			continue

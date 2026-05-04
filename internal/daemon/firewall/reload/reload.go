@@ -8,6 +8,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	nftFirewall "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/block"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/chain"
 	dataTable "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/table"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
@@ -15,7 +16,11 @@ import (
 	nft "git.kor-elf.net/kor-elf-shield/go-nftables-client/contract"
 )
 
+const blockedIP = "block_ip"
+const blockedIPWithPort = "block_ip_with_port"
+
 type Reload interface {
+	RunWithCache(file string, isValidCacheFile bool, blockListNames []string) (dataTable.Table, error)
 	Run(blockListNames []string) (dataTable.Table, error)
 }
 
@@ -43,10 +48,18 @@ func New(nft nftFirewall.NFT, logger log.Logger, config *config.Config) Reload {
 	}
 }
 
-func (r *reload) Run(blockListNames []string) (dataTable.Table, error) {
-	var dockerChains firewall.NFTDockerChains
-	if r.config.Options.DockerSupport {
-		dockerChains = firewall.NewNFTChains(r.nft, r.table.family, r.table.name)
+func (r *reload) RunWithCache(file string, isValidCacheFile bool, blockListNames []string) (dataTable.Table, error) {
+	if file == "" {
+		r.logger.Warn("file is empty, using default reload")
+		return r.Run(blockListNames)
+	}
+	if isValidCacheFile {
+		r.logger.Debug("use cache file")
+		table, err := r.loadCache(file, blockListNames)
+		if err == nil {
+			return table, nil
+		}
+		r.logger.Warn(fmt.Sprintf("failed to load cache file: %s", err))
 	}
 
 	batchBuilder, err := r.nft.NewBuildBatch()
@@ -58,6 +71,47 @@ func (r *reload) Run(blockListNames []string) (dataTable.Table, error) {
 			r.logger.Warn(err.Error())
 		}
 	}()
+
+	table, err := r.reload(batchBuilder, blockListNames)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.nft.RunBatchAndMoveFile(batchBuilder, file); err != nil {
+		return nil, err
+	}
+
+	return table, nil
+}
+
+func (r *reload) Run(blockListNames []string) (dataTable.Table, error) {
+	batchBuilder, err := r.nft.NewBuildBatch()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := batchBuilder.Close(); err != nil {
+			r.logger.Warn(err.Error())
+		}
+	}()
+
+	table, err := r.reload(batchBuilder, blockListNames)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.nft.RunBatch(batchBuilder); err != nil {
+		return nil, err
+	}
+
+	return table, nil
+}
+
+func (r *reload) reload(batchBuilder nft.BatchBuilder, blockListNames []string) (dataTable.Table, error) {
+	var dockerChains firewall.NFTDockerChains
+	if r.config.Options.DockerSupport {
+		dockerChains = firewall.NewNFTChains(r.nft, r.table.family, r.table.name)
+	}
 
 	if err := r.clear(batchBuilder); err != nil {
 		return nil, err
@@ -76,10 +130,6 @@ func (r *reload) Run(blockListNames []string) (dataTable.Table, error) {
 		return nil, err
 	}
 	if err := r.forward(batchBuilder, dockerChains); err != nil {
-		return nil, err
-	}
-
-	if err := r.nft.RunBatch(batchBuilder); err != nil {
 		return nil, err
 	}
 
@@ -118,6 +168,36 @@ func (r *reload) clear(builder nft.BatchBuilder) error {
 	return nil
 }
 
+func (r *reload) loadCache(file string, blockListNames []string) (dataTable.Table, error) {
+	args := []string{"-f", file}
+	if err := r.nft.NFT().Command().Run(args...); err != nil {
+		return nil, err
+	}
+
+	var dockerChains firewall.NFTDockerChains
+	if r.config.Options.DockerSupport {
+		dockerChains = firewall.NewNFTChains(r.nft, r.table.family, r.table.name)
+	}
+
+	blocks := make(map[string]block.Blocklist)
+	for _, blockListName := range blockListNames {
+		if blockListName == "" {
+			continue
+		}
+		blockList := block.NewBlocklistWithoutCommand(r.nft, r.table.family, r.table.name, getBlocklistName(blockListName))
+		blocks[blockListName] = blockList
+	}
+
+	listBlockedIP := block.NewListIPWithoutCommand(r.nft, r.table.family, r.table.name, blockedIP)
+	listBlockedIPWithPort := block.NewListIPWithPortWithoutCommand(r.nft, r.table.family, r.table.name, blockedIPWithPort)
+
+	tableBlocklist := dataTable.NewBlockList(listBlockedIP, listBlockedIPWithPort, blocks)
+	return dataTable.New(
+		r.nft, r.table.family, r.table.name,
+		tableBlocklist, dockerChains,
+	), nil
+}
+
 func (r *reload) addChain(builder nft.BatchBuilder, chainName string, baseChain nftChain.ChainOptions) error {
 	return builder.Chain().Add(r.table.family, r.table.name, chainName, baseChain)
 }
@@ -128,4 +208,8 @@ func (r *reload) addRule(builder nft.BatchBuilder, chainName string, rule string
 
 func (r *reload) addChainWithReturn(builder nft.BatchBuilder, chainName string, baseChain nftChain.ChainOptions) (chain.Chain, error) {
 	return chain.NewBatchChainWithOptions(builder, r.table.family, r.table.name, chainName, baseChain)
+}
+
+func getBlocklistName(blockListName string) string {
+	return "blocklist_" + blockListName
 }

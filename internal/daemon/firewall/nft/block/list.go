@@ -41,6 +41,15 @@ func newList(nft nftFirewall.NFT, builder nft.BatchBuilder, family family.Type, 
 	}, nil
 }
 
+func newListWithoutCommand(nft nftFirewall.NFT, family family.Type, table string, name string) List {
+	return &list{
+		nft:    nft,
+		family: family,
+		table:  table,
+		name:   name,
+	}
+}
+
 func (l *list) Name() string {
 	return l.name
 }
