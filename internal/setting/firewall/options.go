@@ -9,6 +9,7 @@ import (
 )
 
 type options struct {
+	Cache          bool   `mapstructure:"cache"`
 	ClearMode      string `mapstructure:"clear_mode"`
 	SavesRules     bool   `mapstructure:"saves_rules"`
 	SavesRulesPath string `mapstructure:"saves_rules_path"`
@@ -19,6 +20,7 @@ type options struct {
 
 func defaultOptions() options {
 	return options{
+		Cache:          true,
 		ClearMode:      "global",
 		SavesRules:     false,
 		SavesRulesPath: "/etc/nftables.conf",

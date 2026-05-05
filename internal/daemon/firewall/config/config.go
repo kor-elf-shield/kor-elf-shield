@@ -17,6 +17,7 @@ type Config struct {
 }
 
 type ConfigOptions struct {
+	Cache          bool
 	ClearMode      ClearMode
 	SavesRules     bool
 	SavesRulesPath string
