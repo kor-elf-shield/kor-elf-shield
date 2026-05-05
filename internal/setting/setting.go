@@ -10,6 +10,8 @@ import (
 )
 
 type setting struct {
+	ConfigPath string
+
 	Testing          bool   `mapstructure:"testing"`
 	TestingInterval  int16  `mapstructure:"testing_interval"`
 	Language         string `mapstructure:"language"`
@@ -23,8 +25,10 @@ type setting struct {
 	OtherSettingsPath *otherSettingsPath
 }
 
-func settingDefault() *setting {
+func settingDefault(configPath string) *setting {
 	return &setting{
+		ConfigPath: configPath,
+
 		Testing:          true,
 		TestingInterval:  5,
 		Language:         "ru",
@@ -147,4 +151,10 @@ func (s setting) validateSocketFile() error {
 		return errors.New("invalid socket_file. Must be .sock")
 	}
 	return nil
+}
+
+func (s setting) ListPathConfigFiles() map[string]string {
+	filePaths := s.OtherSettingsPath.ListPathFiles()
+	filePaths["kor-elf-shield"] = s.ConfigPath
+	return filePaths
 }

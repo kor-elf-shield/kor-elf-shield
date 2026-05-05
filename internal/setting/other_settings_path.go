@@ -92,6 +92,7 @@ func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewallConfig
 			OutIPs:     IPs.OutIP6,
 		},
 		Options: firewallConfig.ConfigOptions{
+			Cache:          setting.Options.Cache,
 			ClearMode:      optionClearMode,
 			SavesRules:     setting.Options.SavesRules,
 			SavesRulesPath: setting.Options.SavesRulesPath,
@@ -238,4 +239,15 @@ func (o *otherSettingsPath) ToConfig(dataDir string, logger logger.Logger) (geoI
 	}
 
 	return geoIPService, setting.Enabled, nil
+}
+
+func (o *otherSettingsPath) ListPathFiles() map[string]string {
+	return map[string]string{
+		"firewall":      o.Firewall,
+		"notifications": o.Notifications,
+		"analyzer":      o.Analyzer,
+		"docker":        o.Docker,
+		"blocklists":    o.Blocklists,
+		"geoip":         o.GeoIP,
+	}
 }
