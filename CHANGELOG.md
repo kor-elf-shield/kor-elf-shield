@@ -10,6 +10,7 @@
   * Запрос выполняется с использованием параметра -f.
 * Обновлена версия go-nftables-client до v0.2.1.
 * Улучшен вывод `Uptime` в команде `kor-elf-shield status`.
+* Улучшен вывод времени блокировки в уведомлениях.
 ***
 #### English
 * The `options.cache` parameter has been added to the `firewall.toml` file settings.
@@ -22,6 +23,7 @@
   * The query is executed using the -f parameter.
 * Updated go-nftables-client to v0.2.1.
 * Improved `Uptime` output in `kor-elf-shield status` command.
+* Improved display of blocking time in notifications.
 ***
 ## 0.10.0 (12.4.2026)
 #### Русский
