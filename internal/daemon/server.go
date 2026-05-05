@@ -11,6 +11,7 @@ import (
 	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/info"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
@@ -18,7 +19,7 @@ import (
 )
 
 func NewDaemon(
-	info DaemonInfo,
+	info info.Info,
 	opts DaemonOptions,
 	logger log.Logger,
 	notifications notifications.Notifications,
@@ -44,8 +45,6 @@ func NewDaemon(
 
 	dataDirForFirewall := strings.TrimRight(opts.DataDir, "/") + "/firewall"
 
-	metadataService := firewall2.NewMetadata(opts.Repositories.Metadata())
-
 	firewall, err := firewall2.New(
 		opts.PathNftables,
 		blockingService,
@@ -54,7 +53,6 @@ func NewDaemon(
 		docker,
 		blocklist,
 		dataDirForFirewall,
-		metadataService,
 	)
 	if err != nil {
 		return nil, err

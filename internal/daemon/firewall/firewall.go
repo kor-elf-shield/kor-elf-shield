@@ -16,13 +16,14 @@ import (
 	nftFirewall "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/table"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/reload"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/info"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/filesystem"
 )
 
 type API interface {
 	// Reload Clear all rules and set new rules.
-	Reload(appVersion string, isCache bool) error
+	Reload(daemonInfo info.Info) error
 
 	// SavesRules Save rules to file.
 	SavesRules()
@@ -58,7 +59,6 @@ type firewall struct {
 	docker          docker_monitor.Docker
 	blocklist       blocklist.Blocklist
 	dataDir         string
-	metadataService Metadata
 
 	mu sync.Mutex
 }
@@ -71,7 +71,6 @@ func New(
 	docker docker_monitor.Docker,
 	blocklist blocklist.Blocklist,
 	dataDir string,
-	metadataService Metadata,
 ) (API, error) {
 	nftClient, err := nftables.NewWithPath(pathNFT)
 	if err != nil {
@@ -86,13 +85,12 @@ func New(
 		docker:          docker,
 		blocklist:       blocklist,
 		dataDir:         dataDir,
-		metadataService: metadataService,
 
 		mu: sync.Mutex{},
 	}, nil
 }
 
-func (f *firewall) Reload(appVersion string, isCache bool) error {
+func (f *firewall) Reload(daemonInfo info.Info) error {
 	f.logger.Debug("Reload nftables rules")
 
 	nftReload := reload.New(f.nft, f.logger, f.config)
@@ -100,11 +98,11 @@ func (f *firewall) Reload(appVersion string, isCache bool) error {
 
 	var nftTable table.Table
 	var err error
-	if isCache {
+	if f.config.Options.Cache {
 		file := f.pathFileCacheNFT()
 		nftTable, err = nftReload.RunWithCache(
 			file,
-			f.isValidCacheFile(appVersion),
+			f.isValidCacheFile(daemonInfo),
 			blocklistNames,
 		)
 		if err != nil {
@@ -114,7 +112,7 @@ func (f *firewall) Reload(appVersion string, isCache bool) error {
 		checksum, err := filesystem.FileChecksum(file)
 		if err != nil {
 			f.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", file, err))
-		} else if err := f.metadataService.UpdateMetadata(appVersion, checksum); err != nil {
+		} else if err := daemonInfo.Metadata().FirewallFileNft().Update(checksum); err != nil {
 			f.logger.Error(fmt.Sprintf("Failed to update metadata: %s", err))
 		}
 	} else {
@@ -236,24 +234,29 @@ func (f *firewall) pathFileCacheNFT() string {
 	return strings.TrimRight(f.dataDir, "/") + "/nftables.nft"
 }
 
-func (f *firewall) isValidCacheFile(appVersion string) bool {
+func (f *firewall) isValidCacheFile(daemonInfo info.Info) bool {
+	if daemonInfo.IsVersionChanged() {
+		f.logger.Debug("Version changed, skip cache")
+		return false
+	}
+
+	if daemonInfo.IsSettingsChanged() {
+		f.logger.Debug("Settings changed, skip cache")
+		return false
+	}
+
 	fileNFT := f.pathFileCacheNFT()
 	if !filesystem.FileExists(fileNFT) {
 		return false
 	}
 
-	metadata, err := f.metadataService.Metadata()
+	metadataChecksum, err := daemonInfo.Metadata().FirewallFileNft().Get()
 	if err != nil {
-		f.logger.Error(fmt.Sprintf("Failed to get metadata: %s", err))
+		f.logger.Error(fmt.Sprintf("Failed to get checksum: %s", err))
 		return false
 	}
 
-	if metadata.Version != appVersion {
-		f.logger.Warn(fmt.Sprintf("App version %s is not equal to metadata version %s", appVersion, metadata.Version))
-		return false
-	}
-
-	if metadata.Checksum == "" {
+	if metadataChecksum == "" {
 		return false
 	}
 
@@ -263,7 +266,7 @@ func (f *firewall) isValidCacheFile(appVersion string) bool {
 		return false
 	}
 
-	if checksum != metadata.Checksum {
+	if checksum != metadataChecksum {
 		f.logger.Warn(fmt.Sprintf("Checksum of %s is not equal to metadata checksum", fileNFT))
 		return false
 	}

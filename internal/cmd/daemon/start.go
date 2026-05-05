@@ -11,6 +11,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/info"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
@@ -84,12 +85,9 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		_ = geoIPService.Close()
 	}()
 
-	info := daemon.DaemonInfo{
-		Ver:       setting.AppVer,
-		BuiltWith: setting.AppBuiltWith,
-		StartTime: setting.AppStartTime,
-	}
-	d, err := daemon.NewDaemon(info, config, logger, notificationsService, dockerService, blocklistService, geoIPService)
+	daemonInfo := newDaemonInfo(repositories.Metadata(), setting.Config.ListPathConfigFiles(), logger)
+
+	d, err := daemon.NewDaemon(daemonInfo, config, logger, notificationsService, dockerService, blocklistService, geoIPService)
 	if err != nil {
 		logger.Fatal(err.Error())
 
@@ -108,6 +106,23 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 	}
 
 	return nil
+}
+
+func newDaemonInfo(repo repository.MetadataRepository, listPathFiles map[string]string, logger log.Logger) info.Info {
+	metaFirewallFileNft := info.NewMetadataFirewallFileNft(repo)
+	metadataContainer := info.NewMetadataContainer(metaFirewallFileNft)
+
+	return info.New(
+		setting.AppVer,
+		info.IsVersionChanged(repo, setting.AppVer, logger),
+
+		setting.AppBuiltWith,
+		setting.AppStartTime,
+
+		info.IsSettingsChanged(repo, listPathFiles, logger),
+
+		metadataContainer,
+	)
 }
 
 func newNotificationsService(queueRepository repository.NotificationsQueueRepository, logger log.Logger) (notifications.Notifications, error) {
