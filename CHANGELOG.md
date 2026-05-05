@@ -1,5 +1,7 @@
 ## 0.11.0 (soon)
 #### Русский
+* В настройки файла `firewall.toml` добавлен параметр `options.cache`.
+  * Этот параметр включает кэширование, чтобы избежать постоянной компиляции команд nftables во временный файл. Файл кэша изменяется после изменения настроек или обновления версии программы. (`Включено по умолчанию`)
 * Логика добавления правил в nftables была переработана.
   * Команды теперь собираются во временном файле.
   * Запрос выполняется с использованием параметра -f.
@@ -7,9 +9,11 @@
   * Список IP адресов собирается в файл.
   * Запрос выполняется с использованием параметра -f.
 * Обновлена версия go-nftables-client до v0.2.1.
-* Улучшен вывод Uptime в команде `kor-elf-shield status`.
+* Улучшен вывод `Uptime` в команде `kor-elf-shield status`.
 ***
 #### English
+* The `options.cache` parameter has been added to the `firewall.toml` file settings.
+  * This parameter enables caching to avoid constantly compiling nftables commands into a temporary file. The cache file changes after changing settings or updating the program version. (`Enabled by default`)
 * The logic for adding rules to nftables has been reworked.
   * Commands are now collected in a temporary file.
   * The query is executed using the -f parameter.
@@ -17,7 +21,7 @@
   * The list of IP addresses is collected into a file.
   * The query is executed using the -f parameter.
 * Updated go-nftables-client to v0.2.1.
-* Improved Uptime output in `kor-elf-shield status` command.
+* Improved `Uptime` output in `kor-elf-shield status` command.
 ***
 ## 0.10.0 (12.4.2026)
 #### Русский
