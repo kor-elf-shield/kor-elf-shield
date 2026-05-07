@@ -301,6 +301,17 @@ icmp_strict = false
 [options]
 
 ###
+# Включает кэширование, чтобы избежать постоянной компиляции команд nftables во временный файл.
+# Файл кэша изменяется после изменения настроек или обновления версии программы.
+# По умолчанию: true
+# ***
+# Enables a cache to avoid constantly compiling nftables commands into a temporary file.
+# The cache file changes after changing settings or updating the program version.
+# Default: true
+###
+cache = true
+
+###
 # Переключения режима очистки фаервола nftables. Если указать "own", то может получиться конфликт в правилах.
 # Может спровоцировать проблему в безопасности. Указывайте "own" если вы уверены в своих действиях.
 # Допустимые значения:

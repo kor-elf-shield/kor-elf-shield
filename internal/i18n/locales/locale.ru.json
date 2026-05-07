@@ -69,7 +69,7 @@
   "user": "Пользователь",
   "access to user has been gained": "Получен доступ к пользователю",
   "unknown": "неизвестный",
-  "blockSec": "Блокировка на {{.BlockSec}} секунд",
+  "blockSec": "Блокировка на {{.BlockSec}}",
   "ports": "Порты: {{.Ports}}",
 
   "alert.subject": "Обнаружено оповещение ({{.Name}}) (группа:{{.GroupName}})",

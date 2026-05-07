@@ -31,7 +31,7 @@ func InitSetting(path string) error {
 	}
 
 	// Default config
-	Config = settingDefault()
+	Config = settingDefault(path)
 
 	v := viper.New()
 	v.SetConfigType("toml")

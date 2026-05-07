@@ -2,8 +2,8 @@ git.kor-elf.net/kor-elf-shield/blocklist v1.1.0 h1:NS8be3TFBsUn+ft3oG5sAD56iJTGO
 git.kor-elf.net/kor-elf-shield/blocklist v1.1.0/go.mod h1:nNbQux5vbuoCa3wMiC2QsLb4tO1JLCssGzdljizcJUs=
 git.kor-elf.net/kor-elf-shield/geoip2 v0.1.2 h1:/J9U+h9H92hW6TtwCznkRANqhX5kvBpN4uV7xDbwXpM=
 git.kor-elf.net/kor-elf-shield/geoip2 v0.1.2/go.mod h1:ULMUjpd2I9ikkDDE69IlpKT4vR2/nlYT0cqoR2T95sM=
-git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.1 h1:3oGtZ/r1YAdlvI16OkZSCaxcWztHe/33ITWfI2LaQm0=
-git.kor-elf.net/kor-elf-shield/go-nftables-client v0.1.1/go.mod h1:a7F+XdL1pK5P3ucQRR2EK/fABAP37LLBENiA4hX7L6A=
+git.kor-elf.net/kor-elf-shield/go-nftables-client v0.2.1 h1:B5u1uCYyrDlDlCSA03o/Djt/T0A3SgCeFsfZkq25Hwg=
+git.kor-elf.net/kor-elf-shield/go-nftables-client v0.2.1/go.mod h1:a7F+XdL1pK5P3ucQRR2EK/fABAP37LLBENiA4hX7L6A=
 github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk=
 github.com/BurntSushi/toml v1.6.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

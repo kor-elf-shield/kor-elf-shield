@@ -14,6 +14,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/format"
 )
 
 type BruteForceProtection interface {
@@ -301,7 +302,7 @@ func (p *bruteForceProtection) sendNotify(subject string, notify *bruteForceProt
 		}) + "\n"
 	}
 	text += i18n.Lang.T("blockSec", map[string]any{
-		"BlockSec": notify.blockSec,
+		"BlockSec": format.HumanDuration(time.Duration(notify.blockSec) * time.Second),
 	}) + "\n"
 	text += i18n.Lang.T("time", map[string]any{
 		"Time": notify.time,

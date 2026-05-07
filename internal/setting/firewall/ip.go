@@ -3,7 +3,7 @@ package firewall
 import (
 	"errors"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	port2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/ip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
@@ -23,11 +23,11 @@ func defaultIPs() []IP {
 }
 
 type IPs struct {
-	InIP4  []firewall.ConfigIP
-	OutIP4 []firewall.ConfigIP
+	InIP4  []config.ConfigIP
+	OutIP4 []config.ConfigIP
 
-	InIP6  []firewall.ConfigIP
-	OutIP6 []firewall.ConfigIP
+	InIP6  []config.ConfigIP
+	OutIP6 []config.ConfigIP
 }
 
 func (i *IP) ToIPs() (IPs IPs, error error) {
@@ -48,7 +48,7 @@ func (i *IP) ToIPs() (IPs IPs, error error) {
 			return
 		}
 
-		baseConfigIP := firewall.ConfigIP{
+		baseConfigIP := config.ConfigIP{
 			IP:        ipNet,
 			Action:    action,
 			LimitRate: i.LimitRate,
@@ -89,7 +89,7 @@ func (i *IP) validate() error {
 	return nil
 }
 
-func loopIP(baseConfigIP firewall.ConfigIP, directions []string, protocols []string, ports []int) (in []firewall.ConfigIP, out []firewall.ConfigIP, error error) {
+func loopIP(baseConfigIP config.ConfigIP, directions []string, protocols []string, ports []int) (in []config.ConfigIP, out []config.ConfigIP, error error) {
 	for _, direction := range directions {
 		addDirection, err := port2.ToDirection(direction)
 		if err != nil {
@@ -136,7 +136,7 @@ func loopIP(baseConfigIP firewall.ConfigIP, directions []string, protocols []str
 	return
 }
 
-func loopIPProtocol(baseConfigIP firewall.ConfigIP, protocols []string, ports []int, direction types.Direction) (in []firewall.ConfigIP, out []firewall.ConfigIP, error error) {
+func loopIPProtocol(baseConfigIP config.ConfigIP, protocols []string, ports []int, direction types.Direction) (in []config.ConfigIP, out []config.ConfigIP, error error) {
 	for _, protocol := range protocols {
 		addProtocol, err := port2.ToProtocol(protocol)
 		if err != nil {
@@ -169,7 +169,7 @@ func loopIPProtocol(baseConfigIP firewall.ConfigIP, protocols []string, ports []
 	return
 }
 
-func loopIPPort(baseConfigIP firewall.ConfigIP, ports []int, direction types.Direction, protocol types.Protocol) (in []firewall.ConfigIP, out []firewall.ConfigIP, error error) {
+func loopIPPort(baseConfigIP config.ConfigIP, ports []int, direction types.Direction, protocol types.Protocol) (in []config.ConfigIP, out []config.ConfigIP, error error) {
 	for _, port := range ports {
 		if err := validate.Port(port, "port"); err != nil {
 			error = err

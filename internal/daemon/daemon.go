@@ -17,6 +17,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/info"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
@@ -32,7 +33,7 @@ type Daemon interface {
 }
 
 type daemon struct {
-	info          DaemonInfo
+	info          info.Info
 	pidFile       pidfile.PidFile
 	socket        socket.Socket
 	logger        log.Logger
@@ -46,12 +47,6 @@ type daemon struct {
 	stopCh chan struct{}
 }
 
-type DaemonInfo struct {
-	Ver       string
-	BuiltWith string
-	StartTime time.Time
-}
-
 func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16) error {
 	if err := d.pidFile.EnsureNoOtherProcess(); err != nil {
 		return err
@@ -59,7 +54,7 @@ func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16
 	if err := d.socket.EnsureNoOtherProcess(); err != nil {
 		return err
 	}
-	if err := d.firewall.Reload(); err != nil {
+	if err := d.firewall.Reload(d.info); err != nil {
 		d.firewall.ClearRules()
 		return err
 	}
@@ -164,7 +159,6 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 		return socket.Write("ok")
 
 	case "status":
-		uptime := time.Since(d.info.StartTime)
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
 
@@ -180,9 +174,9 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 				"HeapSys:    %s\n"+
 				"NumGC:      %d\n"+
 				"***\n",
-			d.info.Ver,
-			d.info.BuiltWith,
-			uptime,
+			d.info.Version(),
+			d.info.BuiltWith(),
+			format.HumanDuration(d.info.Uptime()),
 			runtime.NumGoroutine(),
 			format.HumanBytes(m.Alloc),     // Alloc is the total bytes of allocated heap objects.
 			format.HumanBytes(m.HeapAlloc), // HeapAlloc is the total bytes of heap memory obtained from the OS.

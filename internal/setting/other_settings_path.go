@@ -3,10 +3,10 @@ package setting
 import (
 	"errors"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
+	analyzerConfig "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	firewallConfig "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
@@ -42,41 +42,41 @@ func otherSettingsPathDefault() *otherSettingsPath {
 	}
 }
 
-func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewall.Config, error) {
+func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewallConfig.Config, error) {
 	setting, err := firewallSetting.InitSetting(o.Firewall)
 	if err != nil {
-		return firewall.Config{}, err
+		return firewallConfig.Config{}, err
 	}
 
 	configPolicy, err := setting.Policy.ToConfigPolicy()
 	if err != nil {
-		return firewall.Config{}, err
+		return firewallConfig.Config{}, err
 	}
 
 	inPorts, outPorts, err := setting.ToPorts()
 	if err != nil {
-		return firewall.Config{}, err
+		return firewallConfig.Config{}, err
 	}
 
 	IPs, err := setting.ToIPs()
 	if err != nil {
-		return firewall.Config{}, err
+		return firewallConfig.Config{}, err
 	}
 
 	optionClearMode, err := setting.Options.ToClearMode()
 	if err != nil {
-		return firewall.Config{}, err
+		return firewallConfig.Config{}, err
 	}
 
 	portKnocking, err := setting.ToConfigPortKnocking()
 	if err != nil {
-		return firewall.Config{}, err
+		return firewallConfig.Config{}, err
 	}
 
-	return firewall.Config{
+	return firewallConfig.Config{
 		InPorts:  inPorts,
 		OutPorts: outPorts,
-		IP4: firewall.ConfigIP4{
+		IP4: firewallConfig.ConfigIP4{
 			IcmpIn:            setting.IP4.IcmpIn,
 			IcmpInRate:        setting.IP4.IcmpInRate,
 			IcmpOut:           setting.IP4.IcmpOut,
@@ -85,13 +85,14 @@ func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewall.Confi
 			InIPs:             IPs.InIP4,
 			OutIPs:            IPs.OutIP4,
 		},
-		IP6: firewall.ConfigIP6{
+		IP6: firewallConfig.ConfigIP6{
 			Enable:     setting.IP6.Enable,
 			IcmpStrict: setting.IP6.IcmpStrict,
 			InIPs:      IPs.InIP6,
 			OutIPs:     IPs.OutIP6,
 		},
-		Options: firewall.ConfigOptions{
+		Options: firewallConfig.ConfigOptions{
+			Cache:          setting.Options.Cache,
 			ClearMode:      optionClearMode,
 			SavesRules:     setting.Options.SavesRules,
 			SavesRulesPath: setting.Options.SavesRulesPath,
@@ -100,7 +101,7 @@ func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewall.Confi
 			PacketFilter:   setting.Options.PacketFilter,
 			DockerSupport:  dockerSupport,
 		},
-		MetadataNaming: firewall.ConfigMetadata{
+		MetadataNaming: firewallConfig.ConfigMetadata{
 			TableName:        setting.MetadataNaming.TableName,
 			ChainInputName:   setting.MetadataNaming.ChainInputName,
 			ChainOutputName:  setting.MetadataNaming.ChainOutputName,
@@ -149,32 +150,32 @@ func (o *otherSettingsPath) ToNotificationsConfig() (notifications.Config, error
 	}, nil
 }
 
-func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (config.Config, error) {
+func (o *otherSettingsPath) ToAnalyzerConfig(binaryLocations *binaryLocations) (analyzerConfig.Config, error) {
 	if binaryLocations.Journalctl == "" {
-		return config.Config{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+		return analyzerConfig.Config{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
 			"Parameter": "binaryLocations.journalctl",
 		}))
 	}
 
 	setting, err := analyzerSetting.InitSetting(o.Analyzer)
 	if err != nil {
-		return config.Config{}, err
+		return analyzerConfig.Config{}, err
 	}
 
 	if err := setting.Validate(); err != nil {
-		return config.Config{}, err
+		return analyzerConfig.Config{}, err
 	}
 
-	binPath := config.BinPath{
+	binPath := analyzerConfig.BinPath{
 		Journalctl: binaryLocations.Journalctl,
 	}
 
 	sources, err := setting.ToSources()
 	if err != nil {
-		return config.Config{}, err
+		return analyzerConfig.Config{}, err
 	}
 
-	return config.Config{
+	return analyzerConfig.Config{
 		BinPath: binPath,
 		Sources: sources,
 	}, nil
@@ -238,4 +239,15 @@ func (o *otherSettingsPath) ToConfig(dataDir string, logger logger.Logger) (geoI
 	}
 
 	return geoIPService, setting.Enabled, nil
+}
+
+func (o *otherSettingsPath) ListPathFiles() map[string]string {
+	return map[string]string{
+		"firewall":      o.Firewall,
+		"notifications": o.Notifications,
+		"analyzer":      o.Analyzer,
+		"docker":        o.Docker,
+		"blocklists":    o.Blocklists,
+		"geoip":         o.GeoIP,
+	}
 }

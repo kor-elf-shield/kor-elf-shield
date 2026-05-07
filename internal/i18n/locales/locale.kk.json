@@ -69,7 +69,7 @@
   "user": "Пайдаланушы",
   "access to user has been gained": "Пайдаланушыға кіру мүмкіндігі алынды",
   "unknown": "белгісіз",
-  "blockSec": "{{.BlockSec}} секундқа блокталды",
+  "blockSec": "{{.BlockSec}} блокталды",
   "ports": "Порттар: {{.Ports}}",
 
   "alert.subject": "Ескерту анықталды ({{.Name}}) (топ:{{.GroupName}})",

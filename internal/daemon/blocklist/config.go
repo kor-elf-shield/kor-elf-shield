@@ -10,6 +10,7 @@ import (
 type Config struct {
 	BlocklistRepository repository.BlocklistRepository
 	Sources             []*SourceConfig
+	PathDir             string
 }
 
 type SourceConfig struct {

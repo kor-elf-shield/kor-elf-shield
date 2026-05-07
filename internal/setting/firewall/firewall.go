@@ -3,7 +3,7 @@ package firewall
 import (
 	"fmt"
 
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 	"github.com/spf13/viper"
 )
@@ -75,7 +75,7 @@ func (s Setting) Validate() error {
 	return nil
 }
 
-func (s Setting) ToPorts() (InPorts []firewall.ConfigPort, OutPorts []firewall.ConfigPort, error error) {
+func (s Setting) ToPorts() (InPorts []config.ConfigPort, OutPorts []config.ConfigPort, error error) {
 	for _, port := range s.Ports {
 		addInPorts, addOutPorts, err := port.ToPorts()
 		if err != nil {
@@ -106,8 +106,8 @@ func (s Setting) ToIPs() (IPs IPs, error error) {
 	return
 }
 
-func (s Setting) ToConfigPortKnocking() ([]firewall.ConfigPortKnocking, error) {
-	var configPortKnocking []firewall.ConfigPortKnocking
+func (s Setting) ToConfigPortKnocking() ([]config.ConfigPortKnocking, error) {
+	var configPortKnocking []config.ConfigPortKnocking
 
 	portKnockingNames := make(map[string]string)
 

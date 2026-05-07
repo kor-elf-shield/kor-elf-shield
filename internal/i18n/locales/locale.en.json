@@ -69,7 +69,7 @@
   "user": "User",
   "access to user has been gained": "Access to user has been gained",
   "unknown": "unknown",
-  "blockSec": "Blocked for {{.BlockSec}} seconds",
+  "blockSec": "Blocked for {{.BlockSec}}",
   "ports": "Ports: {{.Ports}}",
 
   "alert.subject": "Alert detected ({{.Name}}) (group:{{.GroupName}})",

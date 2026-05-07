@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"errors"
+	"strings"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
@@ -10,6 +11,7 @@ import (
 	firewall2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/info"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
@@ -17,7 +19,7 @@ import (
 )
 
 func NewDaemon(
-	info DaemonInfo,
+	info info.Info,
 	opts DaemonOptions,
 	logger log.Logger,
 	notifications notifications.Notifications,
@@ -40,6 +42,9 @@ func NewDaemon(
 	}
 
 	blockingService := blocking.New(opts.Repositories.Blocking(), logger)
+
+	dataDirForFirewall := strings.TrimRight(opts.DataDir, "/") + "/firewall"
+
 	firewall, err := firewall2.New(
 		opts.PathNftables,
 		blockingService,
@@ -47,7 +52,11 @@ func NewDaemon(
 		opts.ConfigFirewall,
 		docker,
 		blocklist,
+		dataDirForFirewall,
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	blockService := brute_force_protection_group.NewBlockService(firewall.BlockIP, firewall.BlockIPWithPorts)
 	analyzerService := analyzer.New(opts.ConfigAnalyzer, blockService, opts.Repositories, logger, notifications, geoIPService.Info)

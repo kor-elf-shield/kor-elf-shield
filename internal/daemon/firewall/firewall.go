@@ -4,19 +4,26 @@ import (
 	"fmt"
 	"net"
 	"os"
-
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/chain"
-	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"strings"
+	"sync"
 
 	nftables "git.kor-elf.net/kor-elf-shield/go-nftables-client"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
+	dockerFirewall "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
+	nftFirewall "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/table"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/reload"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/info"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/filesystem"
 )
 
 type API interface {
 	// Reload Clear all rules and set new rules.
-	Reload() error
+	Reload(daemonInfo info.Info) error
 
 	// SavesRules Save rules to file.
 	SavesRules()
@@ -44,79 +51,93 @@ type API interface {
 }
 
 type firewall struct {
-	nft             nftables.NFT
+	nft             nftFirewall.NFT
+	table           table.Table
 	logger          log.Logger
-	config          *Config
+	config          *config.Config
 	blockingService blocking.API
-	chains          chain.Chains
 	docker          docker_monitor.Docker
 	blocklist       blocklist.Blocklist
+	dataDir         string
+
+	mu sync.Mutex
 }
 
 func New(
 	pathNFT string,
 	blockingService blocking.API,
 	logger log.Logger,
-	config Config,
+	config config.Config,
 	docker docker_monitor.Docker,
 	blocklist blocklist.Blocklist,
+	dataDir string,
 ) (API, error) {
-	nft, err := nftables.NewWithPath(pathNFT)
+	nftClient, err := nftables.NewWithPath(pathNFT)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create nft client: %w %s", err, pathNFT)
 	}
 
 	return &firewall{
-		nft:             nft,
+		nft:             nftFirewall.New(nftClient, strings.TrimRight(dataDir, "/")+"/tmp"),
 		logger:          logger,
 		config:          &config,
 		blockingService: blockingService,
 		docker:          docker,
 		blocklist:       blocklist,
+		dataDir:         dataDir,
+
+		mu: sync.Mutex{},
 	}, nil
 }
 
-func (f *firewall) Reload() error {
+func (f *firewall) Reload(daemonInfo info.Info) error {
 	f.logger.Debug("Reload nftables rules")
-	if f.config.Options.ClearMode == ClearModeGlobal {
-		if err := f.nft.Clear(); err != nil {
+
+	nftReload := reload.New(f.nft, f.logger, f.config)
+	blocklistNames := f.blocklist.Names()
+
+	var nftTable table.Table
+	var err error
+	if f.config.Options.Cache {
+		file := f.pathFileCacheNFT()
+		nftTable, err = nftReload.RunWithCache(
+			file,
+			f.isValidCacheFile(daemonInfo),
+			blocklistNames,
+		)
+		if err != nil {
+			return err
+		}
+
+		checksum, err := filesystem.FileChecksum(file)
+		if err != nil {
+			f.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", file, err))
+		} else if err := daemonInfo.Metadata().FirewallFileNft().Update(checksum); err != nil {
+			f.logger.Error(fmt.Sprintf("Failed to update metadata: %s", err))
+		}
+	} else {
+		nftTable, err = nftReload.Run(blocklistNames)
+		if err != nil {
 			return err
 		}
 	}
 
-	chains, err := chain.NewChains(f.nft, f.config.MetadataNaming.TableName)
-	if err != nil {
-		return err
-	}
-	f.chains = chains
+	f.mu.Lock()
+	f.table = nftTable
+	f.mu.Unlock()
 
-	if err := f.docker.NftReload(f.chains.NewNoneChain); err != nil {
-		return err
-	}
-
-	if err := f.chains.NewPacketFilter(f.config.Options.PacketFilter); err != nil {
-		return err
-	}
-	if err := f.reloadInput(); err != nil {
-		return err
-	}
-	if err := f.reloadOutput(); err != nil {
-		return err
-	}
-	if err := f.reloadForward(); err != nil {
-		return err
-	}
-	if f.config.Options.DockerSupport {
-		if err := f.reloadDocker(); err != nil {
+	if f.config.Options.DockerSupport && nftTable.DockerChains() != nil {
+		nftDocker := dockerFirewall.NewNFT(f.nft, nftTable.DockerChains())
+		if err := f.docker.NftReload(nftDocker); err != nil {
 			return err
 		}
 	}
 
-	if err := f.reloadBlockList(); err != nil {
+	if err := f.blockingService.NftReload(f.nft, nftTable.BlockList().ListIP(), nftTable.BlockList().ListIPWithPort()); err != nil {
 		return err
 	}
 
-	if err := f.blocklist.NftReload(f.chains.NewBlocklist); err != nil {
+	if err := f.blocklist.NftReload(nftTable.BlockList().Blocks()); err != nil {
 		f.logger.Error(fmt.Sprintf("Failed to reload blocklist: %s", err))
 	}
 
@@ -128,13 +149,17 @@ func (f *firewall) ClearRules() {
 	f.logger.Debug("Clear nftables rules")
 
 	switch f.config.Options.ClearMode {
-	case ClearModeGlobal:
-		if err := f.nft.Clear(); err != nil {
+	case config.ClearModeGlobal:
+		if err := f.nft.NFT().Clear(); err != nil {
 			f.logger.Error(fmt.Sprintf("Failed to clear rules: %s", err))
 		}
 		break
-	case ClearModeOwn:
-		if err := f.chains.ClearRules(); err != nil {
+	case config.ClearModeOwn:
+		if f.table == nil {
+			f.logger.Error("table is nil")
+			return
+		}
+		if err := f.table.Clear(); err != nil {
 			f.logger.Error(fmt.Sprintf("Failed to clear rules: %s", err))
 		}
 		break
@@ -167,7 +192,7 @@ func (f *firewall) SavesRules() {
 	}
 
 	args := []string{"list", "ruleset"}
-	output, err := f.nft.Command().RunWithOutput(args...)
+	output, err := f.nft.NFT().Command().RunWithOutput(args...)
 	if err != nil {
 		f.logger.Warn(fmt.Sprintf("Failed to save rules: %s", err))
 		return
@@ -203,4 +228,48 @@ func (f *firewall) BlockIPWithPorts(blockIP blocking.BlockIPWithPorts) (bool, er
 
 func (f *firewall) DockerSupport() bool {
 	return f.config.Options.DockerSupport
+}
+
+func (f *firewall) pathFileCacheNFT() string {
+	return strings.TrimRight(f.dataDir, "/") + "/nftables.nft"
+}
+
+func (f *firewall) isValidCacheFile(daemonInfo info.Info) bool {
+	if daemonInfo.IsVersionChanged() {
+		f.logger.Debug("Version changed, skip cache")
+		return false
+	}
+
+	if daemonInfo.IsSettingsChanged() {
+		f.logger.Debug("Settings changed, skip cache")
+		return false
+	}
+
+	fileNFT := f.pathFileCacheNFT()
+	if !filesystem.FileExists(fileNFT) {
+		return false
+	}
+
+	metadataChecksum, err := daemonInfo.Metadata().FirewallFileNft().Get()
+	if err != nil {
+		f.logger.Error(fmt.Sprintf("Failed to get checksum: %s", err))
+		return false
+	}
+
+	if metadataChecksum == "" {
+		return false
+	}
+
+	checksum, err := filesystem.FileChecksum(fileNFT)
+	if err != nil {
+		f.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", fileNFT, err))
+		return false
+	}
+
+	if checksum != metadataChecksum {
+		f.logger.Warn(fmt.Sprintf("Checksum of %s is not equal to metadata checksum", fileNFT))
+		return false
+	}
+
+	return true
 }
