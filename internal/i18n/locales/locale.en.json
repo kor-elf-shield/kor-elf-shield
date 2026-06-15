@@ -71,6 +71,7 @@
   "unknown": "unknown",
   "blockSec": "Blocked for {{.BlockSec}}",
   "ports": "Ports: {{.Ports}}",
+  "alertNumber": "Alert number: {{.Count}}",
 
   "alert.subject": "Alert detected ({{.Name}}) (group:{{.GroupName}})",
   "alert.login.ssh.message": "Logged into the OS via ssh.",

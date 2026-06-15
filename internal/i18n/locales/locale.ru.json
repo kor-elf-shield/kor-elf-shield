@@ -71,6 +71,7 @@
   "unknown": "неизвестный",
   "blockSec": "Блокировка на {{.BlockSec}}",
   "ports": "Порты: {{.Ports}}",
+  "alertNumber": "Номер оповещения: {{.Count}}",
 
   "alert.subject": "Обнаружено оповещение ({{.Name}}) (группа:{{.GroupName}})",
   "alert.login.ssh.message": "Вошли в ОС через ssh.",

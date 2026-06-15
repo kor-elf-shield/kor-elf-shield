@@ -71,6 +71,7 @@
   "unknown": "белгісіз",
   "blockSec": "{{.BlockSec}} блокталды",
   "ports": "Порттар: {{.Ports}}",
+  "alertNumber": "Ескерту нөмірі: {{.Count}}",
 
   "alert.subject": "Ескерту анықталды ({{.Name}}) (топ:{{.GroupName}})",
   "alert.login.ssh.message": "ОС-қа ssh арқылы кірді.",

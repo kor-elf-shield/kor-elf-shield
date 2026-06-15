@@ -31,10 +31,11 @@ type alertAnalyzeRuleReturn struct {
 }
 
 type alertNotify struct {
-	rule     *config.AlertRule
-	messages []string
-	time     time.Time
-	fields   []*regexField
+	rule        *config.AlertRule
+	messages    []string
+	alertNumber uint64
+	time        time.Time
+	fields      []*regexField
 }
 
 func NewAlert(
@@ -64,6 +65,7 @@ func (a *alert) Analyze(entry *Entry) {
 			continue
 		}
 		groupName := ""
+		alertNumber := uint64(0)
 		messages := []string{}
 		if rule.Group != nil {
 			alertGroup, err := a.alertGroupService.Analyze(rule.Group, entry.Time, entry.Message)
@@ -79,15 +81,17 @@ func (a *alert) Analyze(entry *Entry) {
 			for _, lastLog := range alertGroup.LastLogs {
 				messages = append(messages, lastLog)
 			}
+			alertNumber = alertGroup.AlertNumber
 		} else {
 			messages = append(messages, entry.Message)
 		}
 		a.logger.Info(fmt.Sprintf("Alert detected (%s) (group:%s): %s", rule.Name, groupName, entry.Message))
 		a.sendNotify(&alertNotify{
-			rule:     rule,
-			messages: messages,
-			time:     entry.Time,
-			fields:   result.fields,
+			rule:        rule,
+			messages:    messages,
+			alertNumber: alertNumber,
+			time:        entry.Time,
+			fields:      result.fields,
 		})
 	}
 }
@@ -153,6 +157,7 @@ func (a *alert) sendNotify(notify *alertNotify) {
 	text += i18n.Lang.T("time", map[string]any{
 		"Time": notify.time,
 	}) + "\n"
+
 	for _, field := range notify.fields {
 		v := field.value
 		if field.typeValue == config.PatternValueIP {
@@ -163,6 +168,11 @@ func (a *alert) sendNotify(notify *alertNotify) {
 			}
 		}
 		text += fmt.Sprintf("%s: %s\n", field.name, v)
+	}
+	if notify.alertNumber > 0 {
+		text += i18n.Lang.T("alertNumber", map[string]any{
+			"Count": notify.alertNumber,
+		}) + "\n"
 	}
 	text += "\n" + i18n.Lang.T("log", map[string]any{
 		"Count": len(notify.messages),

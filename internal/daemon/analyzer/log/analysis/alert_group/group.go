@@ -22,8 +22,9 @@ type group struct {
 }
 
 type AnalysisResult struct {
-	Alerted  bool
-	LastLogs []string
+	Alerted     bool
+	AlertNumber uint64
+	LastLogs    []string
 }
 
 func NewGroup(alertGroupRepository repository.AlertGroupRepository, logger log.Logger) Group {
@@ -101,6 +102,8 @@ func (g *group) analysisResult(rateLimit config.RateLimit, eventTime time.Time, 
 		entityAlertGroup.CurrentLevelTriggerCount++
 		entityAlertGroup.TriggerCount = 0
 		entityAlertGroup.LastLogs = []string{}
+
+		analysisResult.AlertNumber = entityAlertGroup.CurrentLevelTriggerCount
 	} else {
 		g.logger.Debug(fmt.Sprintf("Alert not reached rate limit"))
 	}
