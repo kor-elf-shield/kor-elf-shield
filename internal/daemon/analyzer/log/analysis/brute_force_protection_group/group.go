@@ -23,10 +23,11 @@ type group struct {
 }
 
 type AnalysisResult struct {
-	Block       bool
-	BlockSec    uint32
-	BlockConfig brute_force_protection.Block
-	LastLogs    []string
+	Block        bool
+	BlockSec     uint32
+	BlockConfig  brute_force_protection.Block
+	BlockIPCount uint64
+	LastLogs     []string
 }
 
 func NewGroup(groupRepository repository.BruteForceProtectionGroupRepository, logger log.Logger) Group {
@@ -106,6 +107,8 @@ func (g *group) analysisResult(rateLimit brute_force_protection.RateLimit, event
 		entityGroup.CurrentLevelTriggerCount++
 		entityGroup.TriggerCount = 0
 		entityGroup.LastLogs = []string{}
+
+		analysisResult.BlockIPCount = entityGroup.CurrentLevelTriggerCount
 	} else {
 		g.logger.Debug(fmt.Sprintf("Brute force protection not reached rate limit"))
 	}

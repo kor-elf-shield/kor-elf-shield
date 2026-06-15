@@ -38,14 +38,15 @@ type bruteForceProtectionAnalyzeRuleReturn struct {
 }
 
 type bruteForceProtectionNotify struct {
-	rule     *brute_force_protection.Rule
-	messages []string
-	ip       net.IP
-	ports    []types.L4Port
-	time     time.Time
-	fields   []*regexField
-	blockSec uint32
-	err      error
+	rule         *brute_force_protection.Rule
+	messages     []string
+	blockIPCount uint64
+	ip           net.IP
+	ports        []types.L4Port
+	time         time.Time
+	fields       []*regexField
+	blockSec     uint32
+	err          error
 }
 
 func NewBruteForceProtection(
@@ -122,26 +123,28 @@ func (p *bruteForceProtection) handleBlockIP(
 	if isBanned == false {
 		p.logger.Info(fmt.Sprintf("IP %s are not blocked (%s) (group:%s): %s. Err: %s", result.ip, rule.Name, rule.Group.Name, entry.Message, err.Error()))
 		p.sendNotifyError(&bruteForceProtectionNotify{
-			rule:     rule,
-			ip:       result.ip,
-			messages: groupResult.LastLogs,
-			time:     entry.Time,
-			fields:   result.fields,
-			blockSec: groupResult.BlockSec,
-			err:      err,
+			rule:         rule,
+			ip:           result.ip,
+			messages:     groupResult.LastLogs,
+			blockIPCount: groupResult.BlockIPCount,
+			time:         entry.Time,
+			fields:       result.fields,
+			blockSec:     groupResult.BlockSec,
+			err:          err,
 		})
 		return
 	}
 
 	p.logger.Info(fmt.Sprintf("Block IP %s detected (%s) (group:%s): %s", result.ip, rule.Name, rule.Group.Name, entry.Message))
 	p.sendNotifySuccess(&bruteForceProtectionNotify{
-		rule:     rule,
-		ip:       result.ip,
-		messages: groupResult.LastLogs,
-		time:     entry.Time,
-		fields:   result.fields,
-		blockSec: groupResult.BlockSec,
-		err:      err,
+		rule:         rule,
+		ip:           result.ip,
+		messages:     groupResult.LastLogs,
+		blockIPCount: groupResult.BlockIPCount,
+		time:         entry.Time,
+		fields:       result.fields,
+		blockSec:     groupResult.BlockSec,
+		err:          err,
 	})
 }
 
@@ -162,28 +165,30 @@ func (p *bruteForceProtection) handleBlockIPWithPorts(
 	if isBanned == false {
 		p.logger.Info(fmt.Sprintf("IP %s are not blocked (%s) (group:%s): %s. Err: %s", result.ip, rule.Name, rule.Group.Name, entry.Message, err.Error()))
 		p.sendNotifyError(&bruteForceProtectionNotify{
-			rule:     rule,
-			ip:       result.ip,
-			ports:    l4Ports,
-			messages: groupResult.LastLogs,
-			time:     entry.Time,
-			fields:   result.fields,
-			blockSec: groupResult.BlockSec,
-			err:      err,
+			rule:         rule,
+			ip:           result.ip,
+			ports:        l4Ports,
+			messages:     groupResult.LastLogs,
+			blockIPCount: groupResult.BlockIPCount,
+			time:         entry.Time,
+			fields:       result.fields,
+			blockSec:     groupResult.BlockSec,
+			err:          err,
 		})
 		return
 	}
 
 	p.logger.Info(fmt.Sprintf("Block IP %s detected (%s) (group:%s): %s", result.ip, rule.Name, rule.Group.Name, entry.Message))
 	p.sendNotifySuccess(&bruteForceProtectionNotify{
-		rule:     rule,
-		ip:       result.ip,
-		ports:    l4Ports,
-		messages: groupResult.LastLogs,
-		time:     entry.Time,
-		fields:   result.fields,
-		blockSec: groupResult.BlockSec,
-		err:      err,
+		rule:         rule,
+		ip:           result.ip,
+		ports:        l4Ports,
+		messages:     groupResult.LastLogs,
+		blockIPCount: groupResult.BlockIPCount,
+		time:         entry.Time,
+		fields:       result.fields,
+		blockSec:     groupResult.BlockSec,
+		err:          err,
 	})
 }
 
@@ -310,6 +315,9 @@ func (p *bruteForceProtection) sendNotify(subject string, notify *bruteForceProt
 	for _, field := range notify.fields {
 		text += fmt.Sprintf("%s: %s\n", field.name, field.value)
 	}
+	text += i18n.Lang.T("blockIPCount", map[string]any{
+		"Count": notify.blockIPCount,
+	}) + "\n"
 	text += "\n" + i18n.Lang.T("log", map[string]any{
 		"Count": len(notify.messages),
 	}) + "\n"
