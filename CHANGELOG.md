@@ -1,9 +1,11 @@
 ## 0.12.0 (soon)
 #### Русский
 * Добавлено: отображение номера уведомления в групповых уведомлениях.
+* Добавлено: отображение количества раз, когда IP-адрес был заблокирован.
 ***
 #### English
 * Added: display of notification number in group notifications.
+* Added: Display of the number of times the IP address has been blocked.
 ***
 ## 0.11.0 (7.5.2026)
 #### Русский
