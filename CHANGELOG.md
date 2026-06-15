@@ -1,3 +1,10 @@
+## 0.12.0 (soon)
+#### Русский
+* Добавлено: отображение номера уведомления в групповых уведомлениях.
+***
+#### English
+* Added: display of notification number in group notifications.
+***
 ## 0.11.0 (7.5.2026)
 #### Русский
 * В настройки файла `firewall.toml` добавлен параметр `options.cache`.
