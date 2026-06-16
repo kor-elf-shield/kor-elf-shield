@@ -5,6 +5,7 @@ import (
 
 	analysisServices "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/alert_group"
+	analysisBruteForceProtection "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
@@ -33,6 +34,7 @@ func NewAnalysis(
 ) Analysis {
 	alertGroupService := alert_group.NewGroup(repositories.AlertGroup(), logger)
 	bruteForceProtectionGroupService := brute_force_protection_group.NewGroup(repositories.BruteForceProtectionGroup(), logger)
+	notificationPolicy := analysisBruteForceProtection.NewNotificationPolicy(repositories.BruteForceProtectionNotifyPolicy(), logger)
 
 	return &analysis{
 		alertService: analysisServices.NewAlert(rulesIndex, alertGroupService, logger, notify, ipInfo),
@@ -40,6 +42,7 @@ func NewAnalysis(
 			rulesIndex,
 			bruteForceProtectionGroupService,
 			blockService,
+			notificationPolicy,
 			logger,
 			notify,
 			ipInfo,

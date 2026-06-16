@@ -8,13 +8,15 @@ import (
 )
 
 type BruteForceProtectionRule struct {
-	Enabled  bool   `mapstructure:"enabled"`
-	Notify   bool   `mapstructure:"notify"`
-	Name     string `mapstructure:"name"`
-	Message  string `mapstructure:"message"`
-	Group    string `mapstructure:"group"`
-	Source   Source
-	Patterns []BruteForceProtectionPattern
+	Enabled        bool   `mapstructure:"enabled"`
+	Notify         bool   `mapstructure:"notify"`
+	NotifyCooldown int    `mapstructure:"notify_cooldown_seconds"`
+	NotifyEvery    int    `mapstructure:"notify_every"`
+	Name           string `mapstructure:"name"`
+	Message        string `mapstructure:"message"`
+	Group          string `mapstructure:"group"`
+	Source         Source
+	Patterns       []BruteForceProtectionPattern
 }
 
 func (l *BruteForceProtectionRule) ToSource(isNotify bool, group *brute_force_protection.Group) (*config.Source, error) {
@@ -46,11 +48,13 @@ func (l *BruteForceProtectionRule) ToSource(isNotify bool, group *brute_force_pr
 	}
 
 	source.BruteForceProtectionRule = &brute_force_protection.Rule{
-		Name:           l.Name,
-		Message:        l.Message,
-		IsNotification: isNotify && l.Notify,
-		Patterns:       patterns,
-		Group:          group,
+		Name:                 l.Name,
+		Message:              l.Message,
+		IsNotification:       isNotify && l.Notify,
+		NotificationCooldown: uint32(l.NotifyCooldown),
+		NotificationEvery:    uint32(l.NotifyEvery),
+		Patterns:             patterns,
+		Group:                group,
 	}
 
 	return source, nil
@@ -63,6 +67,14 @@ func (l *BruteForceProtectionRule) validate() error {
 
 	if !reName.MatchString(l.Name) {
 		return fmt.Errorf("brute force protection invalid name: %s", l.Name)
+	}
+
+	if l.NotifyCooldown < 0 {
+		return fmt.Errorf("brute force protection notify cooldown must be positive")
+	}
+
+	if l.NotifyEvery < 0 {
+		return fmt.Errorf("brute force protection notify every must be positive")
 	}
 
 	return nil

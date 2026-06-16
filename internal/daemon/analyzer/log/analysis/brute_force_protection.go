@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/brute_force_protection"
+	analysisBruteForceProtection "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
@@ -23,12 +24,13 @@ type BruteForceProtection interface {
 }
 
 type bruteForceProtection struct {
-	rulesIndex   *RulesIndex
-	groupService brute_force_protection_group.Group
-	blockService brute_force_protection_group.BlockService
-	logger       log.Logger
-	notify       notifications.Notifications
-	ipInfo       geoip.Info
+	rulesIndex         *RulesIndex
+	groupService       brute_force_protection_group.Group
+	blockService       brute_force_protection_group.BlockService
+	notificationPolicy analysisBruteForceProtection.NotificationPolicy
+	logger             log.Logger
+	notify             notifications.Notifications
+	ipInfo             geoip.Info
 }
 
 type bruteForceProtectionAnalyzeRuleReturn struct {
@@ -53,17 +55,19 @@ func NewBruteForceProtection(
 	rulesIndex *RulesIndex,
 	groupService brute_force_protection_group.Group,
 	blockService brute_force_protection_group.BlockService,
+	notificationPolicy analysisBruteForceProtection.NotificationPolicy,
 	logger log.Logger,
 	notify notifications.Notifications,
 	ipInfo geoip.Info,
 ) BruteForceProtection {
 	return &bruteForceProtection{
-		rulesIndex:   rulesIndex,
-		groupService: groupService,
-		blockService: blockService,
-		logger:       logger,
-		notify:       notify,
-		ipInfo:       ipInfo,
+		rulesIndex:         rulesIndex,
+		groupService:       groupService,
+		blockService:       blockService,
+		notificationPolicy: notificationPolicy,
+		logger:             logger,
+		notify:             notify,
+		ipInfo:             ipInfo,
 	}
 }
 
@@ -245,7 +249,7 @@ func (p *bruteForceProtection) analyzeRule(rule *brute_force_protection.Rule, me
 }
 
 func (p *bruteForceProtection) sendNotifySuccess(notify *bruteForceProtectionNotify) {
-	if !notify.rule.IsNotification {
+	if !p.notificationPolicy.IsNotify(notify.rule) {
 		return
 	}
 

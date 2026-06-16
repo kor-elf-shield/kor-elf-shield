@@ -3,11 +3,15 @@ package brute_force_protection
 import "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/regular_expression"
 
 type Rule struct {
-	Name           string
-	Message        string
-	IsNotification bool
-	Patterns       []RegexPattern
-	Group          *Group
+	Name    string
+	Message string
+
+	IsNotification       bool
+	NotificationCooldown uint32
+	NotificationEvery    uint32
+
+	Patterns []RegexPattern
+	Group    *Group
 }
 
 type RegexPattern struct {

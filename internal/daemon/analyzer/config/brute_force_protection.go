@@ -8,7 +8,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/regular_expression"
 )
 
-func NewBruteForceProtectionSSH(isNotify bool, group *brute_force_protection.Group) ([]*Source, error) {
+func NewBruteForceProtectionSSH(isNotify bool, notifyCooldown int, notifyEvery int, group *brute_force_protection.Group) ([]*Source, error) {
 	var sources []*Source
 
 	journal, err := NewSourceJournal(JournalFieldSystemdUnit, "ssh.service")
@@ -20,9 +20,13 @@ func NewBruteForceProtectionSSH(isNotify bool, group *brute_force_protection.Gro
 		Type:    SourceTypeJournal,
 		Journal: journal,
 		BruteForceProtectionRule: &brute_force_protection.Rule{
-			Name:           "_ssh",
-			Message:        i18n.Lang.T("alert.bruteForceProtection.ssh.message"),
-			IsNotification: isNotify,
+			Name:    "_ssh",
+			Message: i18n.Lang.T("alert.bruteForceProtection.ssh.message"),
+
+			IsNotification:       isNotify,
+			NotificationCooldown: uint32(notifyCooldown),
+			NotificationEvery:    uint32(notifyEvery),
+
 			Patterns: []brute_force_protection.RegexPattern{
 				{
 					Regexp: regular_expression.NewLazyRegexp(`^Failed password for (\S+) from (\S+) port \S+`),
