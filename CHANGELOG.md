@@ -1,13 +1,23 @@
-## 0.12.0 (soon)
+## 0.12.0 (17.06.2026)
 #### Русский
 * Добавлено: отображение номера уведомления в групповых уведомлениях.
-* Добавлено: отображение количества раз, когда IP-адрес был заблокирован.
+* Добавлено: теперь в уведомлениях отображается количество блокировок IP-адреса.
+* Добавлены параметры для ограничения частоты уведомлений об успешной блокировке (`analyzer.toml`):
+  * `ssh_notify_cooldown_seconds` — задаёт минимальный интервал в секундах между уведомлениями об успешных SSH-блокировках.
+  * `ssh_notify_every` — отправляет следующее уведомление об успешной SSH-блокировке только после указанного количества новых сообщений о блокировке; имеет приоритет над `ssh_notify_cooldown_seconds`.
+  * `notify_cooldown_seconds` — задаёт минимальный интервал в секундах между уведомлениями об успешных блокировках для пользовательских правил защиты от перебора пароля.
+  * `notify_every` — отправляет следующее уведомление для пользовательского правила только после указанного количества новых сообщений о блокировке; имеет приоритет над `notify_cooldown_seconds`.
 ***
 #### English
 * Added: display of notification number in group notifications.
-* Added: Display of the number of times the IP address has been blocked.
+* Added: notifications now display how many times an IP address has been blocked.
+* Added options to limit the frequency of notifications about successful blocking (`analyzer.toml`):
+  * `ssh_notify_cooldown_seconds` — Sets the minimum interval in seconds between notifications of successful SSH locks.
+  * `ssh_notify_every` — Sends the next successful SSH lock notification only after the specified number of new lock messages; takes precedence over `ssh_notify_cooldown_seconds`.
+  * `notify_cooldown_seconds` — Sets the minimum interval in seconds between notifications of successful locks for custom password attack protection rules.
+  * `notify_every` — Sends the next notification for the custom rule only after the specified number of new block messages; takes precedence over `notify_cooldown_seconds`.
 ***
-## 0.11.0 (7.5.2026)
+## 0.11.0 (07.05.2026)
 #### Русский
 * В настройки файла `firewall.toml` добавлен параметр `options.cache`.
   * Этот параметр включает кэширование, чтобы избежать постоянной компиляции команд nftables во временный файл. Файл кэша изменяется после изменения настроек или обновления версии программы. (`Включено по умолчанию`)
@@ -34,7 +44,7 @@
 * Improved `Uptime` output in `kor-elf-shield status` command.
 * Improved display of blocking time in notifications.
 ***
-## 0.10.0 (12.4.2026)
+## 0.10.0 (12.04.2026)
 #### Русский
 * При автоматической блокировке добавил возможность получать данные об IP-адресах (континент, страна, город, часовой пояс).
 * В файл analyzer.toml добавлен параметр type к [[logAlert.rules.patterns.values]] в котором можно указать тип "ip". Это позволит для этого поля получить данные об IP-адресе при отправке оповещения.
@@ -55,7 +65,7 @@
 * The otherSettingsPath.geoip parameter has been added to the kor-elf-shield.toml file.
 * A new geoip.toml settings file has been added. This file configures parameters for retrieving IP address data.
 ***
-## 0.9.0 (21.3.2026)
+## 0.9.0 (21.03.2026)
 #### Русский
 * Добавилась поддержка Port knocking.
   * В firewall.toml добавился раздел Port knocking.
@@ -87,7 +97,7 @@
   * GreenSnow Hack List
 * Added the otherSettingsPath.blocklists parameter to the kor-elf-shield.toml settings.
 * Added a new settings file, blocklists.toml. It contains settings for obtaining a list of IP addresses to block.
-## 0.8.0 (9.3.2026)
+## 0.8.0 (09.03.2026)
 ***
 #### Русский
 * Теперь можно тонко настроить блокировку портов для IP адреса, который пытается подобрать пароль.
@@ -111,7 +121,7 @@
 * The `kor-elf-shield block add` command has been added. This command can be used to block an IP address. See `kor-elf-shield block add --help` for details.
 * The `kor-elf-shield block delete` command has been added. This command can be used to delete a blocked IP address. See `kor-elf-shield block delete --help` for details.
 ***
-## 0.7.0 (28.2.2026)
+## 0.7.0 (28.02.2026)
 ***
 #### Русский
 * Добавлена возможность настройки отслеживания событий в журналах.
@@ -125,7 +135,7 @@
 * New parameters have been added to the analyzer.toml settings file. See the full list at: https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/commit/187c447301b9c0bfa41ec2b2c9435ab0ce44bed6/assets/configs/analyzer.toml
 * Added the `kor-elf-shield ban clear` command, which unbans all banned IP addresses.
 ***
-## 0.6.0 (8.2.2026)
+## 0.6.0 (08.02.2026)
 ***
 #### Русский
 * Добавлена возможность повторной отправки уведомления, если в прошлый раз произошла ошибка.
@@ -147,7 +157,7 @@
   * enable_retries = Enables repeated attempts to send a notification if the first attempt fails. Default: true
   * retry_interval = The time interval in seconds between attempts. Default: 600
 ***
-## 0.5.0 (17.1.2026)
+## 0.5.0 (17.01.2026)
 ***
 #### Русский
 * В настройках analyzer.toml добавил параметры local_enable и local_notify.
@@ -171,7 +181,7 @@
   * sudo_enable = Enables tracking of logins via sudo. Off by default.
   * sudo_notify = Enables notifications about logins via sudo. Enabled by default.
 ***
-## 0.4.0 (11.1.2026)
+## 0.4.0 (11.01.2026)
 ***
 #### Русский
 * Удалён параметр options.docker_support из файла firewall.toml. Настройки от Docker перенесены в файл docker.toml.
@@ -193,7 +203,7 @@
   * The program crashed after Docker was stopped.
   * The IP addresses specified in the settings were not blocked during redirection to the Docker container.
 ***
-## 0.3.0 (4.1.2026)
+## 0.3.0 (04.01.2026)
 ***
 #### Русский
 * Добавлена частичная поддержка Docker.
@@ -234,7 +244,7 @@
 * Added the output_priority parameter to firewall.toml. You can specify a priority from -50 to 50 for chain output.
 * Added the forward_priority parameter to firewall.toml. You can specify a priority from -50 to 50 for chain forward.
 ***
-## 0.1.0 (8.11.2025)
+## 0.1.0 (08.11.2025)
 ***
 #### Русский
 * Реализована возможность настраивать nftables:
