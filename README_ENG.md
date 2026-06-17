@@ -1,6 +1,5 @@
 # Kor-Elf Shield
 ### <strong>English</strong> &nbsp;&nbsp;&nbsp; <a href="README.md">Русский</a>
-<p style="color: red; font-weight: bold">ATTENTION: The program is under active development and is NOT CURRENTLY PRODUCTION READY</p>
 <p>I have been using ConfigServer Security and Firewall (csf) for over 10 years to protect my server. But unfortunately, in September I found out that the company that supported this great product closed on August 31, 2025. CSF is written in PERL. And the company uploaded all the source codes to its repository under the GPLv3 license. But I do not know the PERL language. And it's hard for me to read it. :)</p>
 <p>I decided to implement my solution in the Go Lang language. It will not be a complete copy of CSF. CSF just inspired me to do something similar to protect my server.</p>
 
