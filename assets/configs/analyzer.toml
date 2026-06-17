@@ -87,6 +87,34 @@ ssh_enable = true
 ssh_notify = true
 
 ###
+# Минимальный интервал в секундах между уведомлениями об успешной SSH-блокировке.
+# После отправки уведомления повторные уведомления не будут отправляться в течение указанного времени.
+# Если указать 0, ограничение по времени отключено.
+# По умолчанию: 0
+# ***
+# Minimum interval in seconds between notifications about successful SSH blocks.
+# After a notification is sent, repeated notifications will not be sent for the specified time.
+# If you specify 0, the time limit is disabled.
+# Default: 0
+###
+ssh_notify_cooldown_seconds = 0
+
+###
+# Количество успешных SSH-блокировок, которое нужно пропустить после отправки уведомления.
+# Следующее уведомление будет отправлено после указанного количества новых сообщений о блокировке.
+# Этот параметр имеет приоритет над ssh_notify_cooldown_seconds.
+# Если указать 0, ограничение по количеству сообщений отключено.
+# По умолчанию: 0
+# ***
+# Number of successful SSH block messages to skip after sending a notification.
+# The next notification will be sent after the specified number of new block messages.
+# This parameter has priority over ssh_notify_cooldown_seconds.
+# If you specify 0, the message-count limit is disabled.
+# Default: 0
+###
+ssh_notify_every = 0
+
+###
 # Можно указать свою группу, чтобы связать с другими правилами.
 # По умолчанию: ""
 # ***
@@ -162,6 +190,8 @@ ssh_group = ""
 # [[bruteForceProtection.rules]]
 # enabled = true # Включает или выключает отслеживания (обязательное поле)
 # notify = true # Включает или выключает уведомления (обязательное поле)
+# notify_cooldown_seconds = 0 # Минимальный интервал в секундах между уведомлениями об успешной блокировке (не обязательное поле)
+# notify_every = 0 # Количество успешных блокировок, которое нужно пропустить после отправки уведомления (не обязательное поле)
 # name = "my_name_rule" # Имя уведомления. Разрешены символы "a-z, A-Z, -, _". Первый символ обязательно буква (обязательное поле)
 # message = "Ваш любой текст для уведомления" # Текст уведомления (обязательное поле)
 # group = "my_name_group" # Можно указать имя группы (не обязательное поле)
@@ -183,6 +213,8 @@ ssh_group = ""
 # [[bruteForceProtection.rules]]
 # enabled = true # Enables or disables tracking (required)
 # notify = true # Enables or disables notifications (required)
+# notify_cooldown_seconds = 0 # Minimum interval in seconds between notifications about successful blocks (optional field)
+# notify_every = 0 # Number of successful block messages to skip after sending a notification (optional field)
 # name = "my_name_rule" # Notification name. Allowed characters are "a-z, A-Z, -, _". The first character must be a letter (required field)
 # message = "Your any text for notification" # Notification text (required field)
 # group = "my_name_group" # You can specify the group name (optional field)
