@@ -18,6 +18,7 @@ type Repositories interface {
 	NotificationsQueue() repository.NotificationsQueueRepository
 	AlertGroup() repository.AlertGroupRepository
 	BruteForceProtectionGroup() repository.BruteForceProtectionGroupRepository
+	BruteForceProtectionNotifyPolicy() repository.BruteForceProtectionNotifyPolicyRepository
 	Blocking() repository.BlockingRepository
 	Blocklist() repository.BlocklistRepository
 	Metadata() repository.MetadataRepository
@@ -26,12 +27,13 @@ type Repositories interface {
 }
 
 type repositories struct {
-	notificationsQueue        repository.NotificationsQueueRepository
-	alertGroup                repository.AlertGroupRepository
-	bruteForceProtectionGroup repository.BruteForceProtectionGroupRepository
-	blocking                  repository.BlockingRepository
-	blocklist                 repository.BlocklistRepository
-	metadata                  repository.MetadataRepository
+	notificationsQueue               repository.NotificationsQueueRepository
+	alertGroup                       repository.AlertGroupRepository
+	bruteForceProtectionGroup        repository.BruteForceProtectionGroupRepository
+	bruteForceProtectionNotifyPolicy repository.BruteForceProtectionNotifyPolicyRepository
+	blocking                         repository.BlockingRepository
+	blocklist                        repository.BlocklistRepository
+	metadata                         repository.MetadataRepository
 
 	db []*bbolt.DB
 }
@@ -57,12 +59,13 @@ func New(dataDir string) (Repositories, error) {
 	securityDB, err := bbolt.Open(dataDir+securityDB, 0600, &bbolt.Options{Timeout: 3 * time.Second})
 
 	return &repositories{
-		notificationsQueue:        repository.NewNotificationsQueueRepository(appDB),
-		alertGroup:                repository.NewAlertGroupRepository(appDB),
-		bruteForceProtectionGroup: repository.NewBruteForceProtectionGroupRepository(securityDB),
-		blocking:                  repository.NewBlockingRepository(securityDB),
-		blocklist:                 repository.NewBlocklistRepository(securityDB),
-		metadata:                  repository.NewMetadataRepository(appDB),
+		notificationsQueue:               repository.NewNotificationsQueueRepository(appDB),
+		alertGroup:                       repository.NewAlertGroupRepository(appDB),
+		bruteForceProtectionGroup:        repository.NewBruteForceProtectionGroupRepository(securityDB),
+		bruteForceProtectionNotifyPolicy: repository.NewBruteForceProtectionNotifyPolicyRepository(securityDB),
+		blocking:                         repository.NewBlockingRepository(securityDB),
+		blocklist:                        repository.NewBlocklistRepository(securityDB),
+		metadata:                         repository.NewMetadataRepository(appDB),
 
 		db: []*bbolt.DB{appDB, securityDB},
 	}, nil
@@ -78,6 +81,10 @@ func (r *repositories) AlertGroup() repository.AlertGroupRepository {
 
 func (r *repositories) BruteForceProtectionGroup() repository.BruteForceProtectionGroupRepository {
 	return r.bruteForceProtectionGroup
+}
+
+func (r *repositories) BruteForceProtectionNotifyPolicy() repository.BruteForceProtectionNotifyPolicyRepository {
+	return r.bruteForceProtectionNotifyPolicy
 }
 
 func (r *repositories) Blocking() repository.BlockingRepository {

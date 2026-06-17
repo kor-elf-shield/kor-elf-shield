@@ -8,12 +8,13 @@ import (
 )
 
 const (
-	notificationsQueueBucket        = "notifications_queue"
-	alertGroupBucket                = "alert_group"
-	bruteForceProtectionGroupBucket = "brute_force_protection_group"
-	blockingBucket                  = "blocking"
-	blocklistBucket                 = "blocklist"
-	metadataBucket                  = "metadata"
+	notificationsQueueBucket               = "notifications_queue"
+	alertGroupBucket                       = "alert_group"
+	bruteForceProtectionGroupBucket        = "brute_force_protection_group"
+	bruteForceProtectionNotifyPolicyBucket = "brute_force_protection_notify_policy"
+	blockingBucket                         = "blocking"
+	blocklistBucket                        = "blocklist"
+	metadataBucket                         = "metadata"
 )
 
 func nextID(b *bbolt.Bucket) ([]byte, error) {

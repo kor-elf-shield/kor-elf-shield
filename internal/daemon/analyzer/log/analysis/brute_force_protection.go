@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/brute_force_protection"
+	analysisBruteForceProtection "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
@@ -23,12 +24,13 @@ type BruteForceProtection interface {
 }
 
 type bruteForceProtection struct {
-	rulesIndex   *RulesIndex
-	groupService brute_force_protection_group.Group
-	blockService brute_force_protection_group.BlockService
-	logger       log.Logger
-	notify       notifications.Notifications
-	ipInfo       geoip.Info
+	rulesIndex         *RulesIndex
+	groupService       brute_force_protection_group.Group
+	blockService       brute_force_protection_group.BlockService
+	notificationPolicy analysisBruteForceProtection.NotificationPolicy
+	logger             log.Logger
+	notify             notifications.Notifications
+	ipInfo             geoip.Info
 }
 
 type bruteForceProtectionAnalyzeRuleReturn struct {
@@ -38,31 +40,34 @@ type bruteForceProtectionAnalyzeRuleReturn struct {
 }
 
 type bruteForceProtectionNotify struct {
-	rule     *brute_force_protection.Rule
-	messages []string
-	ip       net.IP
-	ports    []types.L4Port
-	time     time.Time
-	fields   []*regexField
-	blockSec uint32
-	err      error
+	rule         *brute_force_protection.Rule
+	messages     []string
+	blockIPCount uint64
+	ip           net.IP
+	ports        []types.L4Port
+	time         time.Time
+	fields       []*regexField
+	blockSec     uint32
+	err          error
 }
 
 func NewBruteForceProtection(
 	rulesIndex *RulesIndex,
 	groupService brute_force_protection_group.Group,
 	blockService brute_force_protection_group.BlockService,
+	notificationPolicy analysisBruteForceProtection.NotificationPolicy,
 	logger log.Logger,
 	notify notifications.Notifications,
 	ipInfo geoip.Info,
 ) BruteForceProtection {
 	return &bruteForceProtection{
-		rulesIndex:   rulesIndex,
-		groupService: groupService,
-		blockService: blockService,
-		logger:       logger,
-		notify:       notify,
-		ipInfo:       ipInfo,
+		rulesIndex:         rulesIndex,
+		groupService:       groupService,
+		blockService:       blockService,
+		notificationPolicy: notificationPolicy,
+		logger:             logger,
+		notify:             notify,
+		ipInfo:             ipInfo,
 	}
 }
 
@@ -122,26 +127,28 @@ func (p *bruteForceProtection) handleBlockIP(
 	if isBanned == false {
 		p.logger.Info(fmt.Sprintf("IP %s are not blocked (%s) (group:%s): %s. Err: %s", result.ip, rule.Name, rule.Group.Name, entry.Message, err.Error()))
 		p.sendNotifyError(&bruteForceProtectionNotify{
-			rule:     rule,
-			ip:       result.ip,
-			messages: groupResult.LastLogs,
-			time:     entry.Time,
-			fields:   result.fields,
-			blockSec: groupResult.BlockSec,
-			err:      err,
+			rule:         rule,
+			ip:           result.ip,
+			messages:     groupResult.LastLogs,
+			blockIPCount: groupResult.BlockIPCount,
+			time:         entry.Time,
+			fields:       result.fields,
+			blockSec:     groupResult.BlockSec,
+			err:          err,
 		})
 		return
 	}
 
 	p.logger.Info(fmt.Sprintf("Block IP %s detected (%s) (group:%s): %s", result.ip, rule.Name, rule.Group.Name, entry.Message))
 	p.sendNotifySuccess(&bruteForceProtectionNotify{
-		rule:     rule,
-		ip:       result.ip,
-		messages: groupResult.LastLogs,
-		time:     entry.Time,
-		fields:   result.fields,
-		blockSec: groupResult.BlockSec,
-		err:      err,
+		rule:         rule,
+		ip:           result.ip,
+		messages:     groupResult.LastLogs,
+		blockIPCount: groupResult.BlockIPCount,
+		time:         entry.Time,
+		fields:       result.fields,
+		blockSec:     groupResult.BlockSec,
+		err:          err,
 	})
 }
 
@@ -162,28 +169,30 @@ func (p *bruteForceProtection) handleBlockIPWithPorts(
 	if isBanned == false {
 		p.logger.Info(fmt.Sprintf("IP %s are not blocked (%s) (group:%s): %s. Err: %s", result.ip, rule.Name, rule.Group.Name, entry.Message, err.Error()))
 		p.sendNotifyError(&bruteForceProtectionNotify{
-			rule:     rule,
-			ip:       result.ip,
-			ports:    l4Ports,
-			messages: groupResult.LastLogs,
-			time:     entry.Time,
-			fields:   result.fields,
-			blockSec: groupResult.BlockSec,
-			err:      err,
+			rule:         rule,
+			ip:           result.ip,
+			ports:        l4Ports,
+			messages:     groupResult.LastLogs,
+			blockIPCount: groupResult.BlockIPCount,
+			time:         entry.Time,
+			fields:       result.fields,
+			blockSec:     groupResult.BlockSec,
+			err:          err,
 		})
 		return
 	}
 
 	p.logger.Info(fmt.Sprintf("Block IP %s detected (%s) (group:%s): %s", result.ip, rule.Name, rule.Group.Name, entry.Message))
 	p.sendNotifySuccess(&bruteForceProtectionNotify{
-		rule:     rule,
-		ip:       result.ip,
-		ports:    l4Ports,
-		messages: groupResult.LastLogs,
-		time:     entry.Time,
-		fields:   result.fields,
-		blockSec: groupResult.BlockSec,
-		err:      err,
+		rule:         rule,
+		ip:           result.ip,
+		ports:        l4Ports,
+		messages:     groupResult.LastLogs,
+		blockIPCount: groupResult.BlockIPCount,
+		time:         entry.Time,
+		fields:       result.fields,
+		blockSec:     groupResult.BlockSec,
+		err:          err,
 	})
 }
 
@@ -240,7 +249,7 @@ func (p *bruteForceProtection) analyzeRule(rule *brute_force_protection.Rule, me
 }
 
 func (p *bruteForceProtection) sendNotifySuccess(notify *bruteForceProtectionNotify) {
-	if !notify.rule.IsNotification {
+	if !p.notificationPolicy.IsNotify(notify.rule) {
 		return
 	}
 
@@ -310,6 +319,9 @@ func (p *bruteForceProtection) sendNotify(subject string, notify *bruteForceProt
 	for _, field := range notify.fields {
 		text += fmt.Sprintf("%s: %s\n", field.name, field.value)
 	}
+	text += i18n.Lang.T("blockIPCount", map[string]any{
+		"Count": notify.blockIPCount,
+	}) + "\n"
 	text += "\n" + i18n.Lang.T("log", map[string]any{
 		"Count": len(notify.messages),
 	}) + "\n"

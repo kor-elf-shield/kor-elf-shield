@@ -23,6 +23,8 @@ type BruteForceProtection struct {
 	BlockingTime         int    `mapstructure:"blocking_time"`
 	SSHEnable            bool   `mapstructure:"ssh_enable"`
 	SSHNotify            bool   `mapstructure:"ssh_notify"`
+	SSHNotifyCooldown    int    `mapstructure:"ssh_notify_cooldown_seconds"`
+	SSHNotifyEvery       int    `mapstructure:"ssh_notify_every"`
 	SSHGroup             string `mapstructure:"ssh_group"`
 
 	Groups []BruteForceProtectionGroup
@@ -39,6 +41,8 @@ func defaultBruteForceProtection() BruteForceProtection {
 		BlockingTime:         3600,
 		SSHEnable:            true,
 		SSHNotify:            true,
+		SSHNotifyCooldown:    0,
+		SSHNotifyEvery:       0,
 		SSHGroup:             "",
 
 		Groups: []BruteForceProtectionGroup{},
@@ -62,6 +66,15 @@ func (p *BruteForceProtection) Validate() error {
 	if p.BlockingTime < 0 {
 		return errors.New("blocking time must be positive")
 	}
+
+	if p.SSHNotifyCooldown < 0 {
+		return errors.New("ssh notify cooldown must be positive")
+	}
+
+	if p.SSHNotifyEvery < 0 {
+		return errors.New("ssh notify every must be positive")
+	}
+
 	return nil
 }
 
@@ -85,7 +98,7 @@ func (p *BruteForceProtection) ToSources() ([]*config.Source, error) {
 			}
 			sshGroup = p.SSHGroup
 		}
-		sshSources, err := config.NewBruteForceProtectionSSH(p.Notify && p.SSHNotify, groups[sshGroup])
+		sshSources, err := config.NewBruteForceProtectionSSH(p.Notify && p.SSHNotify, p.SSHNotifyCooldown, p.SSHNotifyEvery, groups[sshGroup])
 		if err != nil {
 			return nil, err
 		}
