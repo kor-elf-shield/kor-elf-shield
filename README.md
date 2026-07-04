@@ -61,6 +61,16 @@
 
 <p><strong>/etc/kor-elf-shield/firewall.toml</strong> - тут находятся настройки, связанные с nftables. Информацию можно посмотреть тут: <a href="https://shield.kor-elf.net/docs/0.x/firewall.toml" target="_blank">https://shield.kor-elf.net/docs/0.x/firewall.toml</a></p>
 
+<p><strong>/etc/kor-elf-shield/analyzer.toml</strong> - тут находятся настройки для анализатора логов. Информацию можно посмотреть тут: <a href="https://shield.kor-elf.net/docs/0.x/analyzer.toml" target="_blank">https://shield.kor-elf.net/docs/0.x/analyzer.toml</a></p>
+
+<p><strong>/etc/kor-elf-shield/notifications.toml</strong> - тут находятся настройки для уведомлений. Информацию можно посмотреть тут: <a href="https://shield.kor-elf.net/docs/0.x/notifications.toml" target="_blank">https://shield.kor-elf.net/docs/0.x/notifications.toml</a></p>
+
+<p><strong>/etc/kor-elf-shield/docker.toml</strong> - тут находятся настройки, связанные с docker. Информацию можно посмотреть тут: <a href="https://shield.kor-elf.net/docs/0.x/docker.toml" target="_blank">https://shield.kor-elf.net/docs/0.x/docker.toml</a></p>
+
+<p><strong>/etc/kor-elf-shield/blocklists.toml</strong> - тут находятся настройки для получения IP-адресов от разных сервисов, которые надо заблокировать. Информацию можно посмотреть тут: <a href="https://shield.kor-elf.net/docs/0.x/blocklists.toml" target="_blank">https://shield.kor-elf.net/docs/0.x/blocklists.toml</a></p>
+
+<p><strong>/etc/kor-elf-shield/geoip.toml</strong> - тут находятся настройки для получения данных об IP-адресах. Информацию можно посмотреть тут: <a href="https://shield.kor-elf.net/docs/0.x/geoip.toml" target="_blank">https://shield.kor-elf.net/docs/0.x/geoip.toml</a></p>
+
 ***
 
 <p>Программное обеспечение является MIT (см. <a href="https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/branch/main/LICENSE">LICENSE</a>) и использует сторонние библиотеки, которые распространяются на их собственных условиях (см. <a href="https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/branch/main/LICENSE-3RD-PARTY.txt">LICENSE-3RD-PARTY.txt</a>).</p>
