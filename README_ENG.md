@@ -61,6 +61,16 @@
 
 <p><strong>/etc/kor-elf-shield/firewall.toml</strong> - Here are the settings related to nftables. Information can be found here: <a href="https://shield.kor-elf.net/docs/0.x/firewall.toml/language/en" target="_blank">https://shield.kor-elf.net/docs/0.x/firewall.toml/language/en</a></p>
 
+<p><strong>/etc/kor-elf-shield/analyzer.toml</strong> - Contains log analyzer settings. Information can be found here: <a href="https://shield.kor-elf.net/docs/0.x/analyzer.toml/language/en" target="_blank">https://shield.kor-elf.net/docs/0.x/analyzer.toml/language/en</a></p>
+
+<p><strong>/etc/kor-elf-shield/notifications.toml</strong> - Contains notification settings. Information can be found here: <a href="https://shield.kor-elf.net/docs/0.x/notifications.toml/language/en" target="_blank">https://shield.kor-elf.net/docs/0.x/notifications.toml/language/en</a></p>
+
+<p><strong>/etc/kor-elf-shield/docker.toml</strong> - Contains Docker-related settings. Information can be found here: <a href="https://shield.kor-elf.net/docs/0.x/docker.toml/language/en" target="_blank">https://shield.kor-elf.net/docs/0.x/docker.toml/language/en</a></p>
+
+<p><strong>/etc/kor-elf-shield/blocklists.toml</strong> - Contains settings for obtaining IP addresses from various services that need to be blocked. Information can be found here: <a href="https://shield.kor-elf.net/docs/0.x/blocklists.toml/language/en" target="_blank">https://shield.kor-elf.net/docs/0.x/blocklists.toml/language/en</a></p>
+
+<p><strong>/etc/kor-elf-shield/geoip.toml</strong> - This contains settings for obtaining IP address data. Information can be found here: <a href="https://shield.kor-elf.net/docs/0.x/geoip.toml/language/en" target="_blank">https://shield.kor-elf.net/docs/0.x/geoip.toml/language/en</a></p>
+
 ***
 
 <p>The software is MIT (see <a href="https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/branch/main/LICENSE">LICENSE</a>) and uses third-party libraries that are distributed on their own terms (see <a href="https://git.kor-elf.net/kor-elf-shield/kor-elf-shield/src/branch/main/LICENSE-3RD-PARTY.txt">LICENSE-3RD-PARTY.txt</a>).</p>
