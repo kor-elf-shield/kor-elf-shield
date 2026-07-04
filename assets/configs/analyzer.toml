@@ -197,6 +197,7 @@ ssh_group = ""
 # group = "my_name_group" # Можно указать имя группы (не обязательное поле)
 # [bruteForceProtection.rules.source]
 # type = "journalctl" # journalctl или file (обязательное поле)
+# path = "" # Указываем путь к файлу (обязательное поле если type = "file")
 # field = "systemd_unit" # systemd_unit или syslog_identifier (обязательное поле если type = "journalctl")
 # match = "ssh.service" # Значение (обязательное поле если type = "journalctl")
 # если field = "systemd_unit", то match должен заканичваться: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
@@ -220,6 +221,7 @@ ssh_group = ""
 # group = "my_name_group" # You can specify the group name (optional field)
 # [bruteForceProtection.rules.source]
 # type = "journalctl" # journalctl or file (required)
+# path = "" # Specify the path to the file (required field if type = "file")
 # field = "systemd_unit" # systemd_unit or syslog_identifier (required if type = "journalctl")
 # match = "ssh.service" # Value (required if type = "journalctl")
 # If field = "systemd_unit", then match must end with: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
@@ -423,6 +425,7 @@ notify = true
 # group = "my_name_group" # Можно указать имя группы (не обязательное поле)
 # [logAlert.rules.source]
 # type = "journalctl" # journalctl или file (обязательное поле)
+# path = "" # Указываем путь к файлу (обязательное поле если type = "file")
 # field = "systemd_unit" # systemd_unit или syslog_identifier (обязательное поле если type = "journalctl")
 # match = "ssh.service" # Значение (обязательное поле если type = "journalctl")
 # если field = "systemd_unit", то match должен заканичваться: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
@@ -447,6 +450,7 @@ notify = true
 # group = "my_name_group" # You can specify the group name (optional field)
 # [logAlert.rules.source]
 # type = "journalctl" # journalctl or file (required)
+# path = "" # Specify the path to the file (required field if type = "file")
 # field = "systemd_unit" # systemd_unit or syslog_identifier (required if type = "journalctl")
 # match = "ssh.service" # Value (required if type = "journalctl")
 # If field = "systemd_unit", then match must end with: .service, .socket, .target, .mount, .timer, .path, .scope, .slice, .device
