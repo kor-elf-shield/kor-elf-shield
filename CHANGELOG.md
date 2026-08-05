@@ -1,3 +1,20 @@
+## 0.13.0 (soon)
+#### Русский
+* Реализована простая проверка наличия таблицы в NFTables.
+* Добавлена новая группа параметров `[rulesGuard]` в файл `firewall.toml`:
+  * `enabled` — Включает мониторинг правил NFTables. По умолчанию: `true`.
+  * `notifications` - Включает уведомления в случае проблем с правилами NFTables. По умолчанию: `true`.
+  * `recovery` - Восстанавливает правила NFTables в случае проблем. По умолчанию: `true`.
+  * `interval` - Интервал проверки правил NFTables в секундах. По умолчанию: `3600`.
+***
+#### English
+* Implemented a simple check for the presence of a table in NFTables.
+* Added a new `[rulesGuard]` parameter group to the `firewall.toml` file:
+  * `enabled` - Enables NFTables rules monitoring. Default: `true`.
+  * `notifications` - Enables notifications in case of problems with NFTables rules. Default: `true`.
+  * `recovery` - Recovers NFTables rules in case of problems. Default: `true`.
+  * `interval` - NFTables rules checking interval in seconds. Default: `3600`.
+***
 ## 0.12.0 (17.06.2026)
 #### Русский
 * Добавлено: отображение номера уведомления в групповых уведомлениях.
