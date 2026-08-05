@@ -168,8 +168,15 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
 
+		hasRules, err := d.firewall.HasRules()
+		nftables := "\033[32mOk\033[0m"
+		if err != nil || !hasRules {
+			nftables = "\033[31mError\033[0m"
+		}
+
 		text := fmt.Sprintf(
 			"ok\n\n***\n"+
+				"NFTables:   %s\n"+
 				"Version:    %s\n"+
 				"BuiltWith: %s\n"+
 				"Uptime:     %s\n"+
@@ -180,6 +187,7 @@ func (d *daemon) socketCommand(command string, args map[string]string, socket so
 				"HeapSys:    %s\n"+
 				"NumGC:      %d\n"+
 				"***\n",
+			nftables,
 			d.info.Version(),
 			d.info.BuiltWith(),
 			format.HumanDuration(d.info.Uptime()),
