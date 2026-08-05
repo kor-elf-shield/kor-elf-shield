@@ -15,6 +15,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/blocking"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/guard"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/types"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/info"
@@ -33,16 +34,17 @@ type Daemon interface {
 }
 
 type daemon struct {
-	info          info.Info
-	pidFile       pidfile.PidFile
-	socket        socket.Socket
-	logger        log.Logger
-	firewall      firewall.API
-	notifications notifications.Notifications
-	analyzer      analyzer.Analyzer
-	docker        docker_monitor.Docker
-	blocklist     blocklist.Blocklist
-	geoIPService  geoip.GeoIP
+	info               info.Info
+	pidFile            pidfile.PidFile
+	socket             socket.Socket
+	logger             log.Logger
+	firewall           firewall.API
+	firewallRulesGuard guard.RulesGuard
+	notifications      notifications.Notifications
+	analyzer           analyzer.Analyzer
+	docker             docker_monitor.Docker
+	blocklist          blocklist.Blocklist
+	geoIPService       geoip.GeoIP
 
 	stopCh chan struct{}
 }
@@ -59,6 +61,10 @@ func (d *daemon) Run(ctx context.Context, isTesting bool, testingInterval uint16
 		return err
 	}
 	d.firewall.SavesRules()
+	d.firewallRulesGuard.Run(d.info, ctx)
+	defer func() {
+		_ = d.firewallRulesGuard.Close()
+	}()
 
 	if err := d.pidFile.Create(); err != nil {
 		return err

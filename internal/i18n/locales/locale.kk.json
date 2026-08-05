@@ -86,5 +86,11 @@
   "alert.bruteForceProtection.ssh.message": "SSH-ті күштеп қолдану әрекеті анықталды.",
   "alert.bruteForceProtection.group._default.message": "Әдепкі топ.",
 
-  "cmd.error": "Команда қатесі: {{.Error}}"
+  "cmd.error": "Команда қатесі: {{.Error}}",
+
+  "firewall_rules_not_found": "Брандмауэр ережелері табылмады",
+  "firewall_rules_not_found_body": "Брандмауэр ережелері табылмады. \"Ережелерді қалпына келтіру\" опциясы өшірілген. Сіз қазіргі уақытта қорғалмағансыз!!!",
+  "firewall_rules_not_found_body_recover_error": "Брандмауэр ережелері табылмады. Брандмауэр ережелерін қалпына келтіре алмадық. Сіз қазіргі уақытта қорғалмағансыз!!! Брандмауэр ережелерін қалпына келтіруде қате пайда болды: {{.Error}}",
+  "firewall_rules_not_found_body_recover_success": "Брандмауэр ережелері табылмады. Дегенмен, брандмауэр ережелері сәтті қалпына келтірілді!",
+  "firewall_rules_not_found_body_check_error": "Брандмауэр ережелерін тексеру кезінде қате пайда болды: {{.Error}}"
 }

@@ -7,6 +7,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	firewallConfig "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/config"
+	GuardConfig "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/guard/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/geoip"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
@@ -42,38 +43,38 @@ func otherSettingsPathDefault() *otherSettingsPath {
 	}
 }
 
-func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewallConfig.Config, error) {
+func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewallConfig.Config, GuardConfig.GuardConfig, error) {
 	setting, err := firewallSetting.InitSetting(o.Firewall)
 	if err != nil {
-		return firewallConfig.Config{}, err
+		return firewallConfig.Config{}, GuardConfig.GuardConfig{}, err
 	}
 
 	configPolicy, err := setting.Policy.ToConfigPolicy()
 	if err != nil {
-		return firewallConfig.Config{}, err
+		return firewallConfig.Config{}, GuardConfig.GuardConfig{}, err
 	}
 
 	inPorts, outPorts, err := setting.ToPorts()
 	if err != nil {
-		return firewallConfig.Config{}, err
+		return firewallConfig.Config{}, GuardConfig.GuardConfig{}, err
 	}
 
 	IPs, err := setting.ToIPs()
 	if err != nil {
-		return firewallConfig.Config{}, err
+		return firewallConfig.Config{}, GuardConfig.GuardConfig{}, err
 	}
 
 	optionClearMode, err := setting.Options.ToClearMode()
 	if err != nil {
-		return firewallConfig.Config{}, err
+		return firewallConfig.Config{}, GuardConfig.GuardConfig{}, err
 	}
 
 	portKnocking, err := setting.ToConfigPortKnocking()
 	if err != nil {
-		return firewallConfig.Config{}, err
+		return firewallConfig.Config{}, GuardConfig.GuardConfig{}, err
 	}
 
-	return firewallConfig.Config{
+	firewall := firewallConfig.Config{
 		InPorts:  inPorts,
 		OutPorts: outPorts,
 		IP4: firewallConfig.ConfigIP4{
@@ -109,7 +110,11 @@ func (o *otherSettingsPath) ToFirewallConfig(dockerSupport bool) (firewallConfig
 		},
 		Policy:       configPolicy,
 		PortKnocking: portKnocking,
-	}, nil
+	}
+
+	rulesGuard := setting.RulesGuard.ToGuardConfig()
+
+	return firewall, rulesGuard, nil
 }
 
 func (o *otherSettingsPath) ToNotificationsConfig() (notifications.Config, error) {
