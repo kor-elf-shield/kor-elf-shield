@@ -48,6 +48,9 @@ type API interface {
 
 	// DockerSupport Return true if docker support
 	DockerSupport() bool
+
+	// HasRules Return true if firewall has rules
+	HasRules() (bool, error)
 }
 
 type firewall struct {
@@ -206,6 +209,10 @@ func (f *firewall) SavesRules() {
 	}
 
 	f.logger.Info("Save nftables rules")
+}
+
+func (f *firewall) HasRules() (bool, error) {
+	return f.table.HasRules()
 }
 
 func (f *firewall) BlockIP(blockIP blocking.BlockIP) (bool, error) {
