@@ -1,6 +1,7 @@
 ## 0.13.0 (soon)
 #### Русский
-* Реализована простая проверка наличия таблицы в NFTables.
+* Реализована простая проверка на наличия таблицы в NFTables.
+* Добавлены данные для проверки наличия таблицы в NFTables в команде `kor-elf-shield status`.
 * Добавлена новая группа параметров `[rulesGuard]` в файл `firewall.toml`:
   * `enabled` — Включает мониторинг правил NFTables. По умолчанию: `true`.
   * `notifications` - Включает уведомления в случае проблем с правилами NFTables. По умолчанию: `true`.
@@ -9,6 +10,7 @@
 ***
 #### English
 * Implemented a simple check for the presence of a table in NFTables.
+* Added check data to `kor-elf-shield status` command for the presence of a table in NFTables.
 * Added a new `[rulesGuard]` parameter group to the `firewall.toml` file:
   * `enabled` - Enables NFTables rules monitoring. Default: `true`.
   * `notifications` - Enables notifications in case of problems with NFTables rules. Default: `true`.
