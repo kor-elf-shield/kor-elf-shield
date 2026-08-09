@@ -7,6 +7,9 @@
   * `notifications` - Включает уведомления в случае проблем с правилами NFTables. По умолчанию: `true`.
   * `recovery` - Восстанавливает правила NFTables в случае проблем. По умолчанию: `true`.
   * `interval` - Интервал проверки правил NFTables в секундах. По умолчанию: `3600`.
+* Добавлена поддержка разделения `patterns` на партиции в настройках `analyzer.toml`. 
+  * Теперь правила анализа логов и защиты от перебора пароля могут обрабатывать шаблоны по партициям.
+  * Это помогает гибче группировать шаблоны и снижать пересечения между независимыми наборами правил.
 ***
 #### English
 * Implemented a simple check for the presence of a table in NFTables.
@@ -16,6 +19,9 @@
   * `notifications` - Enables notifications in case of problems with NFTables rules. Default: `true`.
   * `recovery` - Recovers NFTables rules in case of problems. Default: `true`.
   * `interval` - NFTables rules checking interval in seconds. Default: `3600`.
+* Added partitioning support for `patterns` in the `analyzer.toml` configuration.
+  * Log analysis and brute-force protection rules can now process patterns by partitions.
+  * This helps organize patterns more flexibly and reduces overlap between independent rule sets.
 ***
 ## 0.12.0 (17.06.2026)
 #### Русский
