@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 )
 
 type AlertGroupRepository interface {
-	Update(name string, f func(*entity.AlertGroup) (*entity.AlertGroup, error)) error
+	Update(name string, partition *string, f func(*entity.AlertGroup) (*entity.AlertGroup, error)) error
 	Clear() error
 }
 
@@ -27,7 +28,7 @@ func NewAlertGroupRepository(appDB *bbolt.DB) AlertGroupRepository {
 	}
 }
 
-func (r *alertGroupRepository) Update(name string, f func(*entity.AlertGroup) (*entity.AlertGroup, error)) error {
+func (r *alertGroupRepository) Update(name string, partition *string, f func(*entity.AlertGroup) (*entity.AlertGroup, error)) error {
 	entityAlertGroup := &entity.AlertGroup{}
 	entityAlertGroup.Reset()
 
@@ -36,7 +37,10 @@ func (r *alertGroupRepository) Update(name string, f func(*entity.AlertGroup) (*
 		if err != nil {
 			return err
 		}
-		key := []byte(name)
+		key, err := keyGroup(name, partition)
+		if err != nil {
+			return err
+		}
 
 		group := b.Get(key)
 		if group != nil {
@@ -69,4 +73,22 @@ func (r *alertGroupRepository) Clear() error {
 		_, err = tx.CreateBucketIfNotExists([]byte(r.bucket))
 		return err
 	})
+}
+
+func keyGroup(groupID string, partition *string) ([]byte, error) {
+	if len(groupID) == 0 {
+		return nil, fmt.Errorf("group id cannot be empty")
+	}
+
+	if partition == nil {
+		return []byte(groupID), nil
+	}
+
+	partitionHash := sha256.Sum256([]byte(*partition))
+
+	k := make([]byte, 0, len(groupID)+1+len(partitionHash))
+	k = append(k, groupID...)
+	k = append(k, 0x00)
+	k = append(k, partitionHash[:]...)
+	return k, nil
 }

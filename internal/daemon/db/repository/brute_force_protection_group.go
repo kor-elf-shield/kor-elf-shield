@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,7 +13,7 @@ import (
 )
 
 type BruteForceProtectionGroupRepository interface {
-	Update(name string, ip net.IP, f func(*entity.BruteForceProtectionGroup) (*entity.BruteForceProtectionGroup, error)) error
+	Update(name string, ip net.IP, partition *string, f func(*entity.BruteForceProtectionGroup) (*entity.BruteForceProtectionGroup, error)) error
 	Clear() error
 }
 
@@ -28,7 +29,7 @@ func NewBruteForceProtectionGroupRepository(appDB *bbolt.DB) BruteForceProtectio
 	}
 }
 
-func (r *bruteForceProtectionGroupRepository) Update(name string, ip net.IP, f func(*entity.BruteForceProtectionGroup) (*entity.BruteForceProtectionGroup, error)) error {
+func (r *bruteForceProtectionGroupRepository) Update(name string, ip net.IP, partition *string, f func(*entity.BruteForceProtectionGroup) (*entity.BruteForceProtectionGroup, error)) error {
 	entityGroup := &entity.BruteForceProtectionGroup{}
 	entityGroup.Reset()
 
@@ -37,7 +38,7 @@ func (r *bruteForceProtectionGroupRepository) Update(name string, ip net.IP, f f
 		if err != nil {
 			return err
 		}
-		key, err := keyGroupIP(name, ip)
+		key, err := keyGroupIP(name, ip, partition)
 		if err != nil {
 			return err
 		}
@@ -75,7 +76,7 @@ func (r *bruteForceProtectionGroupRepository) Clear() error {
 	})
 }
 
-func keyGroupIP(groupID string, ip net.IP) ([]byte, error) {
+func keyGroupIP(groupID string, ip net.IP, partition *string) ([]byte, error) {
 	if ip == nil {
 		return nil, fmt.Errorf("ip cannot be nil")
 	}
@@ -93,6 +94,17 @@ func keyGroupIP(groupID string, ip net.IP) ([]byte, error) {
 		ipAddr = ip.To4()
 	} else {
 		ipAddr = ip.To16()
+	}
+
+	if partition != nil {
+		partitionHash := sha256.Sum256([]byte(*partition))
+		k := make([]byte, 0, len(groupID)+1+len(ipAddr)+1+len(partitionHash))
+		k = append(k, groupID...)
+		k = append(k, 0x00)
+		k = append(k, ipAddr...)
+		k = append(k, 0x00)
+		k = append(k, partitionHash[:]...)
+		return k, nil
 	}
 
 	k := make([]byte, 0, len(groupID)+1+len(ipAddr))

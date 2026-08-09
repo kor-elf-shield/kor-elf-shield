@@ -1,6 +1,9 @@
 package brute_force_protection
 
-import "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/regular_expression"
+import (
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/partition"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/regular_expression"
+)
 
 type Rule struct {
 	Name    string
@@ -15,9 +18,10 @@ type Rule struct {
 }
 
 type RegexPattern struct {
-	Regexp *regular_expression.LazyRegexp
-	Values []PatternValue
-	IP     uint8
+	Regexp    *regular_expression.LazyRegexp
+	Values    []PatternValue
+	IP        uint8
+	Partition *partition.PatternPartition
 }
 
 type RateLimit struct {

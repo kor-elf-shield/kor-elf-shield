@@ -12,7 +12,7 @@ import (
 )
 
 type Group interface {
-	Analyze(alertGroup *config.AlertGroup, eventTime time.Time, message string) (AnalysisResult, error)
+	Analyze(alertGroup *config.AlertGroup, eventTime time.Time, message string, partition *string) (AnalysisResult, error)
 	ClearDBData() error
 }
 
@@ -34,14 +34,14 @@ func NewGroup(alertGroupRepository repository.AlertGroupRepository, logger log.L
 	}
 }
 
-func (g *group) Analyze(alertGroup *config.AlertGroup, eventTime time.Time, message string) (AnalysisResult, error) {
+func (g *group) Analyze(alertGroup *config.AlertGroup, eventTime time.Time, message string, partition *string) (AnalysisResult, error) {
 	analysisResult := AnalysisResult{
 		Alerted: false,
 	}
 
 	g.logger.Debug(fmt.Sprintf("Analyzing alert group %s", alertGroup.Name))
 
-	err := g.alertGroupRepository.Update(alertGroup.Name, func(entityAlertGroup *entity.AlertGroup) (*entity.AlertGroup, error) {
+	err := g.alertGroupRepository.Update(alertGroup.Name, partition, func(entityAlertGroup *entity.AlertGroup) (*entity.AlertGroup, error) {
 		rateLimit, err := alertGroup.RateLimit(entityAlertGroup.CurrentLevelTriggerCount)
 		if err != nil {
 			return entityAlertGroup, err

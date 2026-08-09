@@ -7,6 +7,7 @@ import (
 	"unicode"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/brute_force_protection"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config/partition"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/regular_expression"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
@@ -112,8 +113,9 @@ type AlertRule struct {
 }
 
 type AlertRegexPattern struct {
-	Regexp *regular_expression.LazyRegexp
-	Values []PatternValue
+	Regexp    *regular_expression.LazyRegexp
+	Values    []PatternValue
+	Partition *partition.PatternPartition
 }
 
 type PatternValue struct {

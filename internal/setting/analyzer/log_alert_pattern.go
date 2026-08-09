@@ -6,8 +6,9 @@ import (
 )
 
 type LogAlertPattern struct {
-	Regexp string `mapstructure:"regexp"`
-	Values []PatternValue
+	Regexp    string `mapstructure:"regexp"`
+	Values    []PatternValue
+	Partition *PatternPartition `mapstructure:"partition"`
 }
 
 func (p *LogAlertPattern) ToPattern() (config.AlertRegexPattern, error) {
@@ -22,6 +23,14 @@ func (p *LogAlertPattern) ToPattern() (config.AlertRegexPattern, error) {
 		}
 
 		pattern.Values = append(pattern.Values, v)
+	}
+
+	if p.Partition != nil {
+		partition, err := p.Partition.ToPatternPartition()
+		if err != nil {
+			return config.AlertRegexPattern{}, err
+		}
+		pattern.Partition = partition
 	}
 
 	return pattern, nil

@@ -207,7 +207,14 @@ ssh_group = ""
 # [[bruteForceProtection.rules.patterns.values]]
 # name = "Пользователь"
 # value = 1
-#
+# [bruteForceProtection.rules.patterns.partition] # (необязательный параметр) если надо разделить по ключевым словам
+# value = 1 # Номер поля, по которому мы получаем ключевое слова
+# trim = true # Убирает у ключевого слова пробелы вначале и в конце
+# lower_case = true # Ключевое слово приводит к нижнему регистру
+# [bruteForceProtection.rules.patterns.partition.type] # (необязательный параметр)
+# type = "only" # Допустимые значения "only" или "except"
+# keywords = ["root", "user"] # Указываем ключевые слова
+# partitioned = false # Если нужно, чтобы каждое ключевое слово считалось независимо от друг-друга, то указываем true
 # ***
 # Specify the log settings that need to be monitored to protect against password brute-force attacks.
 # Examples:
@@ -233,6 +240,14 @@ ssh_group = ""
 # [[bruteForceProtection.rules.patterns.values]]
 # name = "User"
 # value = 1
+# [bruteForceProtection.rules.patterns.partition] # (optional) if you want to split by keywords
+# value = 1 # Field number by which to get the keyword
+# trim = true # Removes leading and trailing spaces from the keyword
+# lower_case = true # Converts the keyword to lowercase
+# [bruteForceProtection.rules.patterns.partition.type] # (optional)
+# type = "only" # Acceptable values are "only" or "except"
+# keywords = ["root", "user"] # Specify the keywords
+# partitioned = false # If you want each keyword to be considered independently, specify true
 ###
 
 ###############################################################################
@@ -438,6 +453,14 @@ notify = true
 # name = "IP"
 # value = 3
 # type = "ip"
+# [logAlert.rules.patterns.partition] # (необязательный параметр) если надо разделить по ключевым словам
+# value = 2 # Номер поля, по которому мы получаем ключевое слова
+# trim = true # Убирает у ключевого слова пробелы вначале и в конце
+# lower_case = true # Ключевое слово приводит к нижнему регистру
+# [logAlert.rules.patterns.partition.type] # (необязательный параметр)
+# type = "only" # Допустимые значения "only" или "except"
+# keywords = ["root", "user"] # Указываем ключевые слова
+# partitioned = false # Если нужно, чтобы каждое ключевое слово считалось независимо от друг-друга, то указываем true
 #
 # ***
 # Specify the log settings to monitor for notifications.
@@ -463,4 +486,12 @@ notify = true
 # name = "IP"
 # value = 3
 # type = "ip"
+# [logAlert.rules.patterns.partition] # (optional) if you want to split by keywords
+# value = 2 # Field number by which we get the keyword
+# trim = true # Removes leading and trailing spaces from the keyword
+# lower_case = true # Converts the keyword to lowercase
+# [logAlert.rules.patterns.partition.type] # (optional)
+# type = "only" # Acceptable values are "only" or "except"
+# keywords = ["root", "user"] # Specify the keywords
+# partitioned = false # If you want each keyword to be counted independently, specify true
 ###
