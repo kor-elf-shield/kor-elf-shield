@@ -68,9 +68,15 @@ rate_limit_reset_period = 86400
 
 ###
 # Включает защиту от перебора пароля от ssh.
+# !!! Примечание: По умолчанию SSH-сервер не регистрирует неудачные попытки входа с использованием ключа.
+# Чтобы включить отслеживание неудачных попыток входа с использованием ключа, необходимо добавить параметр
+# "LogLevel VERBOSE" в настройки sshd_config !!!
 # По умолчанию: true
 # ***
 # Enables protection against brute-force attacks against ssh.
+# !!! Note: By default, the SSH server does not log unsuccessful login attempts using a key.
+# To enable tracking of unsuccessful login attempts using a key, you must add the "LogLevel VERBOSE" parameter
+# to the sshd_config settings !!!
 # Default: true
 ###
 ssh_enable = true
