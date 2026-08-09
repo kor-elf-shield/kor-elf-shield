@@ -38,6 +38,16 @@ func NewBruteForceProtectionSSH(isNotify bool, notifyCooldown int, notifyEvery i
 					},
 					IP: 4,
 				},
+				{
+					Regexp: regular_expression.NewLazyRegexp(`^Invalid user (\S*) from (\S+) port (\S+)`),
+					Values: []brute_force_protection.PatternValue{
+						{
+							Name:  i18n.Lang.T("user"),
+							Value: 1,
+						},
+					},
+					IP: 2,
+				},
 			},
 			Group: group,
 		},
