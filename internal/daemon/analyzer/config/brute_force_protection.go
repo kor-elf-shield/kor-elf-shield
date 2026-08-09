@@ -29,14 +29,14 @@ func NewBruteForceProtectionSSH(isNotify bool, notifyCooldown int, notifyEvery i
 
 			Patterns: []brute_force_protection.RegexPattern{
 				{
-					Regexp: regular_expression.NewLazyRegexp(`^Failed password for (\S+) from (\S+) port \S+`),
+					Regexp: regular_expression.NewLazyRegexp(`^Failed password for (invalid user |illegal user )?(\S*) from (\S+)( port \S+ \S+\s*)`),
 					Values: []brute_force_protection.PatternValue{
 						{
 							Name:  i18n.Lang.T("user"),
-							Value: 1,
+							Value: 2,
 						},
 					},
-					IP: 2,
+					IP: 3,
 				},
 			},
 			Group: group,
