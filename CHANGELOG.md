@@ -1,5 +1,7 @@
 ## 0.13.0 (soon)
 #### Русский
+* Обновления критических ошибок:
+  * Исправлена ошибка, из-за которой неудачные попытки авторизации по SSH не обрабатывались, если указанного пользователя не существовало в системе.
 * Реализована простая проверка на наличия таблицы в NFTables.
 * Добавлены данные для проверки наличия таблицы в NFTables в команде `kor-elf-shield status`.
 * Добавлена новая группа параметров `[rulesGuard]` в файл `firewall.toml`:
@@ -12,6 +14,8 @@
   * Это помогает гибче группировать шаблоны и снижать пересечения между независимыми наборами правил.
 ***
 #### English
+* Critical bug fixes:
+  * Fixed an issue where failed SSH login attempts were not processed if the specified user did not exist on the system.
 * Implemented a simple check for the presence of a table in NFTables.
 * Added check data to `kor-elf-shield status` command for the presence of a table in NFTables.
 * Added a new `[rulesGuard]` parameter group to the `firewall.toml` file:
