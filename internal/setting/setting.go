@@ -68,7 +68,7 @@ func (s setting) ToDaemonOptions(dockerSupport bool) (daemon.DaemonOptions, erro
 		}))
 	}
 
-	firewallConfig, err := s.OtherSettingsPath.ToFirewallConfig(dockerSupport)
+	firewallConfig, guardConfig, err := s.OtherSettingsPath.ToFirewallConfig(dockerSupport)
 	if err != nil {
 		return daemon.DaemonOptions{}, err
 	}
@@ -79,12 +79,13 @@ func (s setting) ToDaemonOptions(dockerSupport bool) (daemon.DaemonOptions, erro
 	}
 
 	return daemon.DaemonOptions{
-		PathPidFile:    s.PidFile,
-		PathSocketFile: s.SocketFile,
-		DataDir:        s.DataDir,
-		PathNftables:   s.BinaryLocations.Nftables,
-		ConfigFirewall: firewallConfig,
-		ConfigAnalyzer: analyzerConfig,
+		PathPidFile:         s.PidFile,
+		PathSocketFile:      s.SocketFile,
+		DataDir:             s.DataDir,
+		PathNftables:        s.BinaryLocations.Nftables,
+		ConfigFirewall:      firewallConfig,
+		ConfigFirewallGuard: guardConfig,
+		ConfigAnalyzer:      analyzerConfig,
 	}, nil
 }
 

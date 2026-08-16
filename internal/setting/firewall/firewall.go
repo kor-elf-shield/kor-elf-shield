@@ -17,6 +17,7 @@ type Setting struct {
 	MetadataNaming metadataNaming
 	Policy         policy
 	PortKnocking   []portKnocking
+	RulesGuard     RulesGuard
 }
 
 func InitSetting(path string) (Setting, error) {
@@ -53,6 +54,7 @@ func settingDefault() Setting {
 		MetadataNaming: defaultMetadataNaming(),
 		Policy:         defaultPolicy(),
 		PortKnocking:   defaultPortKnocking(),
+		RulesGuard:     defaultRulesGuard(),
 	}
 }
 
@@ -70,6 +72,9 @@ func (s Setting) Validate() error {
 		return err
 	}
 	if err := s.Options.Validate(); err != nil {
+		return err
+	}
+	if err := s.RulesGuard.Validate(); err != nil {
 		return err
 	}
 	return nil

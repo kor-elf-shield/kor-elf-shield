@@ -39,7 +39,7 @@ type Sources struct {
 	RssFieldSeparator string `mapstructure:"rss_field_separator"`
 }
 
-func (s *Sources) ToSourceConfig() (*daemonBlocklist.SourceConfig, error) {
+func (s *Sources) ToSourceConfig(exclusionChecker parser.ExclusionChecker) (*daemonBlocklist.SourceConfig, error) {
 	if err := s.Validate(); err != nil {
 		return &daemonBlocklist.SourceConfig{}, err
 	}
@@ -49,9 +49,11 @@ func (s *Sources) ToSourceConfig() (*daemonBlocklist.SourceConfig, error) {
 		return &daemonBlocklist.SourceConfig{}, err
 	}
 
-	config := blocklist.NewConfig(uint(s.Limit))
+	config := blocklist.NewConfigWithExclusionChecker(uint(s.Limit), exclusionChecker)
 	if s.TxtType == "interval" {
-		config.Validator = &parser.IPRangeValidator{}
+		config.Validator = &parser.IPRangeValidator{
+			ExclusionChecker: exclusionChecker,
+		}
 	}
 
 	if s.Zip {

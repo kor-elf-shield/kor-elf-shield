@@ -8,9 +8,10 @@ import (
 )
 
 type BruteForceProtectionPattern struct {
-	Regexp string `mapstructure:"regexp"`
-	IP     int    `mapstructure:"ip"`
-	Values []PatternValue
+	Regexp    string `mapstructure:"regexp"`
+	IP        int    `mapstructure:"ip"`
+	Values    []PatternValue
+	Partition *PatternPartition `mapstructure:"partition"`
 }
 
 func (p *BruteForceProtectionPattern) ToPattern() (brute_force_protection.RegexPattern, error) {
@@ -30,6 +31,14 @@ func (p *BruteForceProtectionPattern) ToPattern() (brute_force_protection.RegexP
 		}
 
 		pattern.Values = append(pattern.Values, v)
+	}
+
+	if p.Partition != nil {
+		partition, err := p.Partition.ToPatternPartition()
+		if err != nil {
+			return brute_force_protection.RegexPattern{}, err
+		}
+		pattern.Partition = partition
 	}
 
 	return pattern, nil

@@ -621,3 +621,46 @@ chain_output_name = "output"
 # Default: "forward"
 ###
 chain_forward_name = "forward"
+
+###############################################################################
+# РАЗДЕЛ:Проверка и восстановление правил брандмауэра
+# ***
+# SECTION:Checking and restoring firewall rules
+###############################################################################
+[rulesGuard]
+###
+# Включает мониторинг правил NFTables.
+# По умолчанию: true
+# ***
+# Enables monitoring of NFTables rules.
+# Default: true
+###
+enabled = true
+
+###
+# Включает уведомления в случае возникновения проблем с правилами NFTables.
+# По умолчанию: true
+# ***
+# Enables notifications if there is a problem with NFTables rules.
+# Default: true
+###
+notifications = true
+
+###
+# Если возникла проблема с правилами NFTables, следует ли перезапустить настройки правил NFTables.
+# По умолчанию: true
+# ***
+# If there is a problem with the NFTables rules, whether to restart the NFTables rules settings.
+# Default: true
+###
+recovery = true
+
+###
+# Указать интервал в секундах по которому будет проверяться на наличия правил NFTables.
+# По умолчанию: 3600
+# ***
+# Specify the interval in seconds at which to check for NFTables rules.
+# Default: 3600
+###
+interval = 3600
+

@@ -1,6 +1,8 @@
 package table
 
 import (
+	"strings"
+
 	"git.kor-elf.net/kor-elf-shield/go-nftables-client/family"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft"
@@ -11,6 +13,9 @@ type Table interface {
 	Clear() error
 	DockerChains() firewall.NFTDockerChains
 	BlockList() BlockList
+
+	// HasRules Return true if the table has rules
+	HasRules() (bool, error)
 }
 
 type BlockList interface {
@@ -53,6 +58,45 @@ func (t *table) DockerChains() firewall.NFTDockerChains {
 
 func (t *table) BlockList() BlockList {
 	return t.blockList
+}
+
+func (t *table) HasRules() (bool, error) {
+	if exists, err := t.exists(); err != nil {
+		return false, err
+	} else if !exists {
+		return false, nil
+	}
+
+	args := []string{"list", "table", t.family.String(), t.name}
+	output, err := t.nft.NFT().Command().RunWithOutput(args...)
+	if err != nil {
+		return false, err
+	}
+
+	openBrace := strings.Index(output, "{")
+	closeBrace := strings.LastIndex(output, "}")
+	if openBrace == -1 || closeBrace == -1 || closeBrace <= openBrace {
+		return false, nil
+	}
+
+	content := strings.TrimSpace(output[openBrace+1 : closeBrace])
+
+	return content != "", nil
+}
+
+func (t *table) exists() (bool, error) {
+	args := []string{"list", "tables", t.family.String()}
+	output, err := t.nft.NFT().Command().RunWithOutput(args...)
+	if err != nil {
+		return false, err
+	}
+	for _, line := range strings.Split(output, "\n") {
+		if strings.TrimSpace(line) == "table "+t.family.String()+" "+t.name {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 type blockList struct {

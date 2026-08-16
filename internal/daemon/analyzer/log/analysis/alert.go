@@ -26,8 +26,9 @@ type alert struct {
 }
 
 type alertAnalyzeRuleReturn struct {
-	found  bool
-	fields []*regexField
+	found     bool
+	fields    []*regexField
+	partition *string
 }
 
 type alertNotify struct {
@@ -68,7 +69,7 @@ func (a *alert) Analyze(entry *Entry) {
 		alertNumber := uint64(0)
 		messages := []string{}
 		if rule.Group != nil {
-			alertGroup, err := a.alertGroupService.Analyze(rule.Group, entry.Time, entry.Message)
+			alertGroup, err := a.alertGroupService.Analyze(rule.Group, entry.Time, entry.Message, result.partition)
 			if err != nil {
 				a.logger.Error(fmt.Sprintf("Failed to analyze alert group: %s", err))
 				continue
@@ -102,8 +103,9 @@ func (a *alert) ClearDBData() error {
 
 func (a *alert) analyzeRule(rule *config.AlertRule, message string) alertAnalyzeRuleReturn {
 	result := alertAnalyzeRuleReturn{
-		found:  false,
-		fields: []*regexField{},
+		found:     false,
+		fields:    []*regexField{},
+		partition: nil,
 	}
 
 	for _, pattern := range rule.Patterns {
@@ -116,6 +118,27 @@ func (a *alert) analyzeRule(rule *config.AlertRule, message string) alertAnalyze
 		idx := re.FindStringSubmatchIndex(message)
 
 		if idx != nil {
+			if pattern.Partition != nil {
+				start, end, err := getValueStartEndByRegexIndex(int(pattern.Partition.Value), idx)
+				if err != nil {
+					a.logger.Error(fmt.Sprintf("alert. Failed to get partition value: %s", err))
+					continue
+				}
+				partition := pattern.Partition.Normalize(message[start:end])
+				if pattern.Partition.Type != nil {
+					if accepts, partitionCode := pattern.Partition.Type.Accepts(partition); !accepts {
+						continue
+					} else {
+						partition = partitionCode
+					}
+					if pattern.Partition.Type.IsPartitioned() {
+						result.partition = &partition
+					}
+				} else {
+					result.partition = &partition
+				}
+			}
+
 			for _, value := range pattern.Values {
 				start, end, err := getValueStartEndByRegexIndex(int(value.Value), idx)
 				if err != nil {
@@ -126,6 +149,9 @@ func (a *alert) analyzeRule(rule *config.AlertRule, message string) alertAnalyze
 			}
 
 			if len(pattern.Values) != len(result.fields) {
+				a.logger.Error(fmt.Sprintf("alert. analyzeRule len(pattern.Values) != len(result.fields): %d != %d", len(pattern.Values), len(result.fields)))
+				result.fields = []*regexField{}
+				result.partition = nil
 				continue
 			}
 

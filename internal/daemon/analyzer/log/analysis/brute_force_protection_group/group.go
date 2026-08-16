@@ -13,7 +13,7 @@ import (
 )
 
 type Group interface {
-	Analyze(group *brute_force_protection.Group, eventTime time.Time, ip net.IP, message string) (AnalysisResult, error)
+	Analyze(group *brute_force_protection.Group, eventTime time.Time, ip net.IP, message string, partition *string) (AnalysisResult, error)
 	ClearDBData() error
 }
 
@@ -37,14 +37,14 @@ func NewGroup(groupRepository repository.BruteForceProtectionGroupRepository, lo
 	}
 }
 
-func (g *group) Analyze(group *brute_force_protection.Group, eventTime time.Time, ip net.IP, message string) (AnalysisResult, error) {
+func (g *group) Analyze(group *brute_force_protection.Group, eventTime time.Time, ip net.IP, message string, partition *string) (AnalysisResult, error) {
 	analysisResult := AnalysisResult{
 		Block: false,
 	}
 
 	g.logger.Debug(fmt.Sprintf("Analyzing brute force protection group %s IP %s", group.Name, ip.String()))
 
-	err := g.groupRepository.Update(group.Name, ip, func(entityGroup *entity.BruteForceProtectionGroup) (*entity.BruteForceProtectionGroup, error) {
+	err := g.groupRepository.Update(group.Name, ip, partition, func(entityGroup *entity.BruteForceProtectionGroup) (*entity.BruteForceProtectionGroup, error) {
 		rateLimit, err := group.RateLimit(entityGroup.CurrentLevelTriggerCount)
 		if err != nil {
 			return entityGroup, err

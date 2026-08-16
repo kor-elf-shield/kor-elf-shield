@@ -1,3 +1,40 @@
+## 0.13.0 (16.08.2026)
+#### Русский
+* Обновления критических ошибок:
+  * Исправлена ошибка, из-за которой неудачные попытки авторизации по SSH не обрабатывались, если указанного пользователя не существовало в системе.
+  * Исправлена ошибка, из-за которой неудачные попытки аутентификации по SSH-ключу не обрабатывались. 
+  <br>**Примечание:** По умолчанию SSH-сервер не регистрирует неудачные попытки входа с использованием ключа. Чтобы включить отслеживание неудачных попыток входа с использованием ключа, необходимо добавить параметр `LogLevel VERBOSE` в настройки `sshd_config`.
+* Добавлено: поддержка исключений IP-адресов в настройках обработки blocklist.
+  * Теперь можно добавлять параметр `exclude_ips` в конфигурационный файл `blocklists.toml` чтобы исключать определённые диапазоны IP-адресов из обработки. По умолчанию: `["127.0.0.1/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "::1/128", "fc00::/7",]`.
+* Реализована простая проверка на наличия таблицы в NFTables.
+* Добавлены данные для проверки наличия таблицы в NFTables в команде `kor-elf-shield status`.
+* Добавлена новая группа параметров `[rulesGuard]` в файл `firewall.toml`:
+  * `enabled` — Включает мониторинг правил NFTables. По умолчанию: `true`.
+  * `notifications` - Включает уведомления в случае проблем с правилами NFTables. По умолчанию: `true`.
+  * `recovery` - Восстанавливает правила NFTables в случае проблем. По умолчанию: `true`.
+  * `interval` - Интервал проверки правил NFTables в секундах. По умолчанию: `3600`.
+* Добавлена поддержка разделения `patterns` на партиции в настройках `analyzer.toml`. 
+  * Теперь правила анализа логов и защиты от перебора пароля могут обрабатывать шаблоны по партициям.
+  * Это помогает гибче группировать шаблоны и снижать пересечения между независимыми наборами правил.
+***
+#### English
+* Critical bug fixes:
+  * Fixed an issue where failed SSH login attempts were not processed if the specified user did not exist on the system.
+  * Fixed a bug where unsuccessful SSH key authentication attempts were not processed.
+  <br>**Note:** By default, the SSH server does not log unsuccessful login attempts using a key. To enable tracking of unsuccessful login attempts using a key, you must add the `LogLevel VERBOSE` parameter to the `sshd_config` settings.
+* Added: Support for IP address exclusions in blocklist processing settings.
+  * You can now add the `exclude_ips` parameter to the `blocklists.toml` configuration file to exclude specific IP address ranges from processing. Default: `["127.0.0.1/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "::1/128", "fc00::/7",]`.
+* Implemented a simple check for the presence of a table in NFTables.
+* Added check data to `kor-elf-shield status` command for the presence of a table in NFTables.
+* Added a new `[rulesGuard]` parameter group to the `firewall.toml` file:
+  * `enabled` - Enables NFTables rules monitoring. Default: `true`.
+  * `notifications` - Enables notifications in case of problems with NFTables rules. Default: `true`.
+  * `recovery` - Recovers NFTables rules in case of problems. Default: `true`.
+  * `interval` - NFTables rules checking interval in seconds. Default: `3600`.
+* Added partitioning support for `patterns` in the `analyzer.toml` configuration.
+  * Log analysis and brute-force protection rules can now process patterns by partitions.
+  * This helps organize patterns more flexibly and reduces overlap between independent rule sets.
+***
 ## 0.12.0 (17.06.2026)
 #### Русский
 * Добавлено: отображение номера уведомления в групповых уведомлениях.

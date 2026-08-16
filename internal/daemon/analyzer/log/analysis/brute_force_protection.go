@@ -34,9 +34,10 @@ type bruteForceProtection struct {
 }
 
 type bruteForceProtectionAnalyzeRuleReturn struct {
-	found  bool
-	fields []*regexField
-	ip     net.IP
+	found     bool
+	fields    []*regexField
+	ip        net.IP
+	partition *string
 }
 
 type bruteForceProtectionNotify struct {
@@ -88,7 +89,7 @@ func (p *bruteForceProtection) Analyze(entry *Entry) {
 			continue
 		}
 
-		groupResult, err := p.groupService.Analyze(rule.Group, entry.Time, result.ip, entry.Message)
+		groupResult, err := p.groupService.Analyze(rule.Group, entry.Time, result.ip, entry.Message, result.partition)
 		if err != nil {
 			p.logger.Error(fmt.Sprintf("Failed to analyze brute force protection group: %s", err))
 			continue
@@ -198,9 +199,10 @@ func (p *bruteForceProtection) handleBlockIPWithPorts(
 
 func (p *bruteForceProtection) analyzeRule(rule *brute_force_protection.Rule, message string) bruteForceProtectionAnalyzeRuleReturn {
 	result := bruteForceProtectionAnalyzeRuleReturn{
-		found:  false,
-		fields: []*regexField{},
-		ip:     nil,
+		found:     false,
+		fields:    []*regexField{},
+		ip:        nil,
+		partition: nil,
 	}
 
 	for _, pattern := range rule.Patterns {
@@ -216,14 +218,35 @@ func (p *bruteForceProtection) analyzeRule(rule *brute_force_protection.Rule, me
 			start, end, err := getValueStartEndByRegexIndex(int(pattern.IP), idx)
 			if err != nil {
 				p.logger.Error(fmt.Sprintf("Failed to get ip value: %s", err))
-				return result
+				continue
 			}
 			ipText := message[start:end]
-			result.ip = net.ParseIP(ipText)
-			if result.ip == nil {
+			ip := net.ParseIP(ipText)
+			if ip == nil {
 				p.logger.Error(fmt.Sprintf("Failed to parse ip: %s", ipText))
-				return bruteForceProtectionAnalyzeRuleReturn{
-					found: false,
+				continue
+			}
+			result.ip = ip
+
+			if pattern.Partition != nil {
+				start, end, err := getValueStartEndByRegexIndex(int(pattern.Partition.Value), idx)
+				if err != nil {
+					p.logger.Error(fmt.Sprintf("brute_force_protection. Failed to get partition value: %s", err))
+					result.ip = nil
+					continue
+				}
+				partition := pattern.Partition.Normalize(message[start:end])
+				if pattern.Partition.Type != nil {
+					if accepts, partitionCode := pattern.Partition.Type.Accepts(partition); !accepts {
+						continue
+					} else {
+						partition = partitionCode
+					}
+					if pattern.Partition.Type.IsPartitioned() {
+						result.partition = &partition
+					}
+				} else {
+					result.partition = &partition
 				}
 			}
 
@@ -237,6 +260,10 @@ func (p *bruteForceProtection) analyzeRule(rule *brute_force_protection.Rule, me
 			}
 
 			if len(pattern.Values) != len(result.fields) {
+				p.logger.Error(fmt.Sprintf("brute_force_protection. analyzeRule len(pattern.Values) != len(result.fields): %d != %d", len(pattern.Values), len(result.fields)))
+				result.fields = []*regexField{}
+				result.partition = nil
+				result.ip = nil
 				continue
 			}
 
