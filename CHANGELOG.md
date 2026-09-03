@@ -1,3 +1,10 @@
+## 0.14.0 (Soon)
+#### Русский
+* Исправлена ошибка в правилах исходящего ICMP: при `icmp_timestamp_drop=true` теперь корректно блокируются `timestamp-reply` пакеты (вместо `timestamp-request`).
+***
+#### English
+* Fixed an issue in outbound ICMP rules: when `icmp_timestamp_drop=true`, `timestamp-reply` packets are now correctly blocked (instead of `timestamp-request`).
+***
 ## 0.13.0 (16.08.2026)
 #### Русский
 * Обновления критических ошибок:
