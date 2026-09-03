@@ -165,12 +165,12 @@ encoding = "json"
 
 ###
 # Список мест для основных логов.
-# Можно указать несколько путей. Например output_paths = ["stdout", "/var/log/kor-elf-shield.log"].
+# Можно указать несколько путей. Например paths = ["stdout", "/var/log/kor-elf-shield.log"].
 # Где "stdout" - вывод данных в консоль.
 # По умолчанию: ["/var/log/kor-elf-shield.log"]
 # ***
 # List of locations for main logs.
-# Multiple paths can be specified. For example, output_paths = ["stdout", "/var/log/kor-elf-shield.log"].
+# Multiple paths can be specified. For example, paths = ["stdout", "/var/log/kor-elf-shield.log"].
 # Where "stdout" is the console output.
 # Default: ["/var/log/kor-elf-shield.log"]
 ###
@@ -178,12 +178,12 @@ paths = ["/var/log/kor-elf-shield.log"]
 
 ###
 # Список мест для ошибок логгирования. Например журнал не смог записать какие-то данные.
-# Можно указать несколько путей. Например output_paths = ["stderr", "/var/log/kor-elf-shield-log-error.log"].
+# Можно указать несколько путей. Например log_error_paths = ["stderr", "/var/log/kor-elf-shield-log-error.log"].
 # Где "stderr" - вывод данных в консоль.
 # По умолчанию: ["stderr"]
 # ***
 # List of locations for logging errors. For example, the log failed to write some data.
-# Multiple paths can be specified. For example, output_paths = ["stderr", "/var/log/kor-elf-shield-log-error.log"].
+# Multiple paths can be specified. For example, log_error_paths = ["stderr", "/var/log/kor-elf-shield-log-error.log"].
 # Where "stderr" is the data output to the console.
 # Default: ["stderr"]
 ###
