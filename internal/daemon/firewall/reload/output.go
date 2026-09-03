@@ -194,7 +194,7 @@ func (r *reload) outputICMP(batchOutput chain.Chain) error {
 func (r *reload) outputICMPAfter(batchOutput chain.Chain) error {
 	if r.config.IP4.IcmpTimestampDrop == true {
 		drop := r.config.Policy.OutputDrop.String()
-		if err := batchOutput.AddRule("oifname != \"lo\" ip protocol icmp icmp type timestamp-request " + drop); err != nil {
+		if err := batchOutput.AddRule("oifname != \"lo\" ip protocol icmp icmp type timestamp-reply " + drop); err != nil {
 			return err
 		}
 	}
