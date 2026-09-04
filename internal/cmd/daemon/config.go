@@ -26,10 +26,12 @@ func CmdConfig() *cli.Command {
 
 func CmdTestConfig(_ context.Context, _ *cli.Command) error {
 	testMain := testMainConfig()
+	testDocker, _ := testDockerConfig()
 
 	fmt.Println(
 		"***\n"+i18n.Lang.T("cmd.daemon.config.test.settingTitle"),
 		"\n", testMain,
+		"\n", testDocker,
 		"\n***",
 	)
 	return nil
@@ -46,6 +48,16 @@ func testMainConfig() string {
 	}
 
 	return resultOk(configTitle)
+}
+
+func testDockerConfig() (message string, dockerSupport bool) {
+	configTitle := "docker"
+	_, dockerSupport, err := setting.Config.OtherSettingsPath.ToDockerConfig(setting.Config.BinaryLocations)
+	if err != nil {
+		return resultError(configTitle, err), false
+	}
+
+	return resultOk(configTitle), dockerSupport
 }
 
 func resultOk(title string) string {
