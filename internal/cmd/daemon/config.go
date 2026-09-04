@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
 	"github.com/urfave/cli/v3"
 )
@@ -25,11 +26,14 @@ func CmdConfig() *cli.Command {
 }
 
 func CmdTestConfig(_ context.Context, _ *cli.Command) error {
+	falseLogger := log.NewFalseLogger()
+
 	testMain := testMainConfig()
 	testDocker, dockerSupport := testDockerConfig()
 	testFirewall := testFirewallConfig(dockerSupport)
 	testAnalyzer := testAnalyzerConfig()
 	testNotifications := testNotificationsConfig()
+	testBlocklists := testBlocklistsConfig(falseLogger)
 
 	fmt.Println(
 		"***\n"+i18n.Lang.T("cmd.daemon.config.test.settingTitle"),
@@ -38,6 +42,7 @@ func CmdTestConfig(_ context.Context, _ *cli.Command) error {
 		"\n", testAnalyzer,
 		"\n", testNotifications,
 		"\n", testDocker,
+		"\n", testBlocklists,
 		"\n***",
 	)
 	return nil
@@ -87,6 +92,15 @@ func testAnalyzerConfig() string {
 func testNotificationsConfig() string {
 	configTitle := "notifications"
 	if _, err := setting.Config.OtherSettingsPath.ToNotificationsConfig(); err != nil {
+		return resultError(configTitle, err)
+	}
+
+	return resultOk(configTitle)
+}
+
+func testBlocklistsConfig(logger log.Logger) string {
+	configTitle := "blocklists"
+	if _, _, err := setting.Config.OtherSettingsPath.ToBlocklistConfig(logger); err != nil {
 		return resultError(configTitle, err)
 	}
 
