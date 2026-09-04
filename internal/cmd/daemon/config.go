@@ -29,12 +29,14 @@ func CmdTestConfig(_ context.Context, _ *cli.Command) error {
 	testDocker, dockerSupport := testDockerConfig()
 	testFirewall := testFirewallConfig(dockerSupport)
 	testAnalyzer := testAnalyzerConfig()
+	testNotifications := testNotificationsConfig()
 
 	fmt.Println(
 		"***\n"+i18n.Lang.T("cmd.daemon.config.test.settingTitle"),
 		"\n", testMain,
 		"\n", testFirewall,
 		"\n", testAnalyzer,
+		"\n", testNotifications,
 		"\n", testDocker,
 		"\n***",
 	)
@@ -76,6 +78,15 @@ func testFirewallConfig(dockerSupport bool) string {
 func testAnalyzerConfig() string {
 	configTitle := "analyzer"
 	if _, err := setting.Config.OtherSettingsPath.ToAnalyzerConfig(setting.Config.BinaryLocations); err != nil {
+		return resultError(configTitle, err)
+	}
+
+	return resultOk(configTitle)
+}
+
+func testNotificationsConfig() string {
+	configTitle := "notifications"
+	if _, err := setting.Config.OtherSettingsPath.ToNotificationsConfig(); err != nil {
 		return resultError(configTitle, err)
 	}
 
