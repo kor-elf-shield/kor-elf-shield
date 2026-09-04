@@ -34,6 +34,7 @@ func CmdTestConfig(_ context.Context, _ *cli.Command) error {
 	testAnalyzer := testAnalyzerConfig()
 	testNotifications := testNotificationsConfig()
 	testBlocklists := testBlocklistsConfig(falseLogger)
+	testGeoip := testGeoipConfig(falseLogger)
 
 	fmt.Println(
 		"***\n"+i18n.Lang.T("cmd.daemon.config.test.settingTitle"),
@@ -43,6 +44,7 @@ func CmdTestConfig(_ context.Context, _ *cli.Command) error {
 		"\n", testNotifications,
 		"\n", testDocker,
 		"\n", testBlocklists,
+		"\n", testGeoip,
 		"\n***",
 	)
 	return nil
@@ -101,6 +103,15 @@ func testNotificationsConfig() string {
 func testBlocklistsConfig(logger log.Logger) string {
 	configTitle := "blocklists"
 	if _, _, err := setting.Config.OtherSettingsPath.ToBlocklistConfig(logger); err != nil {
+		return resultError(configTitle, err)
+	}
+
+	return resultOk(configTitle)
+}
+
+func testGeoipConfig(logger log.Logger) string {
+	configTitle := "geoip"
+	if _, _, err := setting.Config.OtherSettingsPath.ToConfig(setting.Config.DataDir, logger); err != nil {
 		return resultError(configTitle, err)
 	}
 
