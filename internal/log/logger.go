@@ -59,7 +59,7 @@ func (l *logger) ReOpen() error {
 
 func NewLogger(opts LoggerOptions) (Logger, error) {
 	if !opts.Enabled {
-		return &falseLogger{}, nil
+		return NewFalseLogger(), nil
 	}
 
 	return &logger{
