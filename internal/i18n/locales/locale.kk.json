@@ -60,7 +60,7 @@
   "cmd.daemon.config.test.settingTitle": "Параметрлер:",
   "cmd.daemon.config.test.main": "Негізгі",
   "cmd.daemon.config.test.checkingPrograms": "Бағдарламаларды тексеру:",
-  "cmd.daemon.config.test.nftablesPathEmpty": "nftables жолы бос",
+  "cmd.daemon.config.test.pathEmpty": "{{.Program}} жолы бос",
 
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",

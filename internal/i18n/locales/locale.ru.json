@@ -60,7 +60,7 @@
   "cmd.daemon.config.test.settingTitle": "Настройки:",
   "cmd.daemon.config.test.main": "Главные",
   "cmd.daemon.config.test.checkingPrograms": "Проверка программ:",
-  "cmd.daemon.config.test.nftablesPathEmpty": "Путь к nftables пустой",
+  "cmd.daemon.config.test.pathEmpty": "Путь к {{.Program}} пустой",
 
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
