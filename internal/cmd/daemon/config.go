@@ -2,7 +2,9 @@ package daemon
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"os/exec"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
@@ -36,6 +38,8 @@ func CmdTestConfig(_ context.Context, _ *cli.Command) error {
 	testBlocklists := testBlocklistsConfig(falseLogger)
 	testGeoip := testGeoipConfig(falseLogger)
 
+	checkNft := checkProgramNFT()
+
 	fmt.Println(
 		"***\n"+i18n.Lang.T("cmd.daemon.config.test.settingTitle"),
 		"\n", testMain,
@@ -45,6 +49,8 @@ func CmdTestConfig(_ context.Context, _ *cli.Command) error {
 		"\n", testDocker,
 		"\n", testBlocklists,
 		"\n", testGeoip,
+		"\n"+i18n.Lang.T("cmd.daemon.config.test.checkingPrograms"),
+		"\n", checkNft,
 		"\n***",
 	)
 	return nil
@@ -118,11 +124,26 @@ func testGeoipConfig(logger log.Logger) string {
 	return resultOk(configTitle)
 }
 
+func checkProgramNFT() string {
+	programTitle := "nftables"
+	path := setting.Config.BinaryLocations.Nftables
+	if path == "" {
+		return resultError(programTitle, errors.New(i18n.Lang.T("cmd.daemon.config.test.nftablesPathEmpty")))
+	}
+
+	cmd := exec.Command(path, "--version")
+	if err := cmd.Run(); err != nil {
+		return resultError(programTitle, err)
+	}
+
+	return resultOk(programTitle)
+}
+
 func resultOk(title string) string {
 	return fmt.Sprintf("%s: \033[32mOk\033[0m", title)
 }
 
 func resultError(title string, err error) string {
 	errText := i18n.Lang.T("cmd.daemon.config.test.error", map[string]interface{}{"Error": err})
-	return fmt.Sprintf("%s: \033[31mError\n%s\u001B[0m", title, errText)
+	return fmt.Sprintf("%s: \033[31mError\n  %s\u001B[0m", title, errText)
 }

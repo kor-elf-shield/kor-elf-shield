@@ -59,6 +59,8 @@
   "cmd.daemon.config.test.error": "Error: {{.Error}}",
   "cmd.daemon.config.test.settingTitle": "Settings:",
   "cmd.daemon.config.test.main": "Main",
+  "cmd.daemon.config.test.checkingPrograms": "Checking programs:",
+  "cmd.daemon.config.test.nftablesPathEmpty": "Nftables path is empty",
 
   "Command error": "Command error",
   "invalid log level": "The log level specified in the settings is invalid. It is currently set to: {{.Level}}. Valid values: {{.Levels}}",
