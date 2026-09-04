@@ -40,6 +40,10 @@ func CmdTestConfig(_ context.Context, _ *cli.Command) error {
 
 	checkNft := checkProgramNFT()
 	checkJournalctl := checkProgramJournalctl()
+	checkDocker := ""
+	if dockerSupport {
+		checkDocker = "\n " + checkProgramDocker()
+	}
 
 	fmt.Println(
 		"***\n"+i18n.Lang.T("cmd.daemon.config.test.settingTitle"),
@@ -53,6 +57,7 @@ func CmdTestConfig(_ context.Context, _ *cli.Command) error {
 		"\n"+i18n.Lang.T("cmd.daemon.config.test.checkingPrograms"),
 		"\n", checkNft,
 		"\n", checkJournalctl,
+		checkDocker,
 		"\n***",
 	)
 	return nil
@@ -144,6 +149,21 @@ func checkProgramNFT() string {
 func checkProgramJournalctl() string {
 	programTitle := "journalctl"
 	path := setting.Config.BinaryLocations.Journalctl
+	if path == "" {
+		return resultError(programTitle, errors.New(i18n.Lang.T("cmd.daemon.config.test.pathEmpty", map[string]interface{}{"Program": programTitle})))
+	}
+
+	cmd := exec.Command(path, "--version")
+	if err := cmd.Run(); err != nil {
+		return resultError(programTitle, err)
+	}
+
+	return resultOk(programTitle)
+}
+
+func checkProgramDocker() string {
+	programTitle := "docker"
+	path := setting.Config.BinaryLocations.Docker
 	if path == "" {
 		return resultError(programTitle, errors.New(i18n.Lang.T("cmd.daemon.config.test.pathEmpty", map[string]interface{}{"Program": programTitle})))
 	}
