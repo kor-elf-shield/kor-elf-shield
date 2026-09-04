@@ -52,6 +52,14 @@
   "cmd.daemon.geoip.refresh.Description": "Обновление базу данных GeoIP. Должно быть включено и настроено в geoip.toml. \nПример: \nkor-elf-shield geoip refresh",
   "geoip_refresh_success": "База данных GeoIP успешно обновлена",
 
+  "cmd.daemon.config.Usage": "Конфигурация",
+  "cmd.daemon.config.test.Usage": "Проверка конфигурации демона",
+  "cmd.daemon.config.test.Description": "Проверяет конфигурацию демона.",
+
+  "cmd.daemon.config.test.error": "Ошибка: {{.Error}}",
+  "cmd.daemon.config.test.settingTitle": "Настройки:",
+  "cmd.daemon.config.test.main": "Главные",
+
   "Command error": "Ошибка команды",
   "invalid log level": "В настройках указан не верный уровень log. Сейчас указан: {{.Level}}. Допустимые значения: {{.Levels}}",
   "invalid log encoding": "Неверная настройка encoding. Сейчас указан: {{.Encoding}}. Допустимые значения: {{.Encodings}}",
