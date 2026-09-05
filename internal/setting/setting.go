@@ -44,28 +44,8 @@ func settingDefault(configPath string) *setting {
 }
 
 func (s setting) ToDaemonOptions(dockerSupport bool) (daemon.DaemonOptions, error) {
-	if s.PidFile == "" {
-		return daemon.DaemonOptions{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
-			"Parameter": "pid_file",
-		}))
-	}
-
-	if s.SocketFile == "" {
-		return daemon.DaemonOptions{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
-			"Parameter": "socket_file",
-		}))
-	}
-
-	if s.BinaryLocations.Nftables == "" {
-		return daemon.DaemonOptions{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
-			"Parameter": "binaryLocations.nftables",
-		}))
-	}
-
-	if s.DataDir == "" {
-		return daemon.DaemonOptions{}, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
-			"Parameter": "data_dir",
-		}))
+	if err := s.ValidateBeforeStart(); err != nil {
+		return daemon.DaemonOptions{}, err
 	}
 
 	firewallConfig, guardConfig, err := s.OtherSettingsPath.ToFirewallConfig(dockerSupport)
@@ -87,6 +67,34 @@ func (s setting) ToDaemonOptions(dockerSupport bool) (daemon.DaemonOptions, erro
 		ConfigFirewallGuard: guardConfig,
 		ConfigAnalyzer:      analyzerConfig,
 	}, nil
+}
+
+func (s setting) ValidateBeforeStart() error {
+	if s.PidFile == "" {
+		return errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+			"Parameter": "pid_file",
+		}))
+	}
+
+	if s.SocketFile == "" {
+		return errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+			"Parameter": "socket_file",
+		}))
+	}
+
+	if s.BinaryLocations.Nftables == "" {
+		return errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+			"Parameter": "binaryLocations.nftables",
+		}))
+	}
+
+	if s.DataDir == "" {
+		return errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+			"Parameter": "data_dir",
+		}))
+	}
+
+	return nil
 }
 
 func (s setting) Validate() error {

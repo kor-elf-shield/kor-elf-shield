@@ -17,3 +17,7 @@ func (l *falseLogger) Sync() error { return nil }
 func (l *falseLogger) ReOpen() error {
 	return nil
 }
+
+func NewFalseLogger() Logger {
+	return &falseLogger{}
+}

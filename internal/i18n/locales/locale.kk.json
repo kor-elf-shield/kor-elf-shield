@@ -52,6 +52,16 @@
   "cmd.daemon.geoip.refresh.Description": "GeoIP дерекқорын жаңарту. geoip.toml файлында қосулы және конфигурацияланған болуы керек. \nМысал: \nkor-elf-shield geoip refresh",
   "geoip_refresh_success": "GeoIP дерекқоры сәтті жаңартылды",
 
+  "cmd.daemon.config.Usage": "Конфигурация",
+  "cmd.daemon.config.test.Usage": "Демон конфигурациясын тексеру",
+  "cmd.daemon.config.test.Description": "Демон конфигурациясын тексереді.",
+
+  "cmd.daemon.config.test.error": "Қате: {{.Error}}",
+  "cmd.daemon.config.test.settingTitle": "Параметрлер:",
+  "cmd.daemon.config.test.main": "Негізгі",
+  "cmd.daemon.config.test.checkingPrograms": "Бағдарламаларды тексеру:",
+  "cmd.daemon.config.test.pathEmpty": "{{.Program}} жолы бос",
+
   "Command error": "Командалық қате",
   "invalid log level": "Параметрлерде көрсетілген журнал деңгейі жарамсыз. Ол қазір мына күйге орнатылған: {{.Level}}. Жарамды мәндер: {{.Levels}}",
   "invalid log encoding": "Жарамсыз кодтау параметрі. Қазіргі уақытта орнатылған: {{.Encoding}}. Жарамды мәндер: {{.Encodings}}",

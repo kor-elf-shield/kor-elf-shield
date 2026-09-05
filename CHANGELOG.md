@@ -1,3 +1,12 @@
+## 0.14.0 (05.09.2026)
+#### Русский
+* Исправлена ошибка в правилах исходящего ICMP: при `icmp_timestamp_drop=true` теперь корректно блокируются `timestamp-reply` пакеты (вместо `timestamp-request`).
+* Добавлена новая команда `kor-elf-shield config test`. Теперь перед перезапуском демона можно проверить корректность конфигурации.
+***
+#### English
+* Fixed an issue in outbound ICMP rules: when `icmp_timestamp_drop=true`, `timestamp-reply` packets are now correctly blocked (instead of `timestamp-request`).
+* Added a new command, `kor-elf-shield config test`. Now you can check the configuration before restarting the daemon.
+***
 ## 0.13.0 (16.08.2026)
 #### Русский
 * Обновления критических ошибок:
