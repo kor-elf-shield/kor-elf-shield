@@ -1,3 +1,76 @@
+#################
+### Внимание: ###
+#################
+#
+# Для корректной работы необходимо добавить настройки "iptables": false в Docker.
+# Если не меняли нстройки в Docker, то надо создать файл /etc/docker/daemon.json с содержимым:
+# {
+#    "iptables": false
+# }
+# После не забудьте перезагрузить Docker или ОС.
+#
+# Так же для корректной работы Docker необходимо добавить соответствующие настройки в файл firewall.toml:
+# [[ips]]
+# ips = ["172.16.0.0/12"]
+# action = "accept"
+# directions = ["out", "in"]
+#
+# Или если вы хотите более строгие правила, то можно отдельно для каждого контейнера настраивать firewall.toml.
+# Главное помните, что порт, к которому идёт обращение, будет не in, а out.
+# А если будет взаимодействие между контейнерами, то надо указать in . Например:
+# # backend
+# [[ips]]
+# ips = ["172.16.0.0/12"]
+# action = "accept"
+# directions = ["out"]
+# ports = ["3000", "5000", "9000", "8080"]
+#
+# # mysql
+# [[ips]]
+# ips = ["172.16.0.0/12"]
+# action = "accept"
+# directions = ["in"]
+# ports = ["3306"]
+#
+# ***
+#
+################
+### Attention###
+################
+#
+# For proper operation, you need to add the setting `"iptables": false` to Docker.
+# If you haven't changed the Docker settings, you need to create the file `/etc/docker/daemon.json`
+# with the following content:
+# {
+#    "iptables": false
+# }
+# Afterwards, don't forget to restart Docker or the operating system.
+#
+# Additionally, for Docker to function correctly, you need to add the appropriate settings to the `firewall.toml` file:
+# [[ips]]
+# ips = ["172.16.0.0/12"]
+# action = "accept"
+# directions = ["out", "in"]
+#
+# Alternatively, if you want stricter rules, you can configure `firewall.toml` separately for each container.
+# The main thing to remember is that the port being accessed will be `out`, not `in`.
+# And if there is interaction between containers, you need to specify it in . For example:
+# # backend
+# [[ips]]
+# ips = ["172.16.0.0/12"]
+# action = "accept"
+# directions = ["out"]
+# ports = ["3000", "5000", "9000", "8080"]
+#
+# # mysql
+# [[ips]]
+# ips = ["172.16.0.0/12"]
+# action = "accept"
+# directions = ["in"]
+# ports = ["3306"]
+#
+###
+
 ###
 # Включает поддержку docker.
 # По умолчанию: false
