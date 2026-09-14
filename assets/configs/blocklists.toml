@@ -107,7 +107,7 @@ txt_field_ip = 0
 txt_field_ip2 = 1
 txt_separator = "\t"
 limit = 0
-interval = 600
+interval = 86400
 
 ###
 # TOR Exit Nodes List
