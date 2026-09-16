@@ -39,7 +39,7 @@ service = "maxmind"
 
 ###
 # ID пользователя.
-# Чтобы получить, нужно вначале зарегестрироватья тут: https://www.maxmind.com/en/geolite2/signup
+# Чтобы получить, нужно вначале зарегистрироваться тут: https://www.maxmind.com/en/geolite2/signup
 # ***
 # User ID.
 # To receive it, you must first register here: https://www.maxmind.com/en/geolite2/signup
