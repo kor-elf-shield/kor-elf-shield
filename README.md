@@ -56,6 +56,7 @@
 ***
 
 ## Настройки:
+<p><a href="https://configurator.shield.kor-elf.net/" target="_blank">Вы можете воспользоваться конфигуратором.</a></p>
 
 <p><strong>/etc/kor-elf-shield/kor-elf-shield.toml</strong> - тут находятся общие настройки. Информацию можно посмотреть тут: <a href="https://shield.kor-elf.net/docs/0.x/kor-elf-shield.toml" target="_blank">https://shield.kor-elf.net/docs/0.x/kor-elf-shield.toml</a></p>
 

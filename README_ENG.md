@@ -56,6 +56,7 @@
 ***
 
 ## Settings:
+<p><a href="https://configurator.shield.kor-elf.net/" target="_blank">You can use the configurator.</a></p>
 
 <p><strong>/etc/kor-elf-shield/kor-elf-shield.toml</strong> - General settings are located here. Information can be found here: <a href="https://shield.kor-elf.net/docs/0.x/kor-elf-shield.toml/language/en" target="_blank">https://shield.kor-elf.net/docs/0.x/kor-elf-shield.toml/language/en</a></p>
 
