@@ -9,7 +9,7 @@ import (
 
 type PatternValue struct {
 	Name  string `mapstructure:"name"`
-	Value int8   `mapstructure:"value"`
+	Value int    `mapstructure:"value"`
 	Type  string `mapstructure:"type"`
 }
 
