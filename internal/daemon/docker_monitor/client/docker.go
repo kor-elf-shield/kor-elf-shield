@@ -147,7 +147,7 @@ func (d *docker) command(args ...string) ([]byte, error) {
 	cmd := exec.CommandContext(d.ctx, d.path, args...)
 	result, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf(string(result))
+		return nil, fmt.Errorf("%s", string(result))
 	}
 	return result, nil
 }
