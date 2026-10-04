@@ -163,6 +163,10 @@ func (s setting) validateSocketFile() error {
 }
 
 func (s setting) ListPathConfigFiles() map[string]string {
+	if s.OtherSettingsPath == nil || s.ConfigPath == "" {
+		return nil
+	}
+
 	filePaths := s.OtherSettingsPath.ListPathFiles()
 	filePaths["kor-elf-shield"] = s.ConfigPath
 	return filePaths
