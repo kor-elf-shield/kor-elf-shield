@@ -48,6 +48,10 @@ func (s setting) ToDaemonOptions(dockerSupport bool) (daemon.DaemonOptions, erro
 		return daemon.DaemonOptions{}, err
 	}
 
+	if s.OtherSettingsPath == nil {
+		return daemon.DaemonOptions{}, errors.New(i18n.Lang.T("object OtherSettingsPath is not specified"))
+	}
+
 	firewallConfig, guardConfig, err := s.OtherSettingsPath.ToFirewallConfig(dockerSupport)
 	if err != nil {
 		return daemon.DaemonOptions{}, err

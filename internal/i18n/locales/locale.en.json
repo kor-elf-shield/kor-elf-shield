@@ -102,5 +102,7 @@
   "firewall_rules_not_found_body": "No firewall rules found. The \"Restore Rules\" setting is disabled. You are currently unprotected!!!",
   "firewall_rules_not_found_body_recover_error": "Firewall rules not found. We couldn't restore firewall rules. You are currently unprotected!!! Error restoring firewall rules: {{.Error}}",
   "firewall_rules_not_found_body_recover_success": "No firewall rules were found. However, the firewall rules were successfully restored!",
-  "firewall_rules_not_found_body_check_error": "Error checking firewall rules: {{.Error}}"
+  "firewall_rules_not_found_body_check_error": "Error checking firewall rules: {{.Error}}",
+
+  "object OtherSettingsPath is not specified": "The OtherSettingsPath object is not specified"
 }

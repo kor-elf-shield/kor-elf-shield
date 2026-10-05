@@ -102,5 +102,7 @@
   "firewall_rules_not_found_body": "Правила брандмауэра не найдены. Параметр «Восстановить правила» отключен. В данный момент вы незащищены!!!",
   "firewall_rules_not_found_body_recover_error": "Правила брандмауэра не найдены. Восстановить правила брандмауэра не удалось. В данный момент вы незащищены!!! Ошибка при восстановлении правил брандмауэра: {{.Error}}",
   "firewall_rules_not_found_body_recover_success": "Правила брандмауэра не были обнаружены. Однако правила брандмауэра были успешно восстановлены!",
-  "firewall_rules_not_found_body_check_error": "Ошибка при проверке правил брандмауэра: {{.Error}}"
+  "firewall_rules_not_found_body_check_error": "Ошибка при проверке правил брандмауэра: {{.Error}}",
+
+  "object OtherSettingsPath is not specified": "Не указан объект OtherSettingsPath"
 }
