@@ -33,10 +33,6 @@ func InitSetting(path string) (Setting, error) {
 		return Setting{}, err
 	}
 
-	if !setting.Enabled {
-		return setting, nil
-	}
-
 	return setting, nil
 }
 
