@@ -75,7 +75,7 @@ func (p *Port) ToPorts() (InPorts []config.ConfigPort, OutPorts []config.ConfigP
 
 func (p *Port) validate() error {
 	if len(p.Numbers) == 0 {
-		return errors.New("invalid port number. must be 0-65535")
+		return errors.New("invalid port number. Must be 0-65535")
 	}
 	if len(p.Directions) == 0 {
 		return errors.New("invalid direction. Must be in or out")

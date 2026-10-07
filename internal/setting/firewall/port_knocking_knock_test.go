@@ -84,7 +84,7 @@ func defaultPortKnockingKnockForTest() *portKnockingKnock {
 
 	return &portKnockingKnock{
 		Port:     fakers.RandInt(0, 65535),
-		Protocol: fakers.RandProtocol(),
+		Protocol: fakers.RandFirewallProtocol(),
 		Timeout:  int32(timeout),
 		Action:   fakeRandPortKnockingKnockAction(),
 	}

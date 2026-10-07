@@ -21,8 +21,3 @@ func RandItem[T any](items []T) T {
 	}
 	return items[RandInt(0, len(items)-1)]
 }
-
-func RandProtocol() string {
-	protocols := []string{"tcp", "udp"}
-	return RandItem(protocols)
-}
