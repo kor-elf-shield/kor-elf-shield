@@ -27,7 +27,7 @@ func TestPortKnocking_ToPortKnocking_Success(t *testing.T) {
 }
 
 func TestPortKnocking_ToPortKnocking_Error(t *testing.T) {
-	names := []string{
+	invalidNames := []string{
 		"",
 		" ",
 		"name.with.dot",
@@ -38,7 +38,7 @@ func TestPortKnocking_ToPortKnocking_Error(t *testing.T) {
 		"abcdefghijklmnopqrstuvwxyzABCDEFG", // 33 symbols
 	}
 
-	for _, name := range names {
+	for _, name := range invalidNames {
 		t.Run(fmt.Sprintf("invalid Name: %s", name), func(t *testing.T) {
 			s := defaultPortKnockingForTest()
 			s.Name = name
