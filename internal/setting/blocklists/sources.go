@@ -40,7 +40,7 @@ type Sources struct {
 }
 
 func (s *Sources) ToSourceConfig(exclusionChecker parser.ExclusionChecker) (*daemonBlocklist.SourceConfig, error) {
-	if err := s.Validate(); err != nil {
+	if err := s.validate(); err != nil {
 		return &daemonBlocklist.SourceConfig{}, err
 	}
 
@@ -72,7 +72,7 @@ func (s *Sources) ToSourceConfig(exclusionChecker parser.ExclusionChecker) (*dae
 	}, nil
 }
 
-func (s *Sources) Validate() error {
+func (s *Sources) validate() error {
 	if err := validate.Name(s.Name, "sources.name"); err != nil {
 		return err
 	}
