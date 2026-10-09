@@ -179,7 +179,7 @@ func newBlocklistService(ctx context.Context, blocklistRepository repository.Blo
 }
 
 func newGeoIPService(dataDir string, logger log.Logger) geoip.GeoIP {
-	config, geoIPSupport, err := setting.Config.OtherSettingsPath.ToConfig(dataDir, logger)
+	config, geoIPSupport, err := setting.Config.OtherSettingsPath.ToGeoIPConfig(dataDir, logger)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to create geoIP service: %s", err))
 		return geoip.NewFalseGeoIP()

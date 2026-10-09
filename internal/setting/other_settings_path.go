@@ -228,7 +228,7 @@ func (o *otherSettingsPath) ToBlocklistConfig(logger logger.Logger) (sources []*
 	return sources, setting.Enabled, nil
 }
 
-func (o *otherSettingsPath) ToConfig(dataDir string, logger logger.Logger) (geoIPService *geoip.Config, geoIPSupport bool, err error) {
+func (o *otherSettingsPath) ToGeoIPConfig(dataDir string, logger logger.Logger) (geoIPService *geoip.Config, geoIPSupport bool, err error) {
 	setting, err := geoIPSetting.InitSetting(o.GeoIP)
 	if err != nil {
 		return &geoip.Config{}, false, err

@@ -124,7 +124,7 @@ func testBlocklistsConfig(logger log.Logger) string {
 
 func testGeoipConfig(logger log.Logger) string {
 	configTitle := "geoip"
-	if _, _, err := setting.Config.OtherSettingsPath.ToConfig(setting.Config.DataDir, logger); err != nil {
+	if _, _, err := setting.Config.OtherSettingsPath.ToGeoIPConfig(setting.Config.DataDir, logger); err != nil {
 		return resultError(configTitle, err)
 	}
 
