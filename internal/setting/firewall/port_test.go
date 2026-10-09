@@ -89,37 +89,10 @@ func TestPort_ToPorts_Error(t *testing.T) {
 
 func defaultPortForTest() *Port {
 	return &Port{
-		Numbers:    fakeRandNumbersForTest(),
-		Directions: fakeRandDirectionsForTest(),
-		Protocols:  fakeRandProtocolsForTest(),
+		Numbers:    fakers.RandFirewallPorts(),
+		Directions: fakers.RandFirewallDirections(),
+		Protocols:  fakers.RandFirewallProtocols(),
 		Action:     fakers.RandFirewallAction(),
 		LimitRate:  fakers.RandFirewallLimitRate(),
 	}
-}
-
-func fakeRandNumbersForTest() []int {
-	var numbers []int
-	for i := fakers.RandInt(1, 5); i > 0; i-- {
-		numbers = append(numbers, fakers.RandInt(0, 65535))
-	}
-
-	return numbers
-}
-
-func fakeRandDirectionsForTest() []string {
-	var directions []string
-	for i := fakers.RandInt(1, 2); i > 0; i-- {
-		directions = append(directions, fakers.RandFirewallDirection())
-	}
-
-	return directions
-}
-
-func fakeRandProtocolsForTest() []string {
-	var protocols []string
-	for i := fakers.RandInt(1, 2); i > 0; i-- {
-		protocols = append(protocols, fakers.RandFirewallProtocol())
-	}
-
-	return protocols
 }
