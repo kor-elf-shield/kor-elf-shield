@@ -31,13 +31,13 @@ func defaultOptions() options {
 }
 
 func (o options) Validate() error {
-	if err := o.ValidateSavesRulesPath(); err != nil {
+	if err := o.validateSavesRulesPath(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o options) ValidateSavesRulesPath() error {
+func (o options) validateSavesRulesPath() error {
 	if o.SavesRulesPath == "" {
 		return errors.New("saves_rules_path is empty")
 	}
