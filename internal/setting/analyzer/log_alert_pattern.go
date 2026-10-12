@@ -1,6 +1,8 @@
 package analyzer
 
 import (
+	"errors"
+
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/config"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/pkg/regular_expression"
 )
@@ -12,6 +14,10 @@ type LogAlertPattern struct {
 }
 
 func (p *LogAlertPattern) ToPattern() (config.AlertRegexPattern, error) {
+	if p.Regexp == "" {
+		return config.AlertRegexPattern{}, errors.New("regexp is empty")
+	}
+
 	pattern := config.AlertRegexPattern{
 		Regexp: regular_expression.NewLazyRegexp(p.Regexp),
 	}
