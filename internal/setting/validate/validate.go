@@ -8,19 +8,19 @@ import (
 )
 
 func PathFile(path string, parameterName string) error {
-	if path == "" {
+	p := strings.TrimSpace(path)
+	if p == "" {
 		return fmt.Errorf("%s is empty", parameterName)
 	}
+
+	if !filepath.IsAbs(p) {
+		return fmt.Errorf("%s must be absolute path", parameterName)
+	}
+
 	if strings.Contains(path, "..") || strings.Contains(path, "//") {
 		return fmt.Errorf("%s must not contain '..' or '//'", parameterName)
 	}
-	re := regexp.MustCompile(`^[a-zA-Z0-9_\-./]*$`)
-	if !re.MatchString(path) {
-		return fmt.Errorf("%s must not contain special characters", parameterName)
-	}
-	if !filepath.IsAbs(path) {
-		return fmt.Errorf("%s must be absolute path", parameterName)
-	}
+
 	return nil
 }
 
