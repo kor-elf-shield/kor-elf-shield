@@ -21,3 +21,18 @@ func RandItem[T any](items []T) T {
 	}
 	return items[RandInt(0, len(items)-1)]
 }
+
+func RandString(length int) string {
+	if length <= 0 {
+		panic("RandString: length must be greater than 0")
+	}
+
+	b := make([]byte, length)
+	const firstSymbolCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b[0] = firstSymbolCharset[RandInt(0, len(firstSymbolCharset)-1)]
+	for i := 1; i < length; i++ {
+		b[i] = charset[RandInt(0, len(charset)-1)]
+	}
+	return string(b)
+}
