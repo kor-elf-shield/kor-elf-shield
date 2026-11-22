@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -8,6 +9,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/testutil"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/testutil/fakers"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/testutil/i18nmock"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/testutil/logger_mock"
 )
 
 func TestSetting_ValidateBeforeStart_Error(t *testing.T) {
@@ -263,6 +265,56 @@ func TestSetting_ToDaemonOptions_Error(t *testing.T) {
 	}
 }
 
+func TestSetting_ToSecret_Success(t *testing.T) {
+	i18nmock.Use(t)
+	logger := logger_mock.New()
+
+	s := defaultSettingsForValidate()
+	if secret, err := s.ToSecret(logger); err != nil {
+		t.Errorf("setting.ToSecret() error = %v", err)
+	} else if secret == nil {
+		t.Errorf("setting.ToSecret() should return non-nil secret")
+	}
+}
+
+func TestSetting_ToSecret_Error(t *testing.T) {
+	invalidSecretFile := []string{
+		"",
+		" ",
+		"/",
+		"/test/file",
+		"/test/file/",
+		"/tmp/test.",
+	}
+
+	for _, secretFile := range invalidSecretFile {
+		t.Run(fmt.Sprintf("invalid SecretFile: %s", secretFile), func(t *testing.T) {
+			i18nmock.Use(t)
+			logger := logger_mock.New()
+			s := defaultSettingsForValidate()
+			s.SecretFile = secretFile
+			if _, err := s.ToSecret(logger); err == nil {
+				t.Errorf("setting.ToSecret() error = nil, wantErr not nil")
+			}
+		})
+	}
+
+	invalidSecretCache := []int{
+		-1, -100,
+	}
+	for _, secretCache := range invalidSecretCache {
+		t.Run(fmt.Sprintf("invalid SecretCache: %d", secretCache), func(t *testing.T) {
+			i18nmock.Use(t)
+			logger := logger_mock.New()
+			s := defaultSettingsForValidate()
+			s.SecretCache = secretCache
+			if _, err := s.ToSecret(logger); err == nil {
+				t.Errorf("setting.ToSecret() error = nil, wantErr not nil")
+			}
+		})
+	}
+}
+
 func defaultSettingsForValidate() setting {
 	testingInterval := fakers.RandInt(1, 30000)
 
@@ -273,6 +325,10 @@ func defaultSettingsForValidate() setting {
 		SocketFile:       "/tmp/test_kor-elf-shield.sock",
 		PidFile:          "/tmp/test_kor-elf-shield.pid",
 		DataDir:          "/tmp/test_kor-elf-shield",
+
+		SecretFile:  "/tmp/test_kor-elf-shield.secret",
+		SecretCache: fakers.RandInt(0, 3600),
+
 		BinaryLocations: &binaryLocations{
 			Nftables:   "/usr/sbin/nft",
 			Journalctl: "/bin/journalctl",
