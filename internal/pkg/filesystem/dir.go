@@ -46,12 +46,12 @@ func mkdirAllWithChmod(dir string, mode os.FileMode) error {
 				continue
 			}
 			return err
-		} else {
-			// in main.go unix.Umask(0o177)
-			// The directory was created with permissions 0600
-			if err := os.Chmod(p, mode); err != nil {
-				return err
-			}
+		}
+
+		// in main.go unix.Umask(0o177)
+		// The directory was created with permissions 0600
+		if err := os.Chmod(p, mode); err != nil {
+			return err
 		}
 	}
 
