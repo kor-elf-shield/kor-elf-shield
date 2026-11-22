@@ -67,7 +67,7 @@ func (a *alert) Analyze(entry *Entry) {
 		}
 		groupName := ""
 		alertNumber := uint64(0)
-		messages := []string{}
+		var messages []string
 		if rule.Group != nil {
 			alertGroup, err := a.alertGroupService.Analyze(rule.Group, entry.Time, entry.Message, result.partition)
 			if err != nil {
