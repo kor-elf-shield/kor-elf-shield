@@ -1,3 +1,18 @@
+## 0.15.0 (Soon)
+#### Русский
+* Добавлена проверка подлинности и целостности сообщений при взаимодействии с daemon через Unix socket.
+  * Каждая команда, отправляемая клиентом, теперь подписывается с использованием общего секрета.
+  * Демон отклоняет сообщения с некорректной или отсутствующей подписью.
+* В файл `kor-elf-shield.toml` добавлен параметр `secret_file`. Он предназначен для хранения секретного ключа, используемого для шифрования и расшифровки данных, связанных с `kor-elf-shield`.
+* В файл `kor-elf-shield.toml` добавлен параметр `secret_cache`. Он определяет продолжительность (в секундах), в течение которой секретный ключ сохраняется в кэше.
+***
+#### English
+* Added authentication and integrity verification for messages exchanged with the daemon over the Unix socket.
+  * Each command sent by the client is now signed using a shared secret.
+  * The daemon rejects messages with an invalid or missing signature.
+* A `secret_file` parameter has been added to `kor-elf-shield.toml`. It is required for storing the secret key used to encrypt and decrypt data associated with `kor-elf-shield`.
+* A `secret_cache` parameter has been added to `kor-elf-shield.toml`. This specifies the duration (in seconds) for which the secret is held in the cache.
+***
 ## 0.14.0 (05.09.2026)
 #### Русский
 * Исправлена ошибка в правилах исходящего ICMP: при `icmp_timestamp_drop=true` теперь корректно блокируются `timestamp-reply` пакеты (вместо `timestamp-request`).
