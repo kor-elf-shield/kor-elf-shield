@@ -43,11 +43,6 @@ func DetermineIPVersion(ip string) (ipNet string, version Version, err error) {
 	return
 }
 
-func IPVersion(ip string) (Version, error) {
-	_, version, err := parseIP(ip)
-	return version, err
-}
-
 func parseCIDR(parseIP string) (ipNet string, version Version, err error) {
 	_, parseIPNet, err := net.ParseCIDR(parseIP)
 	if err != nil {
