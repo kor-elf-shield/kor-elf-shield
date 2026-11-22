@@ -310,7 +310,7 @@ func getMachineID() ([]byte, error) {
  */
 func getProductUUID() ([]byte, error) {
 	productUUID, err := os.ReadFile("/sys/class/dmi/id/product_uuid")
-	if err == nil {
+	if err != nil {
 		return nil, fmt.Errorf("failed to read /sys/class/dmi/id/product_uuid")
 	}
 
