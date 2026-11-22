@@ -88,6 +88,32 @@ socket_file = "/var/run/kor-elf-shield/kor-elf-shield.sock"
 ###
 data_dir = "/var/lib/kor-elf-shield/"
 
+###
+# Файл содержит secret.
+# Требования безопасности:
+# - файл должен принадлежать пользователю демона;
+# - права доступа должны быть максимально ограничены (рекомендуется chmod 400);
+# - каталог файла также должен быть недоступен для записи посторонним пользователям.
+# По умолчанию: "/etc/kor-elf-shield/.secret"
+# ***
+# The file contains a secret.
+# Security requirements:
+# - the file should be owned by the daemon user;
+# - file permissions should be as restrictive as possible (recommended: chmod 400);
+# - the parent directory should not be writable by untrusted users.
+# Default: "/etc/kor-elf-shield/.secret"
+###
+secret_file = "/etc/kor-elf-shield/.secret"
+
+###
+# Время в секундах, в течение которого секрет хранится в кэше. Изменять этот параметр не рекомендуется.
+# Установка значения 0 отключает кэширование.
+# ***
+# The time in seconds for which the secret is cached. It is not recommended to change this.
+# Setting it to 0 will disable caching.
+###
+#secret_cache = "60"
+
 ###############################################################################
 # РАЗДЕЛ:Log
 # ***
