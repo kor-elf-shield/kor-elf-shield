@@ -20,7 +20,7 @@ func (r *resolvData) Addresses() ([]string, error) {
 
 	file, err := os.Open("/etc/resolv.conf")
 	if err != nil {
-		return []string{}, fmt.Errorf("Failed to open /etc/resolv.conf: %s", err)
+		return []string{}, fmt.Errorf("failed to open /etc/resolv.conf: %s", err)
 	}
 
 	defer func() {
