@@ -10,12 +10,8 @@ import (
 	"strings"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/secret"
 )
-
-type Message struct {
-	Command string            `json:"command"`
-	Args    map[string]string `json:"args"`
-}
 
 type HandleCommand func(command string, args map[string]string, socket Connect) error
 
@@ -28,12 +24,13 @@ type Socket interface {
 
 type socket struct {
 	path   string
+	secret secret.Provider
 	logger log.Logger
 
 	listen net.Listener
 }
 
-func New(path string, logger log.Logger) (Socket, error) {
+func New(path string, secret secret.Provider, logger log.Logger) (Socket, error) {
 	if path == "" {
 		return nil, errors.New("path is empty")
 	}
@@ -43,6 +40,7 @@ func New(path string, logger log.Logger) (Socket, error) {
 
 	return &socket{
 		path:   path,
+		secret: secret,
 		logger: logger,
 	}, nil
 }
@@ -133,13 +131,31 @@ func (s *socket) handleAction(conn net.Conn, handleCommand HandleCommand) {
 		return
 	}
 
-	cmd, args, err := parseCommand(raw)
-	if err != nil {
+	var msg Message
+	if err := json.Unmarshal([]byte(raw), &msg); err != nil {
 		s.logger.Error(fmt.Sprintf("Failed to parse command: %s", err))
 		return
 	}
+	if msg.Command == "" {
+		s.logger.Error("Failed to parse command: command is empty")
+		return
+	}
+	if msg.Args == nil {
+		msg.Args = map[string]string{}
+	}
 
-	if err := handleCommand(cmd, args, sock); err != nil {
+	secretBytes, err := s.secret.Secret()
+	if err != nil {
+		s.logger.Error(fmt.Sprintf("Failed to get secret: %s", err))
+		return
+	}
+
+	if err := verifyMessageSignature(msg, secretBytes); err != nil {
+		s.logger.Error(fmt.Sprintf("Failed to verify command signature: %s, command: %v, args: %v", err, msg.Command, msg.Args))
+		return
+	}
+
+	if err := handleCommand(msg.Command, msg.Args, sock); err != nil {
 		s.logger.Error(fmt.Sprintf("Failed to handle command: %s", err))
 	}
 }
@@ -158,22 +174,4 @@ func canConnect(path string) bool {
 
 func isUseOfClosedNetworkError(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "use of closed network connection")
-}
-
-func parseCommand(raw string) (string, map[string]string, error) {
-	var msg Message
-
-	if err := json.Unmarshal([]byte(raw), &msg); err != nil {
-		return "", nil, err
-	}
-
-	if msg.Command == "" {
-		return "", nil, errors.New("command is empty")
-	}
-
-	if msg.Args == nil {
-		msg.Args = map[string]string{}
-	}
-
-	return msg.Command, msg.Args, nil
 }

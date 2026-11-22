@@ -17,6 +17,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/pidfile"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/secret"
 )
 
 func NewDaemon(
@@ -27,6 +28,7 @@ func NewDaemon(
 	docker docker_monitor.Docker,
 	blocklist blocklist.Blocklist,
 	geoIPService geoip.GeoIP,
+	secret secret.Provider,
 ) (Daemon, error) {
 	if logger == nil {
 		return nil, errors.New("logger is nil")
@@ -37,7 +39,7 @@ func NewDaemon(
 		return nil, err
 	}
 
-	sock, err := socket.New(opts.PathSocketFile, logger)
+	sock, err := socket.New(opts.PathSocketFile, secret, logger)
 	if err != nil {
 		return nil, err
 	}

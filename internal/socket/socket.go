@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/socket"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/secret"
 )
 
 type Client interface {
@@ -15,20 +16,28 @@ type Client interface {
 }
 
 type client struct {
-	conn net.Conn
+	conn   net.Conn
+	secret secret.Provider
 }
 
-func NewSocketClient(path string) (Client, error) {
+func NewSocketClient(path string, secret secret.Provider) (Client, error) {
 	conn, err := net.Dial("unix", path)
 	if err != nil {
 		return nil, err
 	}
-	return &client{conn}, nil
+	return &client{conn, secret}, nil
 }
 
 func (s *client) Send(command string) (result string, err error) {
-	msg := socket.Message{
-		Command: command,
+	secretBytes, err := s.secret.Secret()
+	if err != nil {
+		return "", err
+	}
+
+	args := map[string]string{}
+	msg, err := socket.BuildSignedMessage(command, args, secretBytes)
+	if err != nil {
+		return "", err
 	}
 
 	data, err := json.Marshal(msg)
@@ -45,9 +54,14 @@ func (s *client) Send(command string) (result string, err error) {
 }
 
 func (s *client) SendCommand(command string, args map[string]string) (string, error) {
-	msg := socket.Message{
-		Command: command,
-		Args:    args,
+	secretBytes, err := s.secret.Secret()
+	if err != nil {
+		return "", err
+	}
+
+	msg, err := socket.BuildSignedMessage(command, args, secretBytes)
+	if err != nil {
+		return "", err
 	}
 
 	data, err := json.Marshal(msg)
@@ -73,5 +87,6 @@ func (s *client) Read() (string, error) {
 }
 
 func (s *client) Close() error {
+	s.secret.Close()
 	return s.conn.Close()
 }

@@ -42,6 +42,14 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		_ = logger.Sync()
 	}()
 
+	secret, err := setting.Config.ToSecret(logger)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		secret.Close()
+	}()
+
 	dockerService, dockerSupport, err := newDockerService(ctx, logger)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to create docker service: %s", err))
@@ -87,7 +95,7 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 
 	daemonInfo := newDaemonInfo(repositories.Metadata(), setting.Config.ListPathConfigFiles(), logger)
 
-	d, err := daemon.NewDaemon(daemonInfo, config, logger, notificationsService, dockerService, blocklistService, geoIPService)
+	d, err := daemon.NewDaemon(daemonInfo, config, logger, notificationsService, dockerService, blocklistService, geoIPService, secret)
 	if err != nil {
 		logger.Fatal(err.Error())
 
