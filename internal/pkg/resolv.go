@@ -28,7 +28,7 @@ func (r *resolvData) Addresses() ([]string, error) {
 	}()
 
 	scanner := bufio.NewScanner(file)
-	addresses := []string{}
+	var addresses []string
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if strings.HasPrefix(line, "nameserver") {
