@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/testutil/secret_mock"
 )
 
 type mockConn struct {
@@ -61,7 +63,8 @@ func TestNewSocketClient_Success(t *testing.T) {
 		_ = os.Remove(socketPath)
 	}()
 
-	c, err := NewSocketClient(socketPath)
+	secret := secret_mock.New()
+	c, err := NewSocketClient(socketPath, secret)
 	if err != nil {
 		t.Fatalf("NewSocketClient: failed to create socket client: %v", err)
 	}
@@ -75,19 +78,22 @@ func TestNewSocketClient_Success(t *testing.T) {
 
 func TestNewSocketClient_Error(t *testing.T) {
 	dir := t.TempDir()
+	secret := secret_mock.New()
+
 	socketPath := filepath.Join(dir, "non_existing_test.sock")
-	if _, err := NewSocketClient(socketPath); err == nil {
+	if _, err := NewSocketClient(socketPath, secret); err == nil {
 		t.Fatalf("NewSocketClient: expected error for non-existing unix socket path")
 	}
 
-	if _, err := NewSocketClient(""); err == nil {
+	if _, err := NewSocketClient("", secret); err == nil {
 		t.Fatalf("NewSocketClient: expected error for invalid unix socket path")
 	}
 }
 
 func TestClient_Send_Success(t *testing.T) {
 	mc := &mockConn{readData: []byte("ok")}
-	c := &client{conn: mc}
+	secret := secret_mock.New()
+	c := &client{conn: mc, secret: secret}
 
 	got, err := c.Send("ping")
 	if err != nil {
@@ -101,7 +107,8 @@ func TestClient_Send_Success(t *testing.T) {
 func TestClient_Send_Error(t *testing.T) {
 	expErr := errors.New("write failed")
 	mc := &mockConn{writeErr: expErr}
-	c := &client{conn: mc}
+	secret := secret_mock.New()
+	c := &client{conn: mc, secret: secret}
 
 	_, err := c.Send("ping")
 	if !errors.Is(err, expErr) {
@@ -114,7 +121,8 @@ func TestClient_Send_Error(t *testing.T) {
 
 func TestClient_SendCommand_Success(t *testing.T) {
 	mc := &mockConn{readData: []byte("ok")}
-	c := &client{conn: mc}
+	secret := secret_mock.New()
+	c := &client{conn: mc, secret: secret}
 
 	if got, err := c.SendCommand("ping", make(map[string]string)); err != nil {
 		t.Fatalf("Send returned error: %v", err)
@@ -123,7 +131,8 @@ func TestClient_SendCommand_Success(t *testing.T) {
 	}
 
 	mc = &mockConn{readData: []byte("ok")}
-	c = &client{conn: mc}
+	secret = secret_mock.New()
+	c = &client{conn: mc, secret: secret}
 	if got, err := c.SendCommand("ping", map[string]string{"name": "value"}); err != nil {
 		t.Fatalf("Send returned error: %v", err)
 	} else if got != "ok" {
@@ -131,7 +140,8 @@ func TestClient_SendCommand_Success(t *testing.T) {
 	}
 
 	mc = &mockConn{readData: []byte("ok")}
-	c = &client{conn: mc}
+	secret = secret_mock.New()
+	c = &client{conn: mc, secret: secret}
 	if got, err := c.SendCommand("ping", map[string]string{"name": ""}); err != nil {
 		t.Fatalf("Send returned error: %v", err)
 	} else if got != "ok" {
@@ -142,7 +152,8 @@ func TestClient_SendCommand_Success(t *testing.T) {
 func TestClient_SendCommand_Error(t *testing.T) {
 	expErr := errors.New("write failed")
 	mc := &mockConn{writeErr: expErr}
-	c := &client{conn: mc}
+	secret := secret_mock.New()
+	c := &client{conn: mc, secret: secret}
 
 	if _, err := c.SendCommand("ping", make(map[string]string)); !errors.Is(err, expErr) {
 		t.Fatalf("expected write error, got: %v", err)
@@ -152,7 +163,8 @@ func TestClient_SendCommand_Error(t *testing.T) {
 	}
 
 	mc = &mockConn{writeErr: expErr}
-	c = &client{conn: mc}
+	secret = secret_mock.New()
+	c = &client{conn: mc, secret: secret}
 	if _, err := c.SendCommand("ping", map[string]string{"name": "value"}); !errors.Is(err, expErr) {
 		t.Fatalf("expected write error, got: %v", err)
 	}
@@ -161,7 +173,8 @@ func TestClient_SendCommand_Error(t *testing.T) {
 	}
 
 	mc = &mockConn{writeErr: expErr}
-	c = &client{conn: mc}
+	secret = secret_mock.New()
+	c = &client{conn: mc, secret: secret}
 	if _, err := c.SendCommand("ping", map[string]string{"name": ""}); !errors.Is(err, expErr) {
 		t.Fatalf("expected write error, got: %v", err)
 	}
@@ -172,7 +185,8 @@ func TestClient_SendCommand_Error(t *testing.T) {
 
 func TestClient_Read_Success(t *testing.T) {
 	mc := &mockConn{readData: []byte("hello")}
-	c := &client{conn: mc}
+	secret := secret_mock.New()
+	c := &client{conn: mc, secret: secret}
 
 	got, err := c.Read()
 	if err != nil {
@@ -185,8 +199,9 @@ func TestClient_Read_Success(t *testing.T) {
 
 func TestClient_Read_Error(t *testing.T) {
 	expErr := errors.New("read failed")
+	secret := secret_mock.New()
 	mc := &mockConn{readErr: expErr}
-	c := &client{conn: mc}
+	c := &client{conn: mc, secret: secret}
 
 	_, err := c.Read()
 	if !errors.Is(err, expErr) {
@@ -195,8 +210,9 @@ func TestClient_Read_Error(t *testing.T) {
 }
 
 func TestClient_Close_Success(t *testing.T) {
+	secret := secret_mock.New()
 	mc := &mockConn{}
-	c := &client{conn: mc}
+	c := &client{conn: mc, secret: secret}
 
 	err := c.Close()
 	if err != nil {
@@ -205,9 +221,11 @@ func TestClient_Close_Success(t *testing.T) {
 }
 
 func TestClient_Close_Error(t *testing.T) {
+	secret := secret_mock.New()
+
 	expErr := errors.New("close")
 	mc := &mockConn{closeErr: expErr}
-	c := &client{conn: mc}
+	c := &client{conn: mc, secret: secret}
 
 	err := c.Close()
 	if !errors.Is(err, expErr) {
