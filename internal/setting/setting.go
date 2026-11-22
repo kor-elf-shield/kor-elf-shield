@@ -6,6 +6,8 @@ import (
 
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
+	log2 "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/secret"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting/validate"
 )
 
@@ -19,6 +21,9 @@ type setting struct {
 	PidFile          string `mapstructure:"pid_file"`
 	SocketFile       string `mapstructure:"socket_file"`
 	DataDir          string `mapstructure:"data_dir"`
+
+	SecretFile  string `mapstructure:"secret_file"`
+	SecretCache int    `mapstructure:"secret_cache"`
 
 	Log               *log
 	BinaryLocations   *binaryLocations
@@ -36,6 +41,9 @@ func settingDefault(configPath string) *setting {
 		PidFile:          "/var/run/kor-elf-shield/kor-elf-shield.pid",
 		SocketFile:       "/var/run/kor-elf-shield/kor-elf-shield.sock",
 		DataDir:          "/var/lib/kor-elf-shield/",
+
+		SecretFile:  "/etc/kor-elf-shield/.secret",
+		SecretCache: 60,
 
 		Log:               logDefault(),
 		BinaryLocations:   binaryLocationsDefault(),
@@ -71,6 +79,22 @@ func (s setting) ToDaemonOptions(dockerSupport bool) (daemon.DaemonOptions, erro
 		ConfigFirewallGuard: guardConfig,
 		ConfigAnalyzer:      analyzerConfig,
 	}, nil
+}
+
+func (s setting) ToSecret(logger log2.Logger) (secret.Provider, error) {
+	if s.SecretFile == "" {
+		return nil, errors.New(i18n.Lang.T("parameter is not specified", map[string]any{
+			"Parameter": "secure_data_file",
+		}))
+	}
+	if err := s.validateSecretFile(); err != nil {
+		return nil, err
+	}
+	if err := s.validateSecretCache(); err != nil {
+		return nil, err
+	}
+
+	return secret.NewSecret(s.SecretFile, s.SecretCache, logger)
 }
 
 func (s setting) ValidateBeforeStart() error {
@@ -162,6 +186,23 @@ func (s setting) validateSocketFile() error {
 	}
 	if !strings.HasSuffix(strings.ToLower(s.SocketFile), ".sock") {
 		return errors.New("invalid socket_file. Must be .sock")
+	}
+	return nil
+}
+
+func (s setting) validateSecretFile() error {
+	if err := validate.PathFile(s.SecretFile, "secure_data_file"); err != nil {
+		return err
+	}
+	if !strings.HasSuffix(strings.ToLower(s.SecretFile), ".secret") {
+		return errors.New("invalid secure_data_file. Must be .secret")
+	}
+	return nil
+}
+
+func (s setting) validateSecretCache() error {
+	if s.SecretCache < 0 {
+		return errors.New("invalid secret_cache. Must be >= 0")
 	}
 	return nil
 }
