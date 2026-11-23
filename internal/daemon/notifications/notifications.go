@@ -30,15 +30,17 @@ type Notifications interface {
 type notifications struct {
 	config          Config
 	queueRepository repository.NotificationsQueueRepository
+	queueCodec      QueueCodec
 	logger          log.Logger
 	msgQueue        chan Message
 	wg              sync.WaitGroup
 }
 
-func New(config Config, queueRepository repository.NotificationsQueueRepository, logger log.Logger) Notifications {
+func New(config Config, queueRepository repository.NotificationsQueueRepository, queueCodec QueueCodec, logger log.Logger) Notifications {
 	return &notifications{
 		config:          config,
 		queueRepository: queueRepository,
+		queueCodec:      queueCodec,
 		logger:          logger,
 		msgQueue:        make(chan Message, 100),
 	}
@@ -81,7 +83,15 @@ func (n *notifications) Run() {
 				}
 
 				for id, item := range items {
-					err = n.sendEmail(Message{Subject: item.Subject, Body: item.Body})
+					n.logger.Debug(fmt.Sprintf("%v", item))
+					msg, decodeErr := n.queueCodec.Decode(item)
+					if decodeErr != nil {
+						n.logger.Error(fmt.Sprintf("failed to decode queued email: %v", decodeErr))
+						_ = n.queueRepository.Delete(id)
+						continue
+					}
+
+					err = n.sendEmail(msg)
 					if err != nil {
 						n.logger.Error(fmt.Sprintf("failed to send queued email: %v", err))
 						break
@@ -168,7 +178,16 @@ func (n *notifications) addNotificationsQueue(message Message) {
 		return
 	}
 
-	err := n.queueRepository.Add(entity.NotificationsQueue{Body: message.Body, Subject: message.Subject})
+	item, err := n.queueCodec.Encode(message)
+	if err != nil {
+		n.logger.Error(fmt.Sprintf("failed to encrypt email for queue: %v", err))
+		return
+	}
+
+	err = n.queueRepository.Add(entity.NotificationsQueue{
+		Subject: item.Subject,
+		Body:    item.Body,
+	})
 	if err != nil {
 		n.logger.Error(fmt.Sprintf("failed to save email to the queue: %v", err))
 	}

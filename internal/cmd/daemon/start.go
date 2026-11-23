@@ -15,6 +15,7 @@ import (
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/notifications"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/i18n"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/log"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/secret"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/setting"
 	"github.com/urfave/cli/v3"
 )
@@ -77,7 +78,7 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 	}()
 	config.Repositories = repositories
 
-	notificationsService, err := newNotificationsService(repositories.NotificationsQueue(), logger)
+	notificationsService, err := newNotificationsService(repositories.NotificationsQueue(), secret, logger)
 	if err != nil {
 		logger.Fatal(err.Error())
 
@@ -133,13 +134,18 @@ func newDaemonInfo(repo repository.MetadataRepository, listPathFiles map[string]
 	)
 }
 
-func newNotificationsService(queueRepository repository.NotificationsQueueRepository, logger log.Logger) (notifications.Notifications, error) {
+func newNotificationsService(queueRepository repository.NotificationsQueueRepository, secretProvider secret.Provider, logger log.Logger) (notifications.Notifications, error) {
 	config, err := setting.Config.OtherSettingsPath.ToNotificationsConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	return notifications.New(config, queueRepository, logger), nil
+	queueCodec, err := notifications.NewEncryptedQueueCodec(secretProvider)
+	if err != nil {
+		return nil, err
+	}
+
+	return notifications.New(config, queueRepository, queueCodec, logger), nil
 }
 
 func newDockerService(ctx context.Context, logger log.Logger) (dockerService docker_monitor.Docker, dockerSupport bool, err error) {
