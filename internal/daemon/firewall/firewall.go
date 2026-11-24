@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	nftables "git.kor-elf.net/kor-elf-shield/go-nftables-client"
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/crypto/checksum"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor"
 	dockerFirewall "git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/docker_monitor/firewall"
@@ -61,6 +62,7 @@ type firewall struct {
 	blockingService blocking.API
 	docker          docker_monitor.Docker
 	blocklist       blocklist.Blocklist
+	checkerFile     checksum.CheckerFile
 	dataDir         string
 
 	mu sync.Mutex
@@ -73,6 +75,7 @@ func New(
 	config config.Config,
 	docker docker_monitor.Docker,
 	blocklist blocklist.Blocklist,
+	checkerFile checksum.CheckerFile,
 	dataDir string,
 ) (API, error) {
 	nftClient, err := nftables.NewWithPath(pathNFT)
@@ -87,6 +90,7 @@ func New(
 		blockingService: blockingService,
 		docker:          docker,
 		blocklist:       blocklist,
+		checkerFile:     checkerFile,
 		dataDir:         dataDir,
 
 		mu: sync.Mutex{},
@@ -103,20 +107,14 @@ func (f *firewall) Reload(daemonInfo info.Info) error {
 	var err error
 	if f.config.Options.Cache {
 		file := f.pathFileCacheNFT()
-		nftTable, err = nftReload.RunWithCache(
-			file,
-			f.isValidCacheFile(daemonInfo),
-			blocklistNames,
-		)
+		isValid := f.isValidCacheFile(daemonInfo)
+		nftTable, err = nftReload.RunWithCache(file, isValid, blocklistNames)
 		if err != nil {
 			return err
 		}
 
-		checksum, err := filesystem.FileChecksum(file)
-		if err != nil {
-			f.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", file, err))
-		} else if err := daemonInfo.Metadata().FirewallFileNft().Update(checksum); err != nil {
-			f.logger.Error(fmt.Sprintf("Failed to update metadata: %s", err))
+		if !isValid {
+			f.checksumCacheFile(daemonInfo)
 		}
 	} else {
 		nftTable, err = nftReload.Run(blocklistNames)
@@ -267,16 +265,24 @@ func (f *firewall) isValidCacheFile(daemonInfo info.Info) bool {
 		return false
 	}
 
-	checksum, err := filesystem.FileChecksum(fileNFT)
-	if err != nil {
-		f.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", fileNFT, err))
-		return false
-	}
-
-	if checksum != metadataChecksum {
-		f.logger.Warn(fmt.Sprintf("Checksum of %s is not equal to metadata checksum", fileNFT))
+	if err := f.checkerFile.ValidateFile(fileNFT, metadataChecksum); err != nil {
+		f.logger.Error(fmt.Sprintf("Failed to validate file %s: %s", fileNFT, err))
 		return false
 	}
 
 	return true
+}
+
+func (f *firewall) checksumCacheFile(daemonInfo info.Info) {
+	file := f.pathFileCacheNFT()
+	checksum, err := f.checkerFile.ChecksumFile(file)
+	if err != nil {
+		f.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", file, err))
+		return
+	}
+
+	if err := daemonInfo.Metadata().FirewallFileNft().Update(checksum); err != nil {
+		f.logger.Error(fmt.Sprintf("Failed to update metadata: %s", err))
+		return
+	}
 }

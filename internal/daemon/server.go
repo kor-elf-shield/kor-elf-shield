@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/crypto/checksum"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/analyzer/log/analysis/brute_force_protection_group"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
@@ -48,6 +49,11 @@ func NewDaemon(
 
 	dataDirForFirewall := strings.TrimRight(opts.DataDir, "/") + "/firewall"
 
+	checkerFile, err := checksum.New(secret)
+	if err != nil {
+		return nil, err
+	}
+
 	firewall, err := firewall2.New(
 		opts.PathNftables,
 		blockingService,
@@ -55,6 +61,7 @@ func NewDaemon(
 		opts.ConfigFirewall,
 		docker,
 		blocklist,
+		checkerFile,
 		dataDirForFirewall,
 	)
 	if err != nil {
