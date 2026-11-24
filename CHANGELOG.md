@@ -6,6 +6,7 @@
 * Улучшена безопасность очереди уведомлений: если уведомление не удалось отправить сразу, оно теперь сохраняется в очередь в зашифрованном виде.
   * Шифрование применяется к содержимому уведомления перед записью в БД.
   * Добавлена обратная совместимость: ранее сохранённые не зашифрованные записи очереди продолжают корректно обрабатываться.
+* Усилена проверка целостности файлов: расчёт checksum переведён на HMAC-SHA256 с использованием секретного ключа.
 * В файл `kor-elf-shield.toml` добавлен параметр `secret_file`. Он предназначен для хранения секретного ключа, используемого для шифрования и расшифровки данных, связанных с `kor-elf-shield`.
 * В файл `kor-elf-shield.toml` добавлен параметр `secret_cache`. Он определяет продолжительность (в секундах), в течение которой секретный ключ сохраняется в кэше.
 * Обновлена версия Go до `1.27` (минимальная версия в `go.mod` — `go 1.27.0`).
@@ -17,6 +18,7 @@
 * Improved notification queue security: if a notification cannot be sent immediately, it is now stored in the queue in an encrypted form.
   * Notification content is encrypted before being written to the database.
   * Backward compatibility is preserved: previously stored unencrypted queue records are still processed correctly.
+* Improved file integrity verification: checksum calculation is now based on HMAC-SHA256 using a secret key.
 * A `secret_file` parameter has been added to `kor-elf-shield.toml`. It is required for storing the secret key used to encrypt and decrypt data associated with `kor-elf-shield`.
 * A `secret_cache` parameter has been added to `kor-elf-shield.toml`. This specifies the duration (in seconds) for which the secret is held in the cache.
 * Updated Go to `1.27` (minimum version in `go.mod` is `go 1.27.0`).
