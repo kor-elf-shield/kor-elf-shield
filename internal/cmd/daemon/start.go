@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/crypto/checksum"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/blocklist"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db"
@@ -51,6 +52,11 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		secret.Close()
 	}()
 
+	checkerFile, err := checksum.New(secret)
+	if err != nil {
+		return err
+	}
+
 	dockerService, dockerSupport, err := newDockerService(ctx, logger)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to create docker service: %s", err))
@@ -87,7 +93,7 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	blocklistService := newBlocklistService(ctx, repositories.Blocklist(), logger)
+	blocklistService := newBlocklistService(ctx, repositories.Blocklist(), checkerFile, logger)
 
 	geoIPService := newGeoIPService(config.DataDir, logger)
 	defer func() {
@@ -96,7 +102,7 @@ func runDaemon(ctx context.Context, _ *cli.Command) error {
 
 	daemonInfo := newDaemonInfo(repositories.Metadata(), setting.Config.ListPathConfigFiles(), logger)
 
-	d, err := daemon.NewDaemon(daemonInfo, config, logger, notificationsService, dockerService, blocklistService, geoIPService, secret)
+	d, err := daemon.NewDaemon(daemonInfo, config, logger, notificationsService, dockerService, blocklistService, geoIPService, secret, checkerFile)
 	if err != nil {
 		logger.Fatal(err.Error())
 
@@ -167,7 +173,7 @@ func newDockerService(ctx context.Context, logger log.Logger) (dockerService doc
 	return dockerService, dockerSupport, nil
 }
 
-func newBlocklistService(ctx context.Context, blocklistRepository repository.BlocklistRepository, logger log.Logger) blocklist.Blocklist {
+func newBlocklistService(ctx context.Context, blocklistRepository repository.BlocklistRepository, checkerFile checksum.CheckerFile, logger log.Logger) blocklist.Blocklist {
 	config, isEnabled, err := setting.Config.OtherSettingsPath.ToBlocklistConfig(logger)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to create blocklist service: %s", err))
@@ -183,7 +189,7 @@ func newBlocklistService(ctx context.Context, blocklistRepository repository.Blo
 		PathDir:             strings.TrimRight(setting.Config.DataDir, "/") + "/blocklists",
 	}
 
-	blocklistService, err := blocklist.New(blocklistConfig, ctx, logger)
+	blocklistService, err := blocklist.New(blocklistConfig, ctx, checkerFile, logger)
 	if err != nil {
 		logger.Error(err.Error())
 		return blocklist.NewFalseBlocklist()

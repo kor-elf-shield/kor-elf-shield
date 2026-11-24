@@ -30,6 +30,7 @@ func NewDaemon(
 	blocklist blocklist.Blocklist,
 	geoIPService geoip.GeoIP,
 	secret secret.Provider,
+	checkerFile checksum.CheckerFile,
 ) (Daemon, error) {
 	if logger == nil {
 		return nil, errors.New("logger is nil")
@@ -48,11 +49,6 @@ func NewDaemon(
 	blockingService := blocking.New(opts.Repositories.Blocking(), logger)
 
 	dataDirForFirewall := strings.TrimRight(opts.DataDir, "/") + "/firewall"
-
-	checkerFile, err := checksum.New(secret)
-	if err != nil {
-		return nil, err
-	}
 
 	firewall, err := firewall2.New(
 		opts.PathNftables,

@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/crypto/checksum"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/entity"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/db/repository"
 	"git.kor-elf.net/kor-elf-shield/kor-elf-shield/internal/daemon/firewall/nft/block"
@@ -30,6 +31,7 @@ type blocklist struct {
 	pathDir             string
 	sources             []*SourceConfig
 	blocklistRepository repository.BlocklistRepository
+	checkerFile         checksum.CheckerFile
 	logger              log.Logger
 
 	ctx    context.Context
@@ -42,7 +44,7 @@ type blocklist struct {
 	launchChannel chan updateSource
 }
 
-func New(config Config, ctx context.Context, logger log.Logger) (Blocklist, error) {
+func New(config Config, ctx context.Context, checkerFile checksum.CheckerFile, logger log.Logger) (Blocklist, error) {
 	if config.PathDir == "" {
 		return nil, fmt.Errorf("pathDir is empty")
 	}
@@ -55,6 +57,7 @@ func New(config Config, ctx context.Context, logger log.Logger) (Blocklist, erro
 		pathDir:             config.PathDir,
 		sources:             config.Sources,
 		blocklistRepository: config.BlocklistRepository,
+		checkerFile:         checkerFile,
 		logger:              logger,
 		ctx:                 ctx,
 
@@ -210,7 +213,7 @@ func (b *blocklist) refreshSource(sourceConfig *SourceConfig) {
 		if err := nftBlocklist.ReplaceElements(ipsV4, ipsV6, file); err != nil {
 			b.logger.Error(fmt.Sprintf("Failed to replace elements: %s", err))
 		}
-		listEntity.Checksum, err = filesystem.FileChecksum(file)
+		listEntity.Checksum, err = b.checkerFile.ChecksumFile(file)
 		if err != nil {
 			b.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", file, err))
 			return
@@ -266,13 +269,8 @@ func (b *blocklist) isFresh(sourceConfig *SourceConfig, listEntity *entity.Block
 		return false
 	}
 
-	fileChecksum, err := filesystem.FileChecksum(file)
-	if err != nil {
-		b.logger.Error(fmt.Sprintf("Failed to calculate checksum for %s: %s", file, err))
-		return false
-	}
-	if listEntity.Checksum != fileChecksum {
-		b.logger.Error(fmt.Sprintf("Blocklist file %s checksum is not equal to database checksum", file))
+	if err := b.checkerFile.ValidateFile(file, listEntity.Checksum); err != nil {
+		b.logger.Error(fmt.Sprintf("Failed to validate file %s: %s", file, err))
 		return false
 	}
 
