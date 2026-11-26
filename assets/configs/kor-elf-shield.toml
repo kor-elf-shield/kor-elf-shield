@@ -112,7 +112,7 @@ secret_file = "/etc/kor-elf-shield/.secret"
 # The time in seconds for which the secret is cached. It is not recommended to change this.
 # Setting it to 0 will disable caching.
 ###
-#secret_cache = "60"
+#secret_cache = 60
 
 ###############################################################################
 # РАЗДЕЛ:Log
